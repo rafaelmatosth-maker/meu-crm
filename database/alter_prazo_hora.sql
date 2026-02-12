@@ -1,0 +1,2 @@
+ALTER TABLE atividades
+  ADD COLUMN IF NOT EXISTS prazo_hora TEXT;

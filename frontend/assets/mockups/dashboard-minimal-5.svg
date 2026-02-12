@@ -1,0 +1,56 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f8f7f4" />
+  <rect x="60" y="40" width="1080" height="720" rx="24" fill="#ffffff" stroke="#e6e2dc" />
+
+  <text x="96" y="95" font-family="Arial, sans-serif" font-size="26" fill="#191919">Painel</text>
+  <text x="96" y="124" font-family="Arial, sans-serif" font-size="14" fill="#8a857f">Linha superior com icones + foco em prazos</text>
+
+  <!-- icon row -->
+  <rect x="96" y="160" width="1000" height="74" rx="14" fill="#faf9f7" stroke="#e6e2dc" />
+  <circle cx="132" cy="197" r="12" fill="#e9e5df" />
+  <rect x="127" y="192" width="10" height="10" rx="2" fill="#bdb6af" />
+  <text x="156" y="202" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Clientes</text>
+  <text x="220" y="202" font-size="14" fill="#191919" font-family="Arial, sans-serif">852</text>
+
+  <circle cx="322" cy="197" r="12" fill="#e9e5df" />
+  <rect x="317" y="190" width="10" height="14" rx="2" fill="#bdb6af" />
+  <text x="346" y="202" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Processos</text>
+  <text x="424" y="202" font-size="14" fill="#191919" font-family="Arial, sans-serif">935</text>
+
+  <circle cx="520" cy="197" r="12" fill="#e9e5df" />
+  <rect x="516" y="191" width="8" height="12" rx="2" fill="#bdb6af" />
+  <text x="544" y="202" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Atividades</text>
+  <text x="610" y="202" font-size="14" fill="#191919" font-family="Arial, sans-serif">282</text>
+
+  <circle cx="706" cy="197" r="12" fill="#e9e5df" />
+  <path d="M700 197 L706 203 L713 193" stroke="#bdb6af" stroke-width="2" fill="none" />
+  <text x="734" y="202" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Hoje</text>
+  <text x="770" y="202" font-size="14" fill="#191919" font-family="Arial, sans-serif">14</text>
+
+  <!-- split area -->
+  <rect x="96" y="260" width="520" height="480" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <rect x="640" y="260" width="456" height="480" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+
+  <text x="116" y="295" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Prazos proximos</text>
+  <rect x="116" y="320" width="480" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="116" y="405" width="480" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="116" y="490" width="480" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <text x="136" y="350" font-size="14" fill="#191919" font-family="Arial, sans-serif">Revisar documentos de Jorge</text>
+  <text x="136" y="372" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Hoje • 14:00</text>
+  <text x="136" y="435" font-size="14" fill="#191919" font-family="Arial, sans-serif">Enviar minuta para cliente</text>
+  <text x="136" y="457" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Hoje • 16:30</text>
+  <text x="136" y="520" font-size="14" fill="#191919" font-family="Arial, sans-serif">Checar audiencia marcada</text>
+  <text x="136" y="542" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Amanha • 09:00</text>
+
+  <text x="660" y="295" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Agora</text>
+  <text x="660" y="325" font-size="20" fill="#191919" font-family="Arial, sans-serif">Sabado, 7 de fevereiro</text>
+  <text x="660" y="355" font-size="18" fill="#191919" font-family="Arial, sans-serif">09:42</text>
+
+  <text x="660" y="405" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Alertas</text>
+  <rect x="660" y="430" width="416" height="56" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="660" y="496" width="416" height="56" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="660" y="562" width="416" height="56" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <text x="680" y="462" font-size="12" fill="#191919" font-family="Arial, sans-serif">3 atividades atrasadas</text>
+  <text x="680" y="528" font-size="12" fill="#191919" font-family="Arial, sans-serif">5 processos sem atividade</text>
+  <text x="680" y="594" font-size="12" fill="#191919" font-family="Arial, sans-serif">2 clientes sem documento</text>
+</svg>

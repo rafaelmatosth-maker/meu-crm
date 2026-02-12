@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Atividades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body data-page="atividades" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-900 font-medium" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+
+      </aside>
+
+      <main class="flex-1 p-10">
+        <header class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-semibold">Atividades</h1>
+            <p class="text-stone-500 mt-1">Organize tarefas por status.</p>
+          </div>
+          <button
+            id="novaAtividadeBtn"
+            class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800"
+          >
+            Nova atividade
+          </button>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-6">
+          <div class="bg-white border border-stone-200 rounded-xl p-3 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wide text-stone-500">Resultados</div>
+            <div id="countAtividadesTotal" class="text-xl font-semibold mt-1">0</div>
+            <div class="text-[11px] text-stone-400 mt-1">Total no filtro</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-xl p-3 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wide text-stone-500">A fazer</div>
+            <div id="countAtividadesAFazer" class="text-xl font-semibold mt-1">0</div>
+            <div class="text-[11px] text-stone-400 mt-1">Nesta página</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-xl p-3 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wide text-stone-500">Fazendo</div>
+            <div id="countAtividadesFazendo" class="text-xl font-semibold mt-1">0</div>
+            <div class="text-[11px] text-stone-400 mt-1">Nesta página</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-xl p-3 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wide text-stone-500">Feito</div>
+            <div id="countAtividadesFeito" class="text-xl font-semibold mt-1">0</div>
+            <div class="text-[11px] text-stone-400 mt-1">Nesta página</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-xl p-3 shadow-sm">
+            <div class="text-[11px] uppercase tracking-wide text-stone-500">Cancelado</div>
+            <div id="countAtividadesCancelado" class="text-xl font-semibold mt-1">0</div>
+            <div class="text-[11px] text-stone-400 mt-1">Nesta página</div>
+          </div>
+        </section>
+
+        <div class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm mb-6">
+          <div class="flex items-center justify-between">
+            <div class="text-sm font-medium">Filtros</div>
+            <div class="text-xs text-stone-400">Refine sua lista rapidamente</div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-4">
+            <input
+              id="atividadeBusca"
+              class="border rounded-lg px-3 py-2 text-sm lg:col-span-4"
+              placeholder="Buscar por título"
+            />
+            <select id="atividadeFiltroTipo" class="border rounded-lg px-3 py-2 text-sm lg:col-span-3">
+              <option value="">Todos os tipos</option>
+              <option value="Audiência">Audiência</option>
+              <option value="Perícia">Perícia</option>
+              <option value="Petição inicial">Petição inicial</option>
+              <option value="Réplica">Réplica</option>
+              <option value="Embargos de declaração">Embargos de declaração</option>
+              <option value="Recurso inominado">Recurso inominado</option>
+              <option value="Cumprimento de sentença">Cumprimento de sentença</option>
+              <option value="Manifestar ciência">Manifestar ciência</option>
+              <option value="Aceitar acordo">Aceitar acordo</option>
+              <option value="Informar cliente">Informar cliente</option>
+              <option value="Responder cliente">Responder cliente</option>
+              <option value="Administrativo BPC">Administrativo BPC</option>
+              <option value="Prazo">Prazo</option>
+              <option value="Melhoria">Melhoria</option>
+            </select>
+            <select id="atividadeFiltroProcesso" class="border rounded-lg px-3 py-2 text-sm lg:col-span-3"></select>
+            <select id="atividadeFiltroPrioridade" class="border rounded-lg px-3 py-2 text-sm lg:col-span-2">
+              <option value="">Todas as prioridades</option>
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+            </select>
+            <div class="flex items-center gap-2 text-sm text-stone-500 lg:col-span-3">
+              <span>Por página</span>
+              <select id="atividadeLimit" class="border rounded-lg px-2 py-2 text-sm">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+                <option value="100" selected>100</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-1 text-xs text-stone-500 lg:col-span-2">
+              <span>Criação</span>
+              <button
+                id="atividadeOrdenar"
+                type="button"
+                class="text-xs text-stone-500 hover:text-stone-900"
+                title="Mais recentes"
+                aria-label="Mais recentes"
+              >
+                ▲
+              </button>
+            </div>
+            <div class="text-sm text-stone-500 lg:col-span-2" id="atividadePaginacaoInfo">0 resultados</div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2" id="atividadeStatusFiltro">
+            <button
+              type="button"
+              data-atividade-status="a_fazer"
+              class="px-3 py-1.5 text-xs rounded-full border border-stone-300 text-stone-700"
+            >
+              A fazer
+            </button>
+            <button
+              type="button"
+              data-atividade-status="fazendo"
+              class="px-3 py-1.5 text-xs rounded-full border border-stone-300 text-stone-700"
+            >
+              Fazendo
+            </button>
+            <button
+              type="button"
+              data-atividade-status="feito"
+              class="px-3 py-1.5 text-xs rounded-full border border-stone-300 text-stone-700"
+            >
+              Feito
+            </button>
+            <button
+              type="button"
+              data-atividade-status="cancelado"
+              class="px-3 py-1.5 text-xs rounded-full border border-stone-300 text-stone-700"
+            >
+              Cancelado
+            </button>
+            <button
+              type="button"
+              data-atividade-status="all"
+              class="px-3 py-1.5 text-xs rounded-full border border-stone-300 text-stone-700"
+            >
+              Todos
+            </button>
+          </div>
+        </div>
+
+        <section class="bg-white border border-stone-200/70 rounded-2xl p-4 mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-semibold">Caixa de entrada</div>
+              <div class="text-xs text-stone-400">Atividades sem data</div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-xs text-stone-400">
+                <span id="atividadeSemDataCount">0</span> sem data
+              </div>
+              <input
+                id="atividadeSemDataBusca"
+                type="text"
+                placeholder="Buscar atividade sem data"
+                class="w-56 max-w-full px-3 py-2 text-xs rounded-full border border-stone-200/80 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+              />
+            </div>
+          </div>
+          <div id="atividadeSemDataLista" class="mt-3 max-h-72 overflow-y-auto pr-1"></div>
+        </section>
+
+        <section id="atividadeCalendar" class="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm mb-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-sm font-medium">Calendário de atividades</div>
+              <div class="text-xs text-stone-400">Sem data não aparecem no calendário</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs text-stone-600">
+              <div class="flex items-center gap-1 bg-stone-100 rounded-full p-1">
+                <button
+                  type="button"
+                  data-calendar-view="month"
+                  class="px-3 py-1 rounded-full text-xs font-medium transition"
+                >
+                  Mês
+                </button>
+                <button
+                  type="button"
+                  data-calendar-view="week"
+                  class="px-3 py-1 rounded-full text-xs font-medium transition"
+                >
+                  Semana
+                </button>
+              </div>
+              <label class="flex items-center gap-2 px-3 py-1 rounded-full border border-stone-200 bg-white">
+                <input id="atividadeCalendarWeekdays" type="checkbox" class="accent-stone-900" />
+                Dias úteis
+              </label>
+              <label class="flex items-center gap-2 px-3 py-1 rounded-full border border-stone-200 bg-white">
+                <input id="atividadeCalendarHideDone" type="checkbox" class="accent-stone-900" />
+                Ocultar concluídos
+              </label>
+              <div class="flex items-center gap-2 text-sm text-stone-600">
+                <button id="atividadeCalendarPrev" class="px-2 py-1 rounded-md border border-stone-200 hover:bg-stone-50">◀</button>
+                <button id="atividadeCalendarToday" class="px-3 py-1 rounded-md border border-stone-200 hover:bg-stone-50">Hoje</button>
+                <button id="atividadeCalendarNext" class="px-2 py-1 rounded-md border border-stone-200 hover:bg-stone-50">▶</button>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 text-sm font-semibold text-stone-700" id="atividadeCalendarTitle"></div>
+          <div id="atividadeCalendarGridWrap" class="mt-3 grid gap-px bg-stone-200 rounded-xl overflow-hidden text-xs text-stone-500">
+            <div id="atividadeCalendarHeader" class="contents"></div>
+            <div id="atividadeCalendarGrid" class="contents"></div>
+          </div>
+        </section>
+
+        <div class="flex items-center justify-end gap-3 mt-6">
+          <button id="atividadePrev" class="px-3 py-2 text-sm border rounded-lg">Anterior</button>
+          <span id="atividadePaginaAtual" class="text-sm text-stone-500">Página 1 de 1</span>
+          <button id="atividadeNext" class="px-3 py-2 text-sm border rounded-lg">Próximo</button>
+        </div>
+      </main>
+    </div>
+
+        <div id="atividadeDetalheModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="atividadeDetalheTitulo" class="text-lg font-semibold">Detalhes da atividade</h2>
+          <button id="fecharAtividadeDetalhe" class="text-stone-500">Fechar</button>
+        </div>
+        <div class="space-y-3 text-sm text-stone-700">
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Tipo</div>
+            <div id="atividadeDetalheTipo" class="mt-1 font-medium text-stone-800">-</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Título</div>
+            <div id="atividadeDetalheTituloTexto" class="mt-1 font-medium text-stone-800">-</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Cliente</div>
+            <div id="atividadeDetalheCliente" class="mt-1">-</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Processo</div>
+            <a id="atividadeDetalheProcesso" class="mt-1 text-stone-700">-</a>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <div class="text-xs uppercase tracking-wide text-stone-400">Status</div>
+              <div id="atividadeDetalheStatus" class="mt-1">-</div>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wide text-stone-400">Prioridade</div>
+              <div id="atividadeDetalhePrioridade" class="mt-1">-</div>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wide text-stone-400">Data</div>
+              <div id="atividadeDetalhePrazo" class="mt-1">-</div>
+            </div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Descrição</div>
+            <div id="atividadeDetalheDescricao" class="mt-1 text-stone-600">-</div>
+          </div>
+        </div>
+        <div class="mt-5 flex items-center justify-end gap-2">
+          <button
+            id="atividadeDetalheEditar"
+            class="px-4 py-2 text-sm rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50"
+          >
+            Editar
+          </button>
+          <button
+            id="atividadeDetalheExcluir"
+            class="px-4 py-2 text-sm rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+        <div id="atividadeModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-5xl">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Atividade</h2>
+          <button id="fecharAtividadeModal" class="text-stone-500">Fechar</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+          <form id="atividadeForm" class="space-y-3">
+            <div>
+              <label class="text-sm text-stone-600">Processo</label>
+              <div class="relative mt-1">
+                <input
+                  id="atividadeProcessoCampo"
+                  autocomplete="off"
+                  class="w-full border rounded-lg px-3 py-2"
+                  placeholder="-"
+                />
+                <div
+                  id="atividadeProcessoSugestoes"
+                  class="hidden absolute z-20 mt-2 w-full max-h-56 overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg"
+                ></div>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Cliente</label>
+              <div class="relative mt-1">
+                <input
+                  id="atividadeClienteCampo"
+                  autocomplete="off"
+                  class="w-full border rounded-lg px-3 py-2"
+                  placeholder="Buscar cliente"
+                />
+                <div
+                  id="atividadeClienteSugestoes"
+                  class="hidden absolute z-20 mt-2 w-full max-h-56 overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg"
+                ></div>
+              </div>
+              <p id="atividadeClienteHint" class="mt-1 text-xs text-stone-500">
+                Se selecionar um processo, o cliente será preenchido automaticamente.
+              </p>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Tipo</label>
+              <select id="atividadeTipo" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">Selecione um tipo</option>
+                <option value="Audiência">Audiência</option>
+                <option value="Perícia">Perícia</option>
+                <option value="Petição inicial">Petição inicial</option>
+                <option value="Réplica">Réplica</option>
+                <option value="Embargos de declaração">Embargos de declaração</option>
+                <option value="Recurso inominado">Recurso inominado</option>
+                <option value="Cumprimento de sentença">Cumprimento de sentença</option>
+                <option value="Manifestar ciência">Manifestar ciência</option>
+                <option value="Aceitar acordo">Aceitar acordo</option>
+                <option value="Informar cliente">Informar cliente</option>
+                <option value="Responder cliente">Responder cliente</option>
+                <option value="Administrativo BPC">Administrativo BPC</option>
+                <option value="Prazo">Prazo</option>
+                <option value="Melhoria">Melhoria</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Título</label>
+              <input id="atividadeTitulo" class="mt-1 w-full border rounded-lg px-3 py-2" required />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Descrição</label>
+              <textarea id="atividadeDescricao" class="mt-1 w-full border rounded-lg px-3 py-2" rows="3"></textarea>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="text-sm text-stone-600">Status</label>
+                <select id="atividadeStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="a_fazer">A fazer</option>
+                  <option value="fazendo">Fazendo</option>
+                  <option value="feito">Feito</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Prioridade</label>
+                <select id="atividadePrioridade" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="baixa">Baixa</option>
+                  <option value="media">Média</option>
+                  <option value="alta">Alta</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Data</label>
+                <input id="atividadePrazo" type="date" class="mt-1 w-full border rounded-lg px-3 py-2" />
+                <label class="mt-2 inline-flex items-center gap-2 text-xs text-stone-500">
+                  <input
+                    id="atividadePrazoHoraToggle"
+                    type="checkbox"
+                    class="rounded border-stone-300 text-stone-900"
+                  />
+                  Incluir hora
+                </label>
+              </div>
+              <div id="atividadePrazoHoraWrap" class="col-span-3 hidden">
+                <label class="text-sm text-stone-600">Hora</label>
+                <input id="atividadePrazoHora" type="time" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+            </div>
+            <p id="atividadeMessage" class="text-sm"></p>
+            <button class="w-full bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800">
+              Salvar
+            </button>
+          </form>
+
+          <aside class="border border-stone-200 rounded-xl p-4 bg-stone-50/60">
+            <div class="text-sm font-semibold">Calculadora de prazo</div>
+            <div class="text-xs text-stone-400">Publicação no DJE e prazo em dias</div>
+            <div class="mt-3 space-y-3">
+              <div>
+                <label class="text-xs text-stone-500">Data da publicação</label>
+                <input id="atividadeCalcPublicacao" type="date" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label class="text-xs text-stone-500">Prazo (dias)</label>
+                <input id="atividadeCalcDias" type="number" min="1" class="mt-1 w-full border rounded-lg px-3 py-2 text-sm" placeholder="Ex.: 15" />
+              </div>
+              <label class="inline-flex items-center gap-2 text-xs text-stone-600">
+                <input id="atividadeCalcDiasUteis" type="checkbox" class="accent-stone-900" checked />
+                Contar apenas dias úteis
+              </label>
+              <div class="text-xs text-stone-500" id="atividadeCalcInicio">Início: -</div>
+              <div class="text-sm font-medium text-stone-800" id="atividadeCalcResultado">Último dia: -</div>
+              <button
+                type="button"
+                id="atividadeCalcAplicar"
+                class="w-full border border-stone-300 text-stone-700 py-2 rounded-lg hover:bg-stone-100 text-sm"
+              >
+                Aplicar data no formulário
+              </button>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260212-6"></script>
+    <script src="../assets/app.v2.js?v=20260212-7"></script>
+  </body>
+</html>

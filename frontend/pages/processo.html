@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Processo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body data-page="processo" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-900 font-medium flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+
+      </aside>
+
+      <main class="flex-1 p-8">
+        <div class="mx-auto w-full max-w-6xl">
+          <header class="flex items-center justify-between mb-6">
+            <div>
+              <a class="text-sm text-stone-500" href="./processos.html">&larr; Voltar para processos</a>
+              <h1 id="processoTitulo" class="text-2xl font-semibold mt-2">Processo</h1>
+              <p class="text-stone-500 mt-1">Visão geral do processo.</p>
+            </div>
+            <button
+              id="processoEditBtn"
+              class="border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100"
+            >
+              Editar processo
+            </button>
+          </header>
+
+          <p id="processoErro" class="text-sm text-red-600 mb-4"></p>
+
+          <section
+            id="processoProps"
+            class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)] gap-8"
+          ></section>
+
+          <div class="mt-8 h-px bg-stone-200/80"></div>
+          <section id="processoFinanceiro" class="mt-8"></section>
+          <section id="processoAndamentos" class="mt-10"></section>
+          <section id="processoAndamentosLogs" class="mt-6"></section>
+        </div>
+      </main>
+    </div>
+
+    <div
+      id="processoEditModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center overflow-y-auto"
+    >
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl my-10 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Editar processo</h2>
+          <button id="processoEditClose" class="text-stone-500">Fechar</button>
+        </div>
+        <form id="processoEditForm" class="space-y-4" novalidate>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-stone-600">Cliente</label>
+              <input
+                id="processoEditClienteInput"
+                list="processoEditClienteOptions"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+                placeholder="Digite para buscar"
+              />
+              <datalist id="processoEditClienteOptions"></datalist>
+              <input id="processoEditClienteId" type="hidden" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Número do processo</label>
+              <input id="processoEditNumero" class="mt-1 w-full border rounded-lg px-3 py-2" required />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Status</label>
+              <select id="processoEditStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+                <option value="Suspenso">Suspenso</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Área</label>
+              <select id="processoEditArea" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="Consumidor">Consumidor</option>
+                <option value="Criminal">Criminal</option>
+                <option value="Cível">Cível</option>
+                <option value="Família">Família</option>
+                <option value="Previdenciário">Previdenciário</option>
+                <option value="Trabalhista">Trabalhista</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Fase</label>
+              <input id="processoEditFase" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Classe</label>
+              <input id="processoEditClasse" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Órgão</label>
+              <input id="processoEditOrgao" type="hidden" />
+              <div id="processoEditOrgaoGrid" class="mt-2 grid grid-cols-2 gap-2">
+                <button type="button" class="orgao-btn flex items-center gap-2 border rounded-lg px-3 py-2 text-sm" data-value="Cível">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-100">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M4 10h16M6 10v8h12v-8M9 10V6h6v4" />
+                    </svg>
+                  </span>
+                  <span>Cível</span>
+                </button>
+                <button type="button" class="orgao-btn flex items-center gap-2 border rounded-lg px-3 py-2 text-sm" data-value="Criminal">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-100">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M4 10h16M6 10v8h12v-8M9 10V6h6v4" />
+                    </svg>
+                  </span>
+                  <span>Criminal</span>
+                </button>
+                <button type="button" class="orgao-btn flex items-center gap-2 border rounded-lg px-3 py-2 text-sm" data-value="Juizado Especial Federal">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-100">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M4 10h16M6 10v8h12v-8M9 10V6h6v4" />
+                    </svg>
+                  </span>
+                  <span>JEF</span>
+                </button>
+                <button type="button" class="orgao-btn flex items-center gap-2 border rounded-lg px-3 py-2 text-sm" data-value="TRF">
+                  <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-stone-100">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 text-stone-500" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M4 10h16M6 10v8h12v-8M9 10V6h6v4" />
+                    </svg>
+                  </span>
+                  <span>TRF</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Vara</label>
+              <select id="processoEditVara" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="1ª">1ª</option>
+                <option value="2ª">2ª</option>
+                <option value="3ª">3ª</option>
+                <option value="4ª">4ª</option>
+                <option value="5ª">5ª</option>
+                <option value="6ª">6ª</option>
+                <option value="7ª">7ª</option>
+                <option value="8ª">8ª</option>
+                <option value="9ª">9ª</option>
+                <option value="10ª">10ª</option>
+                <option value="11ª">11ª</option>
+                <option value="12ª">12ª</option>
+                <option value="13ª">13ª</option>
+                <option value="14ª">14ª</option>
+                <option value="15ª">15ª</option>
+                <option value="16ª">16ª</option>
+                <option value="17ª">17ª</option>
+                <option value="18ª">18ª</option>
+                <option value="19ª">19ª</option>
+                <option value="20ª">20ª</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Grau</label>
+              <select id="processoEditGrau" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="1º grau">1º grau</option>
+                <option value="2º grau">2º grau</option>
+                <option value="Instâncias Superiores">Instâncias Superiores</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Cidade</label>
+              <input id="processoEditCidade" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Estado</label>
+              <select id="processoEditEstado" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="AC">AC</option>
+                <option value="AL">AL</option>
+                <option value="AP">AP</option>
+                <option value="AM">AM</option>
+                <option value="BA">BA</option>
+                <option value="CE">CE</option>
+                <option value="DF">DF</option>
+                <option value="ES">ES</option>
+                <option value="GO">GO</option>
+                <option value="MA">MA</option>
+                <option value="MT">MT</option>
+                <option value="MS">MS</option>
+                <option value="MG">MG</option>
+                <option value="PA">PA</option>
+                <option value="PB">PB</option>
+                <option value="PR">PR</option>
+                <option value="PE">PE</option>
+                <option value="PI">PI</option>
+                <option value="RJ">RJ</option>
+                <option value="RN">RN</option>
+                <option value="RS">RS</option>
+                <option value="RO">RO</option>
+                <option value="RR">RR</option>
+                <option value="SC">SC</option>
+                <option value="SP">SP</option>
+                <option value="SE">SE</option>
+                <option value="TO">TO</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Sistema</label>
+              <select id="processoEditSistema" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="PJe">PJe</option>
+                <option value="e-SAJ">e-SAJ</option>
+                <option value="Projudi">Projudi</option>
+                <option value="eproc">eproc</option>
+                <option value="SEEU">SEEU</option>
+                <option value="SAJ">SAJ</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Distribuição</label>
+              <input id="processoEditDistribuicao" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Resultado</label>
+              <input id="processoEditResultado" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Parte contrária</label>
+              <input id="processoEditParteContraria" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div id="processoEditContaBeneficioWrap" class="md:col-span-2 hidden">
+              <label class="text-sm text-stone-600">Conta do benefício (Previdenciário)</label>
+              <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label class="inline-flex items-center gap-2 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700">
+                  <input id="processoEditAbrirConta" type="checkbox" class="h-4 w-4 rounded border-stone-300" />
+                  Benefício com conta para abrir
+                </label>
+                <label class="inline-flex items-center gap-2 border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-700">
+                  <input id="processoEditContaAberta" type="checkbox" class="h-4 w-4 rounded border-stone-300" />
+                  Conta aberta
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p id="processoEditMessage" class="text-sm"></p>
+          <div class="flex flex-col md:flex-row md:items-center gap-3">
+            <button
+              type="button"
+              id="processoEditCancel"
+              class="w-full md:w-auto px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-100"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              id="processoEditSubmit"
+              class="px-4 py-2 text-sm bg-stone-900 text-white rounded-lg hover:bg-stone-800"
+            >
+              Salvar alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="financeiroModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center overflow-y-auto"
+    >
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl my-10 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Lançamento financeiro</h2>
+          <button id="financeiroClose" class="text-stone-500">Fechar</button>
+        </div>
+        <form id="financeiroForm" class="space-y-4">
+          <input id="financeiroId" type="hidden" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-stone-600">Tipo</label>
+              <select id="financeiroTipo" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="indenizacao_danos_morais">Indenização por danos morais</option>
+                <option value="rpv">RPV</option>
+                <option value="honorarios_contratuais">Honorários contratuais</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Descrição</label>
+              <input id="financeiroDescricao" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Proveito econômico</label>
+              <input id="financeiroValorBase" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Percentual</label>
+              <input id="financeiroPercentual" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Honorários calculados</label>
+              <input
+                id="financeiroHonorarios"
+                class="mt-1 w-full border rounded-lg px-3 py-2 bg-stone-50 text-stone-500"
+                readonly
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Repasse calculado</label>
+              <input
+                id="financeiroRepasse"
+                class="mt-1 w-full border rounded-lg px-3 py-2 bg-stone-50 text-stone-500"
+                readonly
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Previsão de pagamento (mês/ano)</label>
+              <input
+                id="financeiroPrevisao"
+                type="month"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div class="flex flex-col justify-end gap-2">
+              <label class="inline-flex items-center gap-2 text-sm text-stone-600">
+                <input id="financeiroPago" type="checkbox" class="h-4 w-4 rounded border-stone-300" />
+                Proveito econômico pago
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm text-stone-600">
+                <input
+                  id="financeiroRepassado"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-stone-300"
+                />
+                Repassado
+              </label>
+            </div>
+          </div>
+
+          <div id="financeiroDivisoesSection" class="border-t border-stone-200 pt-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-semibold text-stone-700">Divisões de honorários</div>
+                <div class="text-xs text-stone-500">Use para honorários contratuais divididos.</div>
+              </div>
+              <button
+                id="financeiroAddDivisao"
+                type="button"
+                class="text-xs text-stone-600 hover:text-stone-900"
+              >
+                Adicionar divisão
+              </button>
+            </div>
+            <div id="financeiroDivisoesList" class="mt-3 space-y-3"></div>
+          </div>
+
+          <p id="financeiroMessage" class="text-sm"></p>
+          <div class="flex items-center justify-end gap-3">
+            <button
+              id="financeiroCancel"
+              type="button"
+              class="border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100"
+            >
+              Cancelar
+            </button>
+            <button class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div
+      id="atividadeQuickModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center backdrop-blur-sm"
+    >
+      <div class="bg-white rounded-2xl p-6 w-full max-w-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Nova atividade</h2>
+          <button id="atividadeQuickClose" class="text-stone-500">Fechar</button>
+        </div>
+        <form id="atividadeQuickForm" class="space-y-3">
+          <input id="atividadeQuickProcessoId" type="hidden" />
+          <div>
+            <label class="text-sm text-stone-600">Número do processo</label>
+            <input id="atividadeQuickNumero" class="mt-1 w-full border rounded-lg px-3 py-2" readonly />
+          </div>
+          <div>
+            <label class="text-sm text-stone-600">Cliente</label>
+            <input id="atividadeQuickCliente" class="mt-1 w-full border rounded-lg px-3 py-2" readonly />
+          </div>
+          <div>
+            <label class="text-sm text-stone-600">Nome da atividade</label>
+            <input
+              id="atividadeQuickTitulo"
+              class="mt-1 w-full border rounded-lg px-3 py-2"
+              placeholder="Ex.: Informar cliente sobre audiência"
+            />
+          </div>
+          <div>
+            <label class="text-sm text-stone-600">Descrição</label>
+            <textarea
+              id="atividadeQuickDescricao"
+              class="mt-1 w-full border rounded-lg px-3 py-2"
+              rows="3"
+              placeholder="Detalhes da atividade"
+            ></textarea>
+          </div>
+          <div>
+            <label class="text-sm text-stone-600">Data (prazo)</label>
+            <input id="atividadeQuickPrazo" type="date" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+          <div id="atividadeQuickHoraWrap" class="hidden">
+            <label class="text-sm text-stone-600">Hora</label>
+            <input id="atividadeQuickHora" type="time" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+          <p id="atividadeQuickMessage" class="text-sm"></p>
+          <div class="flex flex-col md:flex-row md:items-center gap-3">
+            <button
+              type="button"
+              id="atividadeQuickCancel"
+              class="w-full md:w-auto px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-100"
+            >
+              Cancelar
+            </button>
+            <button class="w-full md:flex-1 bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800">
+              Salvar atividade
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260212-6"></script>
+    <script src="../assets/app.v2.js?v=20260212-7"></script>
+  </body>
+</html>

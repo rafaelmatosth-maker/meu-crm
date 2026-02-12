@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Financeiro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body data-page="financeiro" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-900 font-medium" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+      </aside>
+
+      <main class="flex-1 p-10">
+        <header class="mb-8">
+          <h1 class="text-2xl font-semibold">Financeiro</h1>
+          <p class="text-stone-500 mt-1">
+            Consolide valores de honorários, comissões e repasses por processo.
+          </p>
+        </header>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
+          <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Honorários</div>
+            <div id="financeiroTotalHonorarios" class="text-xl font-semibold mt-3">R$ 0,00</div>
+            <div id="financeiroCountHonorarios" class="text-xs text-stone-400 mt-1">0 processos</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Honorários líquidos</div>
+            <div id="financeiroTotalHonorariosLiquidos" class="text-xl font-semibold mt-3">R$ 0,00</div>
+            <div id="financeiroCountLiquidos" class="text-xs text-stone-400 mt-1">0 processos</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Comissão</div>
+            <div id="financeiroTotalComissao" class="text-xl font-semibold mt-3">R$ 0,00</div>
+            <div id="financeiroCountComissao" class="text-xs text-stone-400 mt-1">0 processos</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Repasse</div>
+            <div id="financeiroTotalRepasse" class="text-xl font-semibold mt-3">R$ 0,00</div>
+            <div id="financeiroCountRepasse" class="text-xs text-stone-400 mt-1">0 processos</div>
+          </div>
+          <div class="bg-white border border-stone-200 rounded-2xl p-5 shadow-sm">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Proveito econômico</div>
+            <div id="financeiroTotalProveito" class="text-xl font-semibold mt-3">R$ 0,00</div>
+            <div id="financeiroCountProveito" class="text-xs text-stone-400 mt-1">0 processos</div>
+          </div>
+        </section>
+
+        <section class="mt-6 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <input
+                id="financeiroBusca"
+                class="border rounded-lg px-3 py-2 text-sm"
+                placeholder="Buscar por processo, cliente ou status"
+              />
+              <div class="flex items-center gap-2 text-sm text-stone-500">
+                <span>Ordenar</span>
+                <button
+                  id="financeiroOrdenar"
+                  type="button"
+                  class="text-xs text-stone-500 hover:text-stone-900"
+                  title="Mais recente"
+                  aria-label="Mais recente"
+                >
+                  ▼
+                </button>
+              </div>
+              <select id="financeiroFiltroCliente" class="border rounded-lg px-3 py-2 text-sm"></select>
+              <input
+                id="financeiroFiltroStatus"
+                class="border rounded-lg px-3 py-2 text-sm"
+                placeholder="Status do pagamento"
+              />
+              <div class="flex items-center gap-2 text-sm text-stone-500">
+                <span>Por página</span>
+                <select id="financeiroLimit" class="border rounded-lg px-2 py-2 text-sm">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+            <div class="text-sm text-stone-500" id="financeiroPaginacaoInfo">0 resultados</div>
+          </div>
+          <div class="flex items-center justify-end mb-4">
+            <button
+              id="financeiroNovoHonorario"
+              class="bg-stone-900 text-white px-4 py-2 rounded-lg text-sm hover:bg-stone-800"
+            >
+              Novo honorário
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="text-stone-500 text-left">
+                <tr class="border-b border-stone-200">
+                  <th class="py-3">Processo</th>
+                  <th class="py-3">Cliente</th>
+                  <th class="py-3">Honorários</th>
+                  <th class="py-3">Proveito econômico</th>
+                </tr>
+              </thead>
+              <tbody id="financeiroTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <div class="flex items-center justify-end gap-3 mt-4">
+          <button id="financeiroPrev" class="px-3 py-2 text-sm border rounded-lg">Anterior</button>
+          <span id="financeiroPaginaAtual" class="text-sm text-stone-500">Página 1 de 1</span>
+          <button id="financeiroNext" class="px-3 py-2 text-sm border rounded-lg">Próximo</button>
+        </div>
+      </main>
+    </div>
+
+    <div
+      id="financeiroAvulsoModal"
+      class="fixed inset-0 bg-black/40 hidden items-center justify-center overflow-y-auto"
+    >
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl my-10 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Novo honorário</h2>
+          <button id="financeiroAvulsoClose" class="text-stone-500">Fechar</button>
+        </div>
+        <form id="financeiroAvulsoForm" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="text-sm text-stone-600">Cliente</label>
+              <select id="financeiroAvulsoCliente" class="mt-1 w-full border rounded-lg px-3 py-2"></select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Processo (opcional)</label>
+              <select id="financeiroAvulsoProcesso" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">-</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Tipo</label>
+              <select id="financeiroAvulsoTipo" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="honorarios_contratuais">Honorários contratuais</option>
+                <option value="indenizacao_danos_morais">Indenização por danos morais</option>
+                <option value="rpv">RPV</option>
+                <option value="outros">Outros</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Descrição</label>
+              <input id="financeiroAvulsoDescricao" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Proveito econômico</label>
+              <input id="financeiroAvulsoValorBase" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Percentual</label>
+              <input id="financeiroAvulsoPercentual" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Honorários calculados</label>
+              <input
+                id="financeiroAvulsoHonorarios"
+                class="mt-1 w-full border rounded-lg px-3 py-2 bg-stone-50 text-stone-500"
+                readonly
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Repasse calculado</label>
+              <input
+                id="financeiroAvulsoRepasse"
+                class="mt-1 w-full border rounded-lg px-3 py-2 bg-stone-50 text-stone-500"
+                readonly
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Previsão de pagamento (mês/ano)</label>
+              <input
+                id="financeiroAvulsoPrevisao"
+                type="month"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div class="flex flex-col justify-end gap-2">
+              <label class="inline-flex items-center gap-2 text-sm text-stone-600">
+                <input
+                  id="financeiroAvulsoPago"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-stone-300"
+                />
+                Proveito econômico pago
+              </label>
+              <label class="inline-flex items-center gap-2 text-sm text-stone-600">
+                <input
+                  id="financeiroAvulsoRepassado"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-stone-300"
+                />
+                Repassado
+              </label>
+            </div>
+          </div>
+          <p id="financeiroAvulsoMessage" class="text-sm"></p>
+          <div class="flex items-center justify-end gap-3">
+            <button
+              id="financeiroAvulsoCancel"
+              type="button"
+              class="border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100"
+            >
+              Cancelar
+            </button>
+            <button class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">
+              Salvar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260212-6"></script>
+    <script src="../assets/app.v2.js?v=20260212-7"></script>
+  </body>
+</html>

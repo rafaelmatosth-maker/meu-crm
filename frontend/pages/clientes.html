@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Clientes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body data-page="clientes" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-900 font-medium" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+
+      </aside>
+
+      <main class="flex-1 p-10">
+        <header class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-2xl font-semibold">Clientes</h1>
+            <p class="text-stone-500 mt-1">Gerencie seus clientes e contatos.</p>
+          </div>
+          <button
+            id="novoClienteBtn"
+            class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800"
+          >
+            Novo cliente
+          </button>
+        </header>
+
+        <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm mb-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <input
+                id="clienteBusca"
+                class="border rounded-lg px-3 py-2 text-sm"
+                placeholder="Buscar por nome, e-mail ou CPF"
+              />
+              <select id="clienteFiltroStatus" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="">Todos os status</option>
+                <option value="lead">Lead</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+              <div class="flex items-center gap-2 text-sm text-stone-500">
+                <span>Por página</span>
+                <select id="clienteLimit" class="border rounded-lg px-2 py-2 text-sm">
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+            <div class="text-sm text-stone-500" id="clientePaginacaoInfo">0 resultados</div>
+          </div>
+          <table class="w-full text-sm">
+            <thead class="text-stone-500 text-left">
+              <tr class="border-b border-stone-200">
+                <th class="py-3">
+                  Nome
+                  <button
+                    id="clienteOrdenar"
+                    type="button"
+                    class="ml-1 text-xs text-stone-500 hover:text-stone-900"
+                    title="Ordenar A-Z"
+                    aria-label="Ordenar A-Z"
+                  >
+                    ▲
+                  </button>
+                </th>
+                <th class="py-3">Pasta</th>
+                <th class="py-3 text-right">Opções</th>
+              </tr>
+            </thead>
+            <tbody id="clientesTableBody"></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-end gap-3">
+          <button id="clientePrev" class="px-3 py-2 text-sm border rounded-lg">Anterior</button>
+          <span id="clientePaginaAtual" class="text-sm text-stone-500">Página 1 de 1</span>
+          <button id="clienteNext" class="px-3 py-2 text-sm border rounded-lg">Próximo</button>
+        </div>
+      </main>
+    </div>
+
+    <div id="clienteModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Cliente</h2>
+          <button id="fecharClienteModal" class="text-stone-500">Fechar</button>
+        </div>
+        <form id="clienteForm" class="space-y-4">
+          <div>
+            <label class="text-sm text-stone-600">Nome</label>
+            <input id="clienteNome" class="mt-1 w-full border rounded-lg px-3 py-2" required />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-stone-600">Nacionalidade</label>
+              <input
+                id="clienteNacionalidade"
+                list="clienteNacionalidades"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+              <datalist id="clienteNacionalidades">
+                <option value="brasileiro"></option>
+                <option value="português"></option>
+                <option value="argentino"></option>
+                <option value="chileno"></option>
+                <option value="boliviano"></option>
+                <option value="uruguaio"></option>
+                <option value="paraguaio"></option>
+              </datalist>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Estado civil</label>
+              <select id="clienteEstadoCivil" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">Selecione</option>
+                <option value="solteiro">Solteiro(a)</option>
+                <option value="casado">Casado(a)</option>
+                <option value="união estável">União estável</option>
+                <option value="divorciado">Divorciado(a)</option>
+                <option value="viúvo">Viúvo(a)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">Profissão</label>
+            <input
+              id="clienteProfissao"
+              list="clienteProfissoes"
+              class="mt-1 w-full border rounded-lg px-3 py-2"
+            />
+            <datalist id="clienteProfissoes">
+              <option value="advogado"></option>
+              <option value="empresário"></option>
+              <option value="autônomo"></option>
+              <option value="agricultor"></option>
+              <option value="servidor público"></option>
+              <option value="professor"></option>
+              <option value="estudante"></option>
+              <option value="aposentado"></option>
+            </datalist>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+            <div>
+              <label class="text-sm text-stone-600">Data de nascimento</label>
+              <input
+                id="clienteDataNascimento"
+                type="date"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+              <input id="clienteIdade" type="hidden" />
+              <span id="clienteIdadeInfo" class="mt-1 block text-xs text-stone-400">Idade: -</span>
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Filiação</label>
+              <input id="clienteFiliacao" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-stone-600">CPF</label>
+              <input id="clienteCpf" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">RG</label>
+              <input id="clienteRg" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">E-mail</label>
+            <input id="clienteEmail" type="email" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">Telefone</label>
+            <input id="clienteTelefone" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-stone-600">CEP</label>
+              <input id="clienteCep" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Endereço</label>
+              <div class="mt-1 flex gap-2">
+                <input
+                  id="clienteEndereco"
+                  class="w-full border rounded-lg px-3 py-2"
+                  placeholder="Rua"
+                />
+                <input
+                  id="clienteNumeroCasa"
+                  class="w-24 border rounded-lg px-3 py-2"
+                  placeholder="Nº"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-stone-600">Cidade</label>
+              <input id="clienteCidade" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Estado</label>
+              <select id="clienteEstado" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">Selecione</option>
+                <option value="AC">AC</option>
+                <option value="AL">AL</option>
+                <option value="AP">AP</option>
+                <option value="AM">AM</option>
+                <option value="BA">BA</option>
+                <option value="CE">CE</option>
+                <option value="DF">DF</option>
+                <option value="ES">ES</option>
+                <option value="GO">GO</option>
+                <option value="MA">MA</option>
+                <option value="MT">MT</option>
+                <option value="MS">MS</option>
+                <option value="MG">MG</option>
+                <option value="PA">PA</option>
+                <option value="PB">PB</option>
+                <option value="PR">PR</option>
+                <option value="PE">PE</option>
+                <option value="PI">PI</option>
+                <option value="RJ">RJ</option>
+                <option value="RN">RN</option>
+                <option value="RS">RS</option>
+                <option value="RO">RO</option>
+                <option value="RR">RR</option>
+                <option value="SC">SC</option>
+                <option value="SP">SP</option>
+                <option value="SE">SE</option>
+                <option value="TO">TO</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <div class="text-xs uppercase tracking-wide text-stone-400">Dados bancários</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-sm text-stone-600">Agência</label>
+                <input id="clienteAgencia" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Conta</label>
+                <input id="clienteConta" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-sm text-stone-600">Banco</label>
+                <input id="clienteBanco" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Tipo de conta</label>
+                <select id="clienteTipoConta" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="">Selecione</option>
+                  <option value="corrente">Corrente</option>
+                  <option value="poupanca">Poupança</option>
+                  <option value="salario">Salário</option>
+                  <option value="pagamento">Pagamento</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">Link da pasta</label>
+            <input id="clienteLinkPasta" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-sm text-stone-600">Responsável</label>
+              <input id="clienteResponsavel" list="clienteResponsaveisList" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Parceiro</label>
+              <input id="clienteParceiro" list="clienteParceirosList" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            </div>
+            <datalist id="clienteResponsaveisList"></datalist>
+            <datalist id="clienteParceirosList"></datalist>
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">Acesso GOV</label>
+            <input id="clienteAcessoGov" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </div>
+
+          <div>
+            <label class="text-sm text-stone-600">Qualificação</label>
+            <textarea
+              id="clienteQualificacao"
+              rows="4"
+              class="mt-1 w-full border rounded-lg px-3 py-2"
+            ></textarea>
+          </div>
+          <div>
+            <label class="text-sm text-stone-600">Processos (texto)</label>
+            <textarea
+              id="clienteProcessosNotion"
+              rows="2"
+              class="mt-1 w-full border rounded-lg px-3 py-2"
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-end">
+            <div>
+              <label class="text-xs uppercase tracking-wide text-stone-400">Data de chegada</label>
+              <input
+                id="clienteDataChegada"
+                type="date"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+              />
+            </div>
+            <div>
+              <label class="text-sm text-stone-600">Status</label>
+              <select id="clienteStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="lead">Lead</option>
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+            </div>
+          </div>
+          <p id="clienteMessage" class="text-sm"></p>
+          <button class="w-full bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800">
+            Salvar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260212-6"></script>
+    <script src="../assets/app.v2.js?v=20260212-7"></script>
+  </body>
+</html>

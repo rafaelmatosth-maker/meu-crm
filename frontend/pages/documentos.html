@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Documentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+      #docPreview h1,
+      #docPreview h2,
+      #docPreview h3 {
+        font-weight: 600;
+      }
+      #docPreview p {
+        margin: 0.5rem 0;
+      }
+      #docPreview table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      #docPreview table td,
+      #docPreview table th {
+        border: 1px solid #e7e5e4;
+        padding: 0.4rem 0.6rem;
+      }
+    </style>
+  </head>
+  <body data-page="documentos" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-900 font-medium" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+      </aside>
+
+      <main class="flex-1 p-10">
+        <header class="mb-8">
+          <h1 class="text-2xl font-semibold">Documentos</h1>
+          <p class="text-stone-500 mt-1">Carregue modelos e gere documentos personalizados.</p>
+        </header>
+
+        <section class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+          <h2 class="text-lg font-semibold">Modelos do escritório</h2>
+          <p class="text-sm text-stone-500 mt-1">Envie arquivos .docx com campos como {{nome}}.</p>
+
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-sm text-stone-600">Nome do modelo</label>
+              <input
+                id="modeloNome"
+                class="mt-1 w-full border rounded-lg px-3 py-2"
+                placeholder="Ex: Procuração"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <label class="text-sm text-stone-600">Arquivo (.docx)</label>
+              <input id="modeloArquivo" type="file" class="mt-1 block w-full text-sm" />
+            </div>
+          </div>
+          <div class="mt-4 flex items-center gap-3">
+            <button
+              id="modeloUploadBtn"
+              class="bg-stone-900 text-white px-4 py-2 rounded-lg text-sm"
+            >
+              Enviar modelo
+            </button>
+            <span id="modeloUploadMsg" class="text-sm text-stone-500"></span>
+          </div>
+        </section>
+
+        <section class="mt-8 grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6">
+          <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">Modelos disponíveis</h3>
+            <div id="modelosLista" class="mt-4 space-y-3 text-sm text-stone-700"></div>
+          </div>
+
+          <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-lg font-semibold">Mala direta</h3>
+            <p class="text-sm text-stone-500 mt-1">
+              Selecione um cliente e um modelo para gerar o documento.
+            </p>
+
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="text-sm text-stone-600">Cliente</label>
+                <div class="relative">
+                  <input
+                    id="docClienteInput"
+                    class="mt-1 w-full border rounded-lg px-3 py-2 text-sm"
+                    placeholder="Digite o nome do cliente"
+                    autocomplete="off"
+                  />
+                  <div
+                    id="docClientesDropdown"
+                    class="absolute left-0 right-0 mt-2 bg-white border border-stone-200 rounded-xl shadow-sm max-h-56 overflow-auto hidden z-20"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Modelo</label>
+                <select
+                  id="docModelo"
+                  class="mt-1 w-full border rounded-lg px-3 py-2 text-stone-900 bg-white"
+                ></select>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center gap-3">
+              <button
+                id="docPreviewBtn"
+                class="bg-stone-900 text-white px-4 py-2 rounded-lg text-sm whitespace-nowrap min-w-[140px]"
+              >
+                Pré-visualizar
+              </button>
+              <button
+                id="docDocxBtn"
+                class="border px-4 py-2 rounded-lg text-sm whitespace-nowrap min-w-[120px]"
+              >
+                Baixar DOCX
+              </button>
+              <button
+                id="docPdfBtn"
+                class="border px-4 py-2 rounded-lg text-sm whitespace-nowrap min-w-[110px]"
+              >
+                Baixar PDF
+              </button>
+              <span id="docActionMsg" class="text-xs text-stone-500"></span>
+            </div>
+
+            <div class="mt-6 border border-stone-200 rounded-xl p-4 bg-stone-50 min-h-[280px]">
+              <div class="text-xs uppercase tracking-wide text-stone-400 mb-3">Pré-visualização</div>
+              <div id="docPreview" class="text-sm text-stone-800"></div>
+              <div id="docPreviewEmpty" class="text-sm text-stone-500">
+                Nenhum documento gerado ainda.
+              </div>
+            </div>
+
+            <div class="mt-4 text-xs text-stone-400">
+              Campos disponíveis: {{nome}}, {{cpf}}, {{rg}}, {{email}}, {{telefone}}, {{endereco}},
+              {{cidade}}, {{estado}}, {{cep}}, {{nacionalidade}}, {{estado_civil}}, {{profissao}},
+              {{data_nascimento}}, {{data_chegada}}, {{responsavel}}, {{parceiro}}, {{cliente_nome}},
+              {{data_hoje}}
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="../assets/api.js"></script>
+    <script src="../assets/app.js"></script>
+  </body>
+</html>

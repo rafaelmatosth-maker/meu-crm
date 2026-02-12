@@ -1,0 +1,48 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f8f7f4" />
+  <rect x="60" y="40" width="1080" height="720" rx="24" fill="#ffffff" stroke="#e6e2dc" />
+
+  <text x="96" y="95" font-family="Arial, sans-serif" font-size="26" fill="#191919">Cliente</text>
+  <text x="96" y="125" font-family="Arial, sans-serif" font-size="14" fill="#8a857f">Duas colunas simétricas</text>
+
+  <!-- two columns -->
+  <text x="96" y="185" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Data de chegada</text>
+  <text x="96" y="210" font-size="14" fill="#191919" font-family="Arial, sans-serif">04/11/2025</text>
+
+  <text x="96" y="255" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Telefone</text>
+  <text x="96" y="280" font-size="14" fill="#191919" font-family="Arial, sans-serif">(77) 99906‑9515</text>
+
+  <text x="96" y="325" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">CPF do responsável</text>
+  <text x="96" y="350" font-size="14" fill="#191919" font-family="Arial, sans-serif">—</text>
+
+  <text x="96" y="395" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Nacionalidade</text>
+  <text x="96" y="420" font-size="14" fill="#191919" font-family="Arial, sans-serif">brasileiro</text>
+
+  <text x="96" y="465" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Estado civil</text>
+  <text x="96" y="490" font-size="14" fill="#191919" font-family="Arial, sans-serif">união estável</text>
+
+  <text x="96" y="535" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Profissão</text>
+  <text x="96" y="560" font-size="14" fill="#191919" font-family="Arial, sans-serif">lavrador</text>
+
+  <text x="640" y="185" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Data de nascimento</text>
+  <text x="640" y="210" font-size="14" fill="#191919" font-family="Arial, sans-serif">19/09/1965</text>
+
+  <text x="640" y="255" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Idade</text>
+  <text x="640" y="280" font-size="14" fill="#191919" font-family="Arial, sans-serif">60</text>
+
+  <text x="640" y="325" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Filiação</text>
+  <text x="640" y="350" font-size="14" fill="#191919" font-family="Arial, sans-serif">Marcelino Silvino…</text>
+
+  <text x="640" y="395" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">RG</text>
+  <text x="640" y="420" font-size="14" fill="#191919" font-family="Arial, sans-serif">04.270.783‑85</text>
+
+  <text x="640" y="465" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">CPF</text>
+  <text x="640" y="490" font-size="14" fill="#191919" font-family="Arial, sans-serif">101.221.378‑17</text>
+
+  <text x="640" y="535" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">E‑mail</text>
+  <text x="640" y="560" font-size="14" fill="#191919" font-family="Arial, sans-serif">sem endereço…</text>
+
+  <line x1="96" y1="600" x2="1104" y2="600" stroke="#efeae3" />
+  <text x="96" y="635" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Endereço</text>
+  <text x="320" y="635" font-size="14" fill="#191919" font-family="Arial, sans-serif">Povoado Cascavel, Anagé, BA</text>
+</svg>

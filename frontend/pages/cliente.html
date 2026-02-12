@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meu CRM - Cliente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'IBM Plex Sans', sans-serif;
+      }
+    </style>
+  </head>
+  <body data-page="cliente" class="bg-stone-50 text-stone-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-stone-200 p-6">
+        <div class="text-lg font-semibold">Meu CRM</div>
+        <nav class="mt-8 space-y-3 text-sm">
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
+          <a class="block text-stone-900 font-medium" href="./clientes.html">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+<button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
+        </nav>
+
+      </aside>
+
+      <main class="flex-1 p-10">
+        <header class="flex items-center justify-between mb-6">
+          <div>
+            <a class="text-sm text-stone-500" href="./clientes.html">&larr; Voltar para clientes</a>
+            <h1 id="clienteNome" class="text-2xl font-semibold mt-2">Cliente</h1>
+            <p class="text-stone-500 mt-1">Detalhes completos do cliente.</p>
+          </div>
+          <button
+            id="editarClienteBtn"
+            class="border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 hover:text-stone-900"
+          >
+            Editar
+          </button>
+        </header>
+
+        <p id="clienteErro" class="text-sm text-red-600 mb-4"></p>
+
+        <section id="clienteProps"></section>
+
+        <div id="clienteEditModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-6">
+          <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm w-full max-w-4xl max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-semibold">Editar informações</h2>
+              <button id="fecharEditCliente" class="text-stone-500 hover:text-stone-900">Fechar</button>
+            </div>
+            <form id="clienteEditForm" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Nome</label>
+                <input id="clienteEditNome" class="mt-1 w-full border rounded-lg px-3 py-2" required />
+              </div>
+
+              <div>
+                <label class="text-sm text-stone-600">Nacionalidade</label>
+                <input
+                  id="clienteEditNacionalidade"
+                  list="clienteEditNacionalidades"
+                  class="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+                <datalist id="clienteEditNacionalidades">
+                  <option value="brasileiro"></option>
+                  <option value="português"></option>
+                  <option value="argentino"></option>
+                  <option value="chileno"></option>
+                  <option value="boliviano"></option>
+                  <option value="uruguaio"></option>
+                  <option value="paraguaio"></option>
+                </datalist>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Estado civil</label>
+                <select id="clienteEditEstadoCivil" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="">Selecione</option>
+                  <option value="solteiro">Solteiro(a)</option>
+                  <option value="casado">Casado(a)</option>
+                  <option value="união estável">União estável</option>
+                  <option value="divorciado">Divorciado(a)</option>
+                  <option value="viúvo">Viúvo(a)</option>
+                </select>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Profissão</label>
+                <input
+                  id="clienteEditProfissao"
+                  list="clienteEditProfissoes"
+                  class="mt-1 w-full border rounded-lg px-3 py-2"
+                />
+                <datalist id="clienteEditProfissoes">
+                  <option value="advogado"></option>
+                  <option value="empresário"></option>
+                  <option value="autônomo"></option>
+                  <option value="agricultor"></option>
+                  <option value="servidor público"></option>
+                  <option value="professor"></option>
+                  <option value="estudante"></option>
+                  <option value="aposentado"></option>
+                </datalist>
+              </div>
+
+              <div>
+                <label class="text-sm text-stone-600">Data de nascimento</label>
+                <input id="clienteEditDataNascimento" type="date" class="mt-1 w-full border rounded-lg px-3 py-2" />
+                <input id="clienteEditIdade" type="hidden" />
+                <span id="clienteEditIdadeInfo" class="mt-1 block text-xs text-stone-400">Idade: -</span>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Filiação</label>
+                <input id="clienteEditFiliacao" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+
+              <div>
+                <label class="text-sm text-stone-600">CPF</label>
+                <input id="clienteEditCpf" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">RG</label>
+                <input id="clienteEditRg" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">E-mail</label>
+                <input id="clienteEditEmail" type="email" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Telefone</label>
+                <input id="clienteEditTelefone" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+
+              <div>
+                <label class="text-sm text-stone-600">CEP</label>
+                <input id="clienteEditCep" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Endereço</label>
+                <div class="mt-1 flex gap-2">
+                  <input id="clienteEditEndereco" class="w-full border rounded-lg px-3 py-2" placeholder="Rua" />
+                  <input id="clienteEditNumeroCasa" class="w-24 border rounded-lg px-3 py-2" placeholder="Nº" />
+                </div>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Cidade</label>
+                <input id="clienteEditCidade" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Estado</label>
+                <select id="clienteEditEstado" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="">Selecione</option>
+                  <option value="AC">AC</option>
+                  <option value="AL">AL</option>
+                  <option value="AP">AP</option>
+                  <option value="AM">AM</option>
+                  <option value="BA">BA</option>
+                  <option value="CE">CE</option>
+                  <option value="DF">DF</option>
+                  <option value="ES">ES</option>
+                  <option value="GO">GO</option>
+                  <option value="MA">MA</option>
+                  <option value="MT">MT</option>
+                  <option value="MS">MS</option>
+                  <option value="MG">MG</option>
+                  <option value="PA">PA</option>
+                  <option value="PB">PB</option>
+                  <option value="PR">PR</option>
+                  <option value="PE">PE</option>
+                  <option value="PI">PI</option>
+                  <option value="RJ">RJ</option>
+                  <option value="RN">RN</option>
+                  <option value="RS">RS</option>
+                  <option value="RO">RO</option>
+                  <option value="RR">RR</option>
+                  <option value="SC">SC</option>
+                  <option value="SP">SP</option>
+                  <option value="SE">SE</option>
+                  <option value="TO">TO</option>
+                </select>
+              </div>
+
+              <div class="md:col-span-2 pt-2">
+                <div class="text-xs uppercase tracking-wide text-stone-400">Dados bancários</div>
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Agência</label>
+                <input id="clienteEditAgencia" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Conta</label>
+                <input id="clienteEditConta" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Banco</label>
+                <input id="clienteEditBanco" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Tipo de conta</label>
+                <select id="clienteEditTipoConta" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="">Selecione</option>
+                  <option value="corrente">Corrente</option>
+                  <option value="poupanca">Poupança</option>
+                  <option value="salario">Salário</option>
+                  <option value="pagamento">Pagamento</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Link da pasta</label>
+                <input id="clienteEditLinkPasta" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+
+              <div>
+                <label class="text-sm text-stone-600">Responsável</label>
+                <input id="clienteEditResponsavel" list="clienteEditResponsaveisList" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Parceiro</label>
+                <input id="clienteEditParceiro" list="clienteEditParceirosList" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <datalist id="clienteEditResponsaveisList"></datalist>
+              <datalist id="clienteEditParceirosList"></datalist>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Acesso GOV</label>
+                <input id="clienteEditAcessoGov" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">CPF do responsável</label>
+                <input id="clienteEditCpfResponsavel" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Observações bancárias</label>
+                <textarea id="clienteEditDadosBancarios" class="mt-1 w-full border rounded-lg px-3 py-2" rows="2"></textarea>
+              </div>
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Processos (texto)</label>
+                <textarea id="clienteEditProcessosNotion" class="mt-1 w-full border rounded-lg px-3 py-2" rows="2"></textarea>
+              </div>
+              <div class="md:col-span-2">
+                <label class="text-sm text-stone-600">Qualificação</label>
+                <textarea id="clienteEditQualificacao" class="mt-1 w-full border rounded-lg px-3 py-2" rows="3"></textarea>
+              </div>
+
+              <div>
+                <label class="text-xs uppercase tracking-wide text-stone-400">Data de chegada</label>
+                <input id="clienteEditDataChegada" type="date" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              </div>
+              <div>
+                <label class="text-sm text-stone-600">Status</label>
+                <select id="clienteEditStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
+                  <option value="lead">Lead</option>
+                  <option value="ativo">Ativo</option>
+                  <option value="inativo">Inativo</option>
+                </select>
+              </div>
+
+              <div class="md:col-span-2 flex items-center gap-3">
+                <button class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">
+                  Salvar
+                </button>
+                <button
+                  id="cancelarEditCliente"
+                  class="border border-stone-200 px-4 py-2 rounded-lg text-stone-600 hover:text-stone-900"
+                >
+                  Cancelar
+                </button>
+                <span id="clienteEditMessage" class="text-sm text-stone-500"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260212-6"></script>
+    <script src="../assets/app.v2.js?v=20260212-7"></script>
+  </body>
+</html>

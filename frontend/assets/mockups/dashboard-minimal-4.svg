@@ -1,0 +1,73 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f8f7f4" />
+  <rect x="60" y="40" width="1080" height="720" rx="24" fill="#ffffff" stroke="#e6e2dc" />
+
+  <text x="96" y="95" font-family="Arial, sans-serif" font-size="26" fill="#191919">Visao geral</text>
+  <text x="96" y="124" font-family="Arial, sans-serif" font-size="14" fill="#8a857f">Estrutura com icones + alertas do dia</text>
+
+  <!-- Icon tiles -->
+  <rect x="96" y="160" width="240" height="92" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="360" y="160" width="240" height="92" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="624" y="160" width="240" height="92" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="888" y="160" width="200" height="92" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+
+  <!-- icon: clients -->
+  <circle cx="128" cy="196" r="14" fill="#e9e5df" />
+  <circle cx="122" cy="192" r="5" fill="#bdb6af" />
+  <circle cx="134" cy="194" r="4" fill="#bdb6af" />
+  <rect x="118" y="200" width="20" height="8" rx="4" fill="#c9c2bb" />
+  <text x="156" y="190" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Clientes</text>
+  <text x="156" y="216" font-size="26" fill="#191919" font-family="Arial, sans-serif">852</text>
+
+  <!-- icon: processos -->
+  <circle cx="392" cy="196" r="14" fill="#e9e5df" />
+  <rect x="386" y="188" width="12" height="16" rx="2" fill="#bdb6af" />
+  <rect x="388" y="192" width="8" height="2" fill="#e9e5df" />
+  <rect x="388" y="196" width="8" height="2" fill="#e9e5df" />
+  <text x="420" y="190" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Processos</text>
+  <text x="420" y="216" font-size="26" fill="#191919" font-family="Arial, sans-serif">935</text>
+
+  <!-- icon: atividades -->
+  <circle cx="656" cy="196" r="14" fill="#e9e5df" />
+  <rect x="650" y="188" width="12" height="16" rx="2" fill="#bdb6af" />
+  <rect x="652" y="192" width="8" height="2" fill="#e9e5df" />
+  <rect x="652" y="196" width="5" height="2" fill="#e9e5df" />
+  <text x="684" y="190" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Atividades</text>
+  <text x="684" y="216" font-size="26" fill="#191919" font-family="Arial, sans-serif">282</text>
+
+  <!-- icon: prazos hoje -->
+  <circle cx="920" cy="196" r="14" fill="#e9e5df" />
+  <path d="M915 196 L920 201 L927 192" stroke="#bdb6af" stroke-width="2" fill="none" />
+  <text x="948" y="190" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Hoje</text>
+  <text x="948" y="216" font-size="26" fill="#191919" font-family="Arial, sans-serif">14</text>
+
+  <!-- left column: time + quick actions -->
+  <rect x="96" y="280" width="360" height="160" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="116" y="315" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Agora</text>
+  <text x="116" y="348" font-size="20" fill="#191919" font-family="Arial, sans-serif">Sabado, 7 de fevereiro</text>
+  <text x="116" y="378" font-size="18" fill="#191919" font-family="Arial, sans-serif">09:42</text>
+
+  <rect x="96" y="460" width="360" height="220" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="116" y="495" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Acoes rapidas</text>
+  <rect x="116" y="515" width="120" height="48" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="246" y="515" width="120" height="48" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="116" y="575" width="120" height="48" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="246" y="575" width="120" height="48" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <text x="132" y="545" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Novo cliente</text>
+  <text x="262" y="545" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Novo processo</text>
+  <text x="132" y="605" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Nova atividade</text>
+  <text x="262" y="605" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Docs</text>
+
+  <!-- right column: alerts list -->
+  <rect x="480" y="280" width="660" height="400" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="500" y="315" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Atividades de hoje</text>
+  <rect x="500" y="340" width="620" height="72" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="500" y="425" width="620" height="72" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="500" y="510" width="620" height="72" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <text x="520" y="372" font-size="14" fill="#191919" font-family="Arial, sans-serif">Revisar documentos de Jorge</text>
+  <text x="520" y="395" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2023-001 • 14:00</text>
+  <text x="520" y="457" font-size="14" fill="#191919" font-family="Arial, sans-serif">Enviar minuta para cliente</text>
+  <text x="520" y="480" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2022-014 • 16:30</text>
+  <text x="520" y="542" font-size="14" fill="#191919" font-family="Arial, sans-serif">Checar audiencia marcada</text>
+  <text x="520" y="565" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2020-210 • 18:00</text>
+</svg>

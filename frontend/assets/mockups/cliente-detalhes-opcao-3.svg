@@ -1,0 +1,34 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f8f7f4" />
+  <rect x="60" y="40" width="1080" height="720" rx="24" fill="#ffffff" stroke="#e6e2dc" />
+
+  <text x="96" y="95" font-family="Arial, sans-serif" font-size="26" fill="#191919">Cliente</text>
+  <text x="96" y="125" font-family="Arial, sans-serif" font-size="14" fill="#8a857f">Cards mínimos por seção</text>
+
+  <rect x="96" y="170" width="520" height="180" rx="14" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="632" y="170" width="472" height="180" rx="14" fill="#faf9f7" stroke="#e6e2dc" />
+  <text x="116" y="200" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Pessoais</text>
+  <text x="116" y="228" font-size="14" fill="#191919" font-family="Arial, sans-serif">Data chegada: 04/11/2025</text>
+  <text x="116" y="252" font-size="14" fill="#191919" font-family="Arial, sans-serif">Nascimento: 19/09/1965</text>
+  <text x="116" y="276" font-size="14" fill="#191919" font-family="Arial, sans-serif">Idade: 60</text>
+  <text x="116" y="300" font-size="14" fill="#191919" font-family="Arial, sans-serif">Nacionalidade: brasileiro</text>
+
+  <text x="652" y="200" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Documentos</text>
+  <text x="652" y="228" font-size="14" fill="#191919" font-family="Arial, sans-serif">RG: 04.270.783‑85</text>
+  <text x="652" y="252" font-size="14" fill="#191919" font-family="Arial, sans-serif">CPF: 101.221.378‑17</text>
+  <text x="652" y="276" font-size="14" fill="#191919" font-family="Arial, sans-serif">CPF Resp.: —</text>
+
+  <rect x="96" y="370" width="520" height="180" rx="14" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="632" y="370" width="472" height="180" rx="14" fill="#faf9f7" stroke="#e6e2dc" />
+  <text x="116" y="400" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Contato</text>
+  <text x="116" y="428" font-size="14" fill="#191919" font-family="Arial, sans-serif">Telefone: (77) 99906‑9515</text>
+  <text x="116" y="452" font-size="14" fill="#191919" font-family="Arial, sans-serif">E‑mail: sem endereço…</text>
+  <text x="116" y="476" font-size="14" fill="#191919" font-family="Arial, sans-serif">Endereço: Povoado Cascavel</text>
+  <text x="116" y="500" font-size="14" fill="#191919" font-family="Arial, sans-serif">Cidade/UF: Anagé/BA</text>
+
+  <text x="652" y="400" font-size="11" fill="#a09a94" font-family="Arial, sans-serif">Relacionamento</text>
+  <text x="652" y="428" font-size="14" fill="#191919" font-family="Arial, sans-serif">Parceiro: Alex</text>
+  <text x="652" y="452" font-size="14" fill="#191919" font-family="Arial, sans-serif">Responsável: —</text>
+  <text x="652" y="476" font-size="14" fill="#191919" font-family="Arial, sans-serif">Processos: 2021‑0001, 2022‑0034</text>
+  <text x="652" y="500" font-size="14" fill="#191919" font-family="Arial, sans-serif">Status: Lead</text>
+</svg>

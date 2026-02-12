@@ -1,0 +1,34 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f8f7f4" />
+  <rect x="60" y="40" width="1080" height="720" rx="24" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="96" y="100" font-family="Arial, sans-serif" font-size="26" fill="#191919">Visao geral</text>
+  <text x="96" y="130" font-family="Arial, sans-serif" font-size="14" fill="#8a857f">Minimalista com foco em hoje.</text>
+
+  <rect x="96" y="170" width="240" height="90" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="360" y="170" width="240" height="90" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <rect x="624" y="170" width="240" height="90" rx="16" fill="#faf9f7" stroke="#e6e2dc" />
+  <text x="116" y="205" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Clientes</text>
+  <text x="116" y="236" font-size="28" fill="#191919" font-family="Arial, sans-serif">852</text>
+  <text x="380" y="205" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Processos</text>
+  <text x="380" y="236" font-size="28" fill="#191919" font-family="Arial, sans-serif">935</text>
+  <text x="644" y="205" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Atividades</text>
+  <text x="644" y="236" font-size="28" fill="#191919" font-family="Arial, sans-serif">282</text>
+
+  <rect x="96" y="290" width="360" height="150" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="116" y="325" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Agora</text>
+  <text x="116" y="360" font-size="22" fill="#191919" font-family="Arial, sans-serif">Sabado, 7 de fevereiro</text>
+  <text x="116" y="390" font-size="18" fill="#191919" font-family="Arial, sans-serif">09:42</text>
+
+  <rect x="480" y="290" width="660" height="390" rx="16" fill="#ffffff" stroke="#e6e2dc" />
+  <text x="500" y="325" font-size="12" fill="#8a857f" font-family="Arial, sans-serif">Atividades de hoje</text>
+
+  <rect x="500" y="350" width="620" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="500" y="435" width="620" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <rect x="500" y="520" width="620" height="70" rx="12" fill="#faf9f7" stroke="#eee9e2" />
+  <text x="520" y="380" font-size="14" fill="#191919" font-family="Arial, sans-serif">Revisar documentos de Jorge</text>
+  <text x="520" y="405" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2023-001 • 14:00</text>
+  <text x="520" y="465" font-size="14" fill="#191919" font-family="Arial, sans-serif">Enviar minuta para cliente</text>
+  <text x="520" y="490" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2022-014 • 16:30</text>
+  <text x="520" y="550" font-size="14" fill="#191919" font-family="Arial, sans-serif">Checar audiencia marcada</text>
+  <text x="520" y="575" font-size="11" fill="#8a857f" font-family="Arial, sans-serif">Processo 2020-210 • 18:00</text>
+</svg>
