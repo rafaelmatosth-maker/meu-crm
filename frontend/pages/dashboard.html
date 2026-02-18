@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meu CRM - Dashboard</title>
+    <title>Aurealex - Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/assets/brand/favicon.ico?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/brand/favicon-16.png?v=20260213b" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png?v=20260213b" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,16 +24,18 @@
   <body data-page="dashboard" class="bg-stone-50 text-stone-900">
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
-        <div class="text-lg font-semibold">Meu CRM</div>
+        <div class="flex items-center justify-center">
+          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+        </div>
         <nav class="mt-8 space-y-3 text-sm">
-          <a class="block text-stone-900 font-medium" href="./dashboard.html">Dashboard</a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
-          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
-                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
-<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
-                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+          <a class="block text-stone-900 font-medium" href="./dashboard">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes">Clientes</a>
+          <a class="block text-stone-500 hover:text-stone-900 flex items-center justify-between" href="./processos">Processos</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes">Ajustes</a>
 <button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
         </nav>
       </aside>
@@ -44,28 +50,28 @@
 
             <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
               <a
-                href="./clientes.html"
+                href="./clientes"
                 class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm hover:border-stone-300 transition"
               >
                 <p class="text-sm text-stone-500">Clientes</p>
                 <div id="countClientes" class="text-3xl font-semibold mt-3">0</div>
               </a>
               <a
-                href="./processos.html"
+                href="./processos"
                 class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm hover:border-stone-300 transition"
               >
                 <p class="text-sm text-stone-500">Processos</p>
                 <div id="countProcessos" class="text-3xl font-semibold mt-3">0</div>
               </a>
               <a
-                href="./atividades.html"
+                href="./atividades"
                 class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm hover:border-stone-300 transition"
               >
                 <p class="text-sm text-stone-500">Atividades de hoje</p>
                 <div id="countAtividades" class="text-3xl font-semibold mt-3">0</div>
               </a>
               <a
-                href="./atividades.html"
+                href="./atividades"
                 class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm hover:border-stone-300 transition"
               >
                 <p class="text-sm text-stone-500">Ativas</p>
@@ -136,7 +142,7 @@
               >
                 <div
                   data-hand="hour"
-                  class="absolute left-1/2 top-1/2 w-1 h-8 bg-stone-900 rounded-full"
+                  class="absolute left-1/2 top-1/2 w-1 h-8 bg-[#0C1B33] rounded-full"
                   style="transform: translate(-50%, -100%) rotate(0deg); transform-origin: bottom center;"
                 ></div>
                 <div
@@ -150,7 +156,7 @@
                   style="transform: translate(-50%, -100%) rotate(0deg); transform-origin: bottom center;"
                 ></div>
                   <div
-                    class="absolute left-1/2 top-1/2 w-2 h-2 bg-stone-900 rounded-full"
+                    class="absolute left-1/2 top-1/2 w-2 h-2 bg-[#0C1B33] rounded-full"
                     style="transform: translate(-50%, -50%);"
                   ></div>
                 </div>

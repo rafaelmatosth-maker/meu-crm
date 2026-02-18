@@ -181,7 +181,7 @@ async function guardAuth() {
     updateProcessosBadge();
   } catch (err) {
     clearToken();
-    window.location.href = './login.html';
+    window.location.href = './login';
   }
 }
 
@@ -194,7 +194,7 @@ function bindLogout() {
     } catch (_) {
       clearToken();
     }
-    window.location.href = './login.html';
+    window.location.href = './login';
   });
 }
 
@@ -335,7 +335,7 @@ function initSidebarWidgets() {
         viewYear === today.getFullYear();
       cells.push(
         `<div class=\"h-7 w-7 mx-auto flex items-center justify-center rounded-full ${
-          isToday ? 'bg-stone-900 text-white' : 'text-stone-600'
+          isToday ? 'bg-[#0C1B33] text-white' : 'text-stone-600'
         }\">${day}</div>`
       );
     }
@@ -406,6 +406,10 @@ async function initClientes() {
   let total = 0;
   let buscaTimeout;
   let sortDir = 'asc';
+  try {
+    const stored = localStorage.getItem('clientes_sort_dir');
+    if (stored === 'asc' || stored === 'desc') sortDir = stored;
+  } catch (_) {}
   const processosCache = new Map();
 
   function updateSortLabel() {
@@ -496,7 +500,7 @@ async function initClientes() {
                 }"
                 title="${c.status === 'ativo' ? 'Cliente' : c.status === 'inativo' ? 'Inativo' : 'Lead'}"
               ></span>
-              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente.html?id=${c.id}">
+              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente?id=${c.id}">
                 ${c.nome}
               </a>
             </div>
@@ -666,7 +670,7 @@ async function initClientes() {
         .filter((p) => p.numero_processo)
         .map(
           (p) =>
-            `<div><a class="text-blue-600 hover:text-blue-800" href="./processo.html?id=${p.id}">${p.numero_processo}</a></div>`
+            `<div><a class="text-blue-600 hover:text-blue-800" href="./processo?id=${p.id}">${p.numero_processo}</a></div>`
         );
       const html = linhas.length ? `<div class="space-y-1">${linhas.join('')}</div>` : '-';
       processosCache.set(clienteId, html);
@@ -745,6 +749,7 @@ async function initClientes() {
   if (sortBtn) {
     sortBtn.addEventListener('click', () => {
       sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      try { localStorage.setItem('clientes_sort_dir', sortDir); } catch (_) {}
       updateSortLabel();
       page = 1;
       load();
@@ -1032,6 +1037,7 @@ async function initProcessos() {
 
   function renderClientesSelect() {
     renderClienteOptions(clientesModal.length ? clientesModal : clientes);
+    if (!filtroCliente) return;
     filtroCliente.innerHTML = ['<option value="">Todos os clientes</option>']
       .concat(clientes.map((c) => `<option value="${c.id}">${c.nome}</option>`))
       .join('');
@@ -1084,7 +1090,7 @@ async function initProcessos() {
         (p) => `
         <tr class="border-b border-stone-200">
           <td class="py-3">
-            <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo.html?id=${p.id}">
+            <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo?id=${p.id}">
               ${p.numero_processo}
             </a>
             ${
@@ -1122,7 +1128,7 @@ async function initProcessos() {
       api.processos.list({
         page,
         limit: effectiveLimit,
-        cliente_id: filtroCliente.value,
+        cliente_id: filtroCliente?.value || '',
         status: filtroStatus.value.trim(),
         andamentos_novos: filtroAndamentos?.checked ? '1' : '',
         search: searchTerm,
@@ -1177,7 +1183,7 @@ async function initProcessos() {
       btn.id = 'novoProcessoBtn';
       btn.textContent = 'Novo processo';
       btn.type = 'button';
-      btn.className = 'bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800';
+      btn.className = 'bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]';
       header.appendChild(btn);
     }
     btn.classList.remove('hidden');
@@ -1204,12 +1210,12 @@ async function initProcessos() {
     }, 300);
   });
 
-  filtroCliente.addEventListener('change', () => {
+  filtroCliente?.addEventListener('change', () => {
     page = 1;
     load();
   });
 
-  filtroStatus.addEventListener('input', () => {
+  filtroStatus.addEventListener('change', () => {
     page = 1;
     load();
   });
@@ -2084,7 +2090,7 @@ async function initClienteDetail() {
       .filter((p) => p.numero_processo)
       .map(
         (p) =>
-          `<div><a class="text-blue-600 hover:text-blue-800" href="./processo.html?id=${p.id}">${p.numero_processo}</a></div>`
+          `<div><a class="text-blue-600 hover:text-blue-800" href="./processo?id=${p.id}">${p.numero_processo}</a></div>`
       );
     const processosHtml = processosLinhas.length ? `<div class="space-y-1">${processosLinhas.join('')}</div>` : '';
     nomeEl.textContent = cliente.nome || 'Cliente';
@@ -2372,12 +2378,12 @@ async function initProcessoDetail() {
         text = decodeURIComponent(text);
       } catch (_) {}
       if (key === 'area' || key === 'classe' || key === 'fase') {
-        text = text.replace(/\s*\([^)]*(\.html|[0-9a-f]{10,})[^)]*\)/gi, '');
-        text = text.replace(/\s+[^\s]*\.html\b/gi, '');
+        text = text.replace(/\s*\([^)]*(\.(html|htlm)|[0-9a-f]{10,})[^)]*\)/gi, '');
+        text = text.replace(/\s+[^\s]*\.(html|htlm)\b/gi, '');
       }
       if (key === 'cliente_nome' && processo.cliente_id) {
         return {
-          html: `<a class="text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-600" href="./cliente.html?id=${processo.cliente_id}">${text}</a>`,
+          html: `<a class="text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-600" href="./cliente?id=${processo.cliente_id}">${text}</a>`,
           empty: false,
         };
       }
@@ -2451,7 +2457,7 @@ async function initProcessoDetail() {
         text = decodeURIComponent(text);
       } catch (_) {}
       text = text.replace(/\s+[0-9a-f]{10,}$/i, '');
-      text = text.replace(/\s*\\([^)]*(\\.html|[0-9a-f]{10,})[^)]*\\)/gi, '');
+      text = text.replace(/\s*\\([^)]*(\\.(html|htlm)|[0-9a-f]{10,})[^)]*\\)/gi, '');
       return text.trim();
     };
 

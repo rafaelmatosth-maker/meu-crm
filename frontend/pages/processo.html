@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meu CRM - Processo</title>
+    <title>Aurealex - Processo</title>
+    <link rel="icon" type="image/x-icon" href="/assets/brand/favicon.ico?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/brand/favicon-16.png?v=20260213b" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png?v=20260213b" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,16 +24,18 @@
   <body data-page="processo" class="bg-stone-50 text-stone-900">
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
-        <div class="text-lg font-semibold">Meu CRM</div>
+        <div class="flex items-center justify-center">
+          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+        </div>
         <nav class="mt-8 space-y-3 text-sm">
-          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard.html">Dashboard</a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./clientes.html">Clientes</a>
-          <a class="block text-stone-900 font-medium flex items-center justify-between" href="./processos.html">Processos <span id="processosBadge" class="ml-2 hidden text-[10px] font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full"></span></a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro.html">Financeiro</a>
-          <a class="block text-stone-500 hover:text-stone-900" href="./atividades.html">Atividades</a>
-                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen.html">Publicações DJEN</a>
-<a class="block text-stone-500 hover:text-stone-900" href="./documentos.html">Documentos</a>
-                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes.html">Ajustes</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./clientes">Clientes</a>
+          <a class="block text-stone-900 font-medium flex items-center justify-between" href="./processos">Processos</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./financeiro">Financeiro</a>
+          <a class="block text-stone-500 hover:text-stone-900" href="./atividades">Atividades</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./publicacoes-djen">Publicações DJEN</a>
+<a class="block text-stone-500 hover:text-stone-900" href="./documentos">Documentos</a>
+                    <a class="block text-stone-500 hover:text-stone-900" href="./ajustes">Ajustes</a>
 <button id="logoutBtn" class="text-left text-stone-500 hover:text-stone-900">Sair</button>
         </nav>
 
@@ -39,7 +45,7 @@
         <div class="mx-auto w-full max-w-6xl">
           <header class="flex items-center justify-between mb-6">
             <div>
-              <a class="text-sm text-stone-500" href="./processos.html">&larr; Voltar para processos</a>
+              <a class="text-sm text-stone-500" href="./processos">&larr; Voltar para processos</a>
               <h1 id="processoTitulo" class="text-2xl font-semibold mt-2">Processo</h1>
               <p class="text-stone-500 mt-1">Visão geral do processo.</p>
             </div>
@@ -97,8 +103,12 @@
               <select id="processoEditStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
                 <option value=""></option>
                 <option value="Ativo">Ativo</option>
+                <option value="Em andamento">Em andamento</option>
                 <option value="Inativo">Inativo</option>
                 <option value="Suspenso">Suspenso</option>
+                <option value="Arquivado">Arquivado</option>
+                <option value="Encerrado">Encerrado</option>
+                <option value="Cancelado">Cancelado</option>
               </select>
             </div>
             <div>
@@ -283,7 +293,7 @@
             <button
               type="submit"
               id="processoEditSubmit"
-              class="px-4 py-2 text-sm bg-stone-900 text-white rounded-lg hover:bg-stone-800"
+              class="px-4 py-2 text-sm bg-[#0C1B33] text-white rounded-lg hover:bg-[#0A162A]"
             >
               Salvar alterações
             </button>
@@ -391,7 +401,7 @@
             >
               Cancelar
             </button>
-            <button class="bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800">
+            <button class="bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]">
               Salvar
             </button>
           </div>
@@ -452,7 +462,7 @@
             >
               Cancelar
             </button>
-            <button class="w-full md:flex-1 bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800">
+            <button class="w-full md:flex-1 bg-[#0C1B33] text-white py-2 rounded-lg hover:bg-[#0A162A]">
               Salvar atividade
             </button>
           </div>

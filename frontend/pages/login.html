@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Meu CRM - Login</title>
+    <title>Aurealex - Login</title>
+    <link rel="icon" type="image/x-icon" href="/assets/brand/favicon.ico?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png?v=20260213b" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/brand/favicon-16.png?v=20260213b" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/apple-touch-icon.png?v=20260213b" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,26 +21,30 @@
       }
     </style>
   </head>
-  <body data-page="login" class="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100">
-    <div class="min-h-screen flex items-center justify-center px-6 py-12">
-      <div class="w-full max-w-md bg-white border border-stone-200 rounded-2xl p-8 shadow-sm">
-        <div class="mb-6">
-          <h1 class="text-2xl font-semibold text-stone-900">Meu CRM</h1>
-          <p class="text-stone-500 mt-1">Acesse sua conta ou crie seu escritório.</p>
+  <body data-page="login" class="min-h-screen bg-white">
+    <div class="min-h-screen flex items-center justify-center px-6 py-16">
+      <div class="w-full max-w-md">
+        <div class="flex items-center justify-center mb-10">
+          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-40 w-auto" loading="eager" />
         </div>
 
-        <div class="grid grid-cols-2 gap-2 mb-6">
+        <div class="bg-white border border-stone-200 rounded-3xl p-8 shadow-sm">
+        <div class="mb-6 text-center">
+          <p class="text-stone-500">Acesse sua conta ou crie seu escritório.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-7">
           <button
             id="tabLoginBtn"
             type="button"
-            class="py-2 rounded-lg text-sm font-medium bg-stone-900 text-white"
+            class="py-3 rounded-2xl text-sm font-semibold bg-[#0C1B33] text-white"
           >
             Entrar
           </button>
           <button
             id="tabCadastroBtn"
             type="button"
-            class="py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700"
+            class="py-3 rounded-2xl text-sm font-semibold bg-stone-100 text-stone-700"
           >
             Cadastre seu escritório
           </button>
@@ -44,23 +52,23 @@
 
         <form id="loginForm" class="space-y-4" method="POST" action="/auth/login">
           <div>
-            <label class="text-sm text-stone-600">Usuário</label>
+            <label class="text-sm font-medium text-stone-700">E-mail</label>
             <input
               id="email"
               name="email"
               type="text"
-              class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
-              placeholder="Digite seu e-mail ou usuário"
+              class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
+              placeholder="Digite seu e-mail"
               required
             />
           </div>
           <div>
-            <label class="text-sm text-stone-600">Senha</label>
+            <label class="text-sm font-medium text-stone-700">Senha</label>
             <input
               id="senha"
               name="senha"
               type="password"
-              class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
+              class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
               placeholder="Senha"
               required
             />
@@ -69,7 +77,7 @@
           <button
             id="loginSubmitBtn"
             type="submit"
-            class="w-full bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800 transition"
+            class="w-full bg-[#0C1B33] text-white py-4 rounded-2xl font-semibold tracking-wide hover:bg-[#0A162A] transition"
           >
             Entrar
           </button>
@@ -82,7 +90,7 @@
               <input
                 id="cadastroEscritorio"
                 type="text"
-                class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
                 placeholder="Ex: Santos Advocacia"
                 required
               />
@@ -92,7 +100,7 @@
               <input
                 id="cadastroNome"
                 type="text"
-                class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
                 placeholder="Nome do responsável"
                 required
               />
@@ -102,17 +110,17 @@
               <input
                 id="cadastroEmail"
                 type="email"
-                class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
                 placeholder="voce@escritorio.com"
                 required
               />
             </div>
             <div>
-              <label class="text-sm text-stone-600">Senha</label>
+              <label class="text-sm font-medium text-stone-700">Senha</label>
               <input
                 id="cadastroSenha"
                 type="password"
-                class="mt-1 w-full border border-stone-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-stone-300"
+                class="mt-2 w-full border border-stone-200 rounded-2xl px-4 py-4 text-base placeholder:text-stone-400 focus:outline-none focus:ring-4 focus:ring-[#0C1B33]/10 focus:border-[#0C1B33]"
                 placeholder="Mínimo 8 caracteres"
                 required
               />
@@ -121,7 +129,7 @@
             <button
               id="cadastroStartBtn"
               type="submit"
-              class="w-full bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800 transition"
+              class="w-full bg-[#0C1B33] text-white py-4 rounded-2xl font-semibold tracking-wide hover:bg-[#0A162A] transition"
             >
               Enviar código de verificação
             </button>
@@ -148,14 +156,14 @@
               <button
                 id="cadastroBackBtn"
                 type="button"
-                class="w-full bg-stone-100 text-stone-700 py-2 rounded-lg hover:bg-stone-200 transition"
+                class="w-full bg-stone-100 text-stone-700 py-4 rounded-2xl font-semibold hover:bg-stone-200 transition"
               >
                 Voltar
               </button>
               <button
                 id="cadastroVerifyBtn"
                 type="submit"
-                class="w-full bg-stone-900 text-white py-2 rounded-lg hover:bg-stone-800 transition"
+                class="w-full bg-[#0C1B33] text-white py-4 rounded-2xl font-semibold tracking-wide hover:bg-[#0A162A] transition"
               >
                 Confirmar e entrar
               </button>

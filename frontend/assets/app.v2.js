@@ -402,7 +402,7 @@ async function guardAuth() {
     updateProcessosBadge();
   } catch (err) {
     clearToken();
-    window.location.href = './login.html';
+    window.location.href = './login';
   }
 }
 
@@ -415,7 +415,7 @@ function bindLogout() {
     } catch (_) {
       clearToken();
     }
-    window.location.href = './login.html';
+    window.location.href = './login';
   });
 }
 
@@ -448,13 +448,13 @@ async function initLogin() {
     if (cadastroSection) cadastroSection.classList.toggle('hidden', isLogin);
     if (tabLoginBtn) {
       tabLoginBtn.className = isLogin
-        ? 'py-2 rounded-lg text-sm font-medium bg-stone-900 text-white'
-        : 'py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700';
+        ? 'py-3 rounded-2xl text-sm font-semibold bg-[#0C1B33] text-white'
+        : 'py-3 rounded-2xl text-sm font-semibold bg-stone-100 text-stone-700';
     }
     if (tabCadastroBtn) {
       tabCadastroBtn.className = isLogin
-        ? 'py-2 rounded-lg text-sm font-medium bg-stone-100 text-stone-700'
-        : 'py-2 rounded-lg text-sm font-medium bg-stone-900 text-white';
+        ? 'py-3 rounded-2xl text-sm font-semibold bg-stone-100 text-stone-700'
+        : 'py-3 rounded-2xl text-sm font-semibold bg-[#0C1B33] text-white';
     }
   };
 
@@ -495,7 +495,7 @@ async function initLogin() {
     if (loginSubmitBtn) loginSubmitBtn.disabled = true;
     try {
       await login((qs('#email')?.value || '').trim(), qs('#senha')?.value || '');
-      window.location.href = './dashboard.html';
+      window.location.href = './dashboard';
     } catch (err) {
       showMessage(msg, err.message || 'Não foi possível entrar no sistema.');
     } finally {
@@ -540,7 +540,7 @@ async function initLogin() {
       if (resp?.escritorio_atual?.id) {
         api.auth.setEscritorio(resp.escritorio_atual.id);
       }
-      window.location.href = './dashboard.html';
+      window.location.href = './dashboard';
     } catch (err) {
       showMessage(cadastroVerifyMessage, err.message || 'Código inválido.');
     } finally {
@@ -647,7 +647,7 @@ async function initDashboard() {
             <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-600">
               ${renderCopyProcessButton(processo)}
               <a
-                href="./processo.html?id=${a.processo_id}"
+                href="./processo?id=${a.processo_id}"
                 class="inline-flex items-center gap-2 hover:text-stone-900"
                 title="Abrir processo"
               >
@@ -666,7 +666,7 @@ async function initDashboard() {
         const clienteHtml = a.cliente_id
           ? `
             <a
-              href="./cliente.html?id=${a.cliente_id}"
+              href="./cliente?id=${a.cliente_id}"
               class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-600 hover:bg-stone-50"
               title="Abrir cliente"
             >
@@ -738,10 +738,10 @@ async function initDashboard() {
           prazoDate && !Number.isNaN(prazoDate.getTime()) ? String(prazoDate.getFullYear()) : '';
         const prazoFull = formatDateOptionalTime(a.prazo, a.prazo_hora);
         const clienteHtml = a.cliente_id
-          ? `<a href="./cliente.html?id=${a.cliente_id}" class="block text-sm text-stone-900 font-medium truncate" title="${clienteNome}">${clienteNome}</a>`
+          ? `<a href="./cliente?id=${a.cliente_id}" class="block text-sm text-stone-900 font-medium truncate" title="${clienteNome}">${clienteNome}</a>`
           : `<div class="text-sm text-stone-900 font-medium truncate" title="${clienteNome}">${clienteNome}</div>`;
         const processoHtml = a.processo_id
-          ? `<a href="./processo.html?id=${a.processo_id}" class="block text-xs text-stone-500 whitespace-nowrap hover:text-stone-700" title="${processo}">${processo}</a>`
+          ? `<a href="./processo?id=${a.processo_id}" class="block text-xs text-stone-500 whitespace-nowrap hover:text-stone-700" title="${processo}">${processo}</a>`
           : `<div class="text-xs text-stone-500 whitespace-nowrap" title="${processo}">${processo}</div>`;
         return `
           <div
@@ -1012,7 +1012,7 @@ function initSidebarWidgets() {
         viewYear === today.getFullYear();
       cells.push(
         `<div class=\"h-7 w-7 mx-auto flex items-center justify-center rounded-full ${
-          isToday ? 'bg-stone-900 text-white' : 'text-stone-600'
+          isToday ? 'bg-[#0C1B33] text-white' : 'text-stone-600'
         }\">${day}</div>`
       );
     }
@@ -1085,6 +1085,10 @@ async function initClientes() {
   let total = 0;
   let buscaTimeout;
   let sortDir = 'asc';
+  try {
+    const stored = localStorage.getItem('clientes_sort_dir');
+    if (stored === 'asc' || stored === 'desc') sortDir = stored;
+  } catch (_) {}
   const processosCache = new Map();
   let colaboradoresAjustes = [];
 
@@ -1183,7 +1187,7 @@ async function initClientes() {
                 }"
                 title="${c.status === 'ativo' ? 'Cliente' : c.status === 'inativo' ? 'Inativo' : 'Lead'}"
               ></span>
-              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente.html?id=${c.id}">
+              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente?id=${c.id}">
                 ${c.nome}
               </a>
             </div>
@@ -1353,7 +1357,7 @@ async function initClientes() {
         .filter((p) => p.numero_processo)
         .map(
           (p) =>
-            `<div class="inline-flex items-center gap-1">${renderCopyProcessButton(p.numero_processo)}<a class="text-blue-600 hover:text-blue-800" href="./processo.html?id=${p.id}">${p.numero_processo}</a></div>`
+            `<div class="inline-flex items-center gap-1">${renderCopyProcessButton(p.numero_processo)}<a class="text-blue-600 hover:text-blue-800" href="./processo?id=${p.id}">${p.numero_processo}</a></div>`
         );
       const html = linhas.length ? `<div class="space-y-1">${linhas.join('')}</div>` : '-';
       processosCache.set(clienteId, html);
@@ -1438,6 +1442,7 @@ async function initClientes() {
   if (sortBtn) {
     sortBtn.addEventListener('click', () => {
       sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      try { localStorage.setItem('clientes_sort_dir', sortDir); } catch (_) {}
       updateSortLabel();
       page = 1;
       load();
@@ -1733,6 +1738,7 @@ async function initProcessos() {
 
   function renderClientesSelect() {
     renderClienteOptions(clientesModal.length ? clientesModal : clientes);
+    if (!filtroCliente) return;
     filtroCliente.innerHTML = ['<option value="">Todos os clientes</option>']
       .concat(clientes.map((c) => `<option value="${c.id}">${c.nome}</option>`))
       .join('');
@@ -1797,7 +1803,7 @@ async function initProcessos() {
           <td class="py-3">
             <div class="inline-flex items-center gap-1">
               ${renderCopyProcessButton(p.numero_processo)}
-              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo.html?id=${p.id}">
+              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo?id=${p.id}">
                 ${p.numero_processo}
               </a>
             </div>
@@ -1836,7 +1842,7 @@ async function initProcessos() {
       api.processos.list({
         page,
         limit: effectiveLimit,
-        cliente_id: filtroCliente.value,
+        cliente_id: filtroCliente?.value || '',
         status: filtroStatus.value.trim(),
         andamentos_novos: filtroAndamentos?.checked ? '1' : '',
         search: searchTerm,
@@ -1904,7 +1910,7 @@ async function initProcessos() {
       btn.id = 'novoProcessoBtn';
       btn.textContent = 'Novo processo';
       btn.type = 'button';
-      btn.className = 'bg-stone-900 text-white px-4 py-2 rounded-lg hover:bg-stone-800';
+      btn.className = 'bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]';
       header.appendChild(btn);
     }
     btn.classList.remove('hidden');
@@ -1931,12 +1937,12 @@ async function initProcessos() {
     }, 300);
   });
 
-  filtroCliente.addEventListener('change', () => {
+  filtroCliente?.addEventListener('change', () => {
     page = 1;
     load();
   });
 
-  filtroStatus.addEventListener('input', () => {
+  filtroStatus.addEventListener('change', () => {
     page = 1;
     load();
   });
@@ -2154,7 +2160,7 @@ async function initProcessos() {
           `Esse número já existe no processo #${existingProcessId}. Abrindo o processo existente...`
         );
         setTimeout(() => {
-          window.location.href = `./processo.html?id=${existingProcessId}`;
+          window.location.href = `./processo?id=${existingProcessId}`;
         }, 500);
         return;
       }
@@ -2323,7 +2329,7 @@ async function initFinanceiro() {
             <td class="py-3 whitespace-nowrap">
               <div class="inline-flex items-center gap-1">
                 ${renderCopyProcessButton(p.numero_processo)}
-                <a class="text-stone-900 hover:text-stone-700 font-medium whitespace-nowrap" href="./processo.html?id=${p.id}">
+                <a class="text-stone-900 hover:text-stone-700 font-medium whitespace-nowrap" href="./processo?id=${p.id}">
                   ${p.numero_processo}
                 </a>
               </div>
@@ -2776,7 +2782,7 @@ async function initAtividades() {
     if (!calendarViewButtons.length) return;
     calendarViewButtons.forEach((btn) => {
       const isActive = btn.dataset.calendarView === calendarView;
-      btn.classList.toggle('bg-stone-900', isActive);
+      btn.classList.toggle('bg-[#0C1B33]', isActive);
       btn.classList.toggle('text-white', isActive);
       btn.classList.toggle('text-stone-600', !isActive);
       btn.classList.toggle('hover:bg-stone-200', !isActive);
@@ -3378,7 +3384,7 @@ async function initAtividades() {
     if (detalheProcesso) {
       detalheProcesso.innerHTML = `${renderCopyProcessButton(processo)} <span>${processo}</span>`;
       if (atividade.processo_id) {
-        detalheProcesso.setAttribute('href', `./processo.html?id=${atividade.processo_id}`);
+        detalheProcesso.setAttribute('href', `./processo?id=${atividade.processo_id}`);
         detalheProcesso.classList.add('text-blue-600', 'hover:underline', 'underline-offset-2');
         detalheProcesso.classList.remove('text-stone-700', 'text-stone-600');
         detalheProcesso.removeAttribute('aria-disabled');
@@ -3590,7 +3596,7 @@ async function initAtividades() {
   function applyStatusFilterUI() {
     statusFilters.forEach((btn) => {
       const active = btn.dataset.atividadeStatus === statusFiltro;
-      btn.classList.toggle('bg-stone-900', active);
+      btn.classList.toggle('bg-[#0C1B33]', active);
       btn.classList.toggle('text-white', active);
       btn.classList.toggle('border-stone-900', active);
       btn.classList.toggle('bg-white', !active);
@@ -4529,7 +4535,7 @@ async function initPublicacoesDjen() {
   const setOabButtonState = () => {
     qsa('[data-djen-oab-mode]').forEach((btn) => {
       const active = btn.getAttribute('data-djen-oab-mode') === selectedOabMode;
-      btn.classList.toggle('bg-stone-900', active);
+      btn.classList.toggle('bg-[#0C1B33]', active);
       btn.classList.toggle('text-white', active);
       btn.classList.toggle('border-stone-900', active);
       btn.classList.toggle('text-stone-700', !active);
@@ -4671,11 +4677,11 @@ async function initPublicacoesDjen() {
         const data = formatDateBR(item.data_disponibilizacao);
         const hasLinkedProcess = Boolean(item.processo_encontrado && item.processo_id);
         const processoCell = hasLinkedProcess
-          ? `<a href="./processo.html?id=${item.processo_id}" class="text-blue-700 hover:text-blue-900 hover:underline underline-offset-2 font-medium">${escapeHtml(
+          ? `<a href="./processo?id=${item.processo_id}" class="text-blue-700 hover:text-blue-900 hover:underline underline-offset-2 font-medium">${escapeHtml(
               processo
             )}</a>`
           : `<span>${escapeHtml(processo)}</span>`;
-        const novoProcessoHref = `./processos.html?novo=1&origem=djen&numero_processo=${encodeURIComponent(
+        const novoProcessoHref = `./processos?novo=1&origem=djen&numero_processo=${encodeURIComponent(
           processo
         )}`;
         const actions = hasLinkedProcess
@@ -4838,12 +4844,12 @@ async function initClienteDetail() {
       .filter((p) => p.numero_processo)
       .map(
         (p) =>
-          `<div class="inline-flex items-center gap-1">${renderCopyProcessButton(p.numero_processo)}<a class="text-blue-600 hover:text-blue-800" href="./processo.html?id=${p.id}">${p.numero_processo}</a></div>`
+          `<div class="inline-flex items-center gap-1">${renderCopyProcessButton(p.numero_processo)}<a class="text-blue-600 hover:text-blue-800" href="./processo?id=${p.id}">${p.numero_processo}</a></div>`
       );
     const processosHtml = processosLinhas.length ? `<div class="space-y-1">${processosLinhas.join('')}</div>` : '';
     nomeEl.textContent = cliente.nome || 'Cliente';
 
-    const campos = [
+    const camposGerais = [
       ['data_chegada', 'Data de chegada'],
       ['telefone', 'Telefone'],
       ['cpf_responsavel', 'CPF do responsável'],
@@ -4864,16 +4870,18 @@ async function initClienteDetail() {
       ['acesso_gov', 'Acesso GOV'],
       ['parceiro', 'Parceiro'],
       ['responsavel', 'Responsável'],
+      ['link_pasta', 'Link da pasta'],
+      ['status', 'Status'],
+      ['created_at', 'Criado em'],
+      ['processos_relacionados', 'Processo(s)'],
+    ];
+
+    const camposFinanceiros = [
       ['agencia', 'Agência'],
       ['conta', 'Conta'],
       ['banco', 'Banco'],
       ['tipo_conta', 'Tipo de conta'],
       ['dados_bancarios', 'Observações bancárias'],
-      ['link_pasta', 'Link da pasta'],
-      ['status', 'Status'],
-      ['created_at', 'Criado em'],
-      ['qualificacao', 'Qualificação'],
-      ['processos_relacionados', 'Processo(s)'],
     ];
 
     const formatValue = (key, value) => {
@@ -4882,6 +4890,8 @@ async function initClienteDetail() {
         return processosHtml;
       }
       if (!value) return '-';
+      // Dates: always render as DD-MM-AAAA in the UI.
+      if (key.startsWith('data_') || key.endsWith('_at')) return formatDateBR(value);
       if (key === 'link_pasta') {
         const val = String(value);
         if (val.startsWith('http://') || val.startsWith('https://')) {
@@ -4891,24 +4901,51 @@ async function initClienteDetail() {
       return String(value);
     };
 
+    const renderRows = (rows) =>
+      rows
+        .map(([key, label]) => {
+          const value = formatValue(key, cliente[key]);
+          return `
+            <div class="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-2 md:gap-6 py-2 border-b border-stone-100 last:border-b-0">
+              <div class="text-[11px] uppercase tracking-wide text-stone-400">${label}</div>
+              <div class="text-stone-900 break-words">${value}</div>
+            </div>
+          `;
+        })
+        .join('');
+
+    const renderRowsCompact = (rows) =>
+      rows
+        .map(([key, label]) => {
+          const value = formatValue(key, cliente[key]);
+          return `
+            <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 py-2 border-b border-stone-100 last:border-b-0">
+              <div class="min-w-0 text-[11px] uppercase tracking-wide text-stone-400">${label}</div>
+              <div class="min-w-0 text-stone-900 break-words text-right">${value}</div>
+            </div>
+          `;
+        })
+        .join('');
+
     propsEl.innerHTML = `
-      <div class="text-sm space-y-3">
-        ${campos
-          .map(([key, label]) => {
-            const value = formatValue(key, cliente[key]);
-            const isQualificacao = key === 'qualificacao';
-            const isProcessos = key === 'processos_relacionados';
-            const sep =
-              isQualificacao || isProcessos ? '<div class="h-px bg-stone-200 my-3"></div>' : '';
-            return `
-              ${sep}
-              <div class="grid grid-cols-[220px_1fr] gap-6 py-1">
-                <div class="text-[11px] uppercase tracking-wide text-stone-400">${label}</div>
-                <div class="text-stone-900 break-words">${value}</div>
-              </div>
-            `;
-          })
-          .join('')}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-start">
+        <section class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-sm font-semibold text-stone-900">Dados do Cliente</div>
+              <div class="text-xs text-stone-500 mt-1">Informacoes pessoais, contato e status.</div>
+            </div>
+          </div>
+          <div class="text-sm">${renderRows(camposGerais)}</div>
+        </section>
+
+        <section class="self-start bg-white border border-stone-200 rounded-2xl pt-6 px-6 pb-4 shadow-sm">
+          <div class="mb-4">
+            <div class="text-sm font-semibold text-stone-900">Dados Financeiros</div>
+            <div class="text-xs text-stone-500 mt-1">Banco e dados para repasse.</div>
+          </div>
+          <div class="text-sm">${renderRowsCompact(camposFinanceiros)}</div>
+        </section>
       </div>
     `;
 
@@ -5351,8 +5388,8 @@ async function initProcessoDetail() {
         text = decodeURIComponent(text);
       } catch (_) {}
       if (key === 'area' || key === 'classe' || key === 'fase') {
-        text = text.replace(/\s*\([^)]*(\.html|[0-9a-f]{10,})[^)]*\)/gi, '');
-        text = text.replace(/\s+[^\s]*\.html\b/gi, '');
+        text = text.replace(/\s*\([^)]*(\.(html|htlm)|[0-9a-f]{10,})[^)]*\)/gi, '');
+        text = text.replace(/\s+[^\s]*\.(html|htlm)\b/gi, '');
       }
       if (key === 'grau') {
         return {
@@ -5391,7 +5428,7 @@ async function initProcessoDetail() {
       }
       if (key === 'cliente_nome' && processo.cliente_id) {
         return {
-          html: `<a class="text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-600" href="./cliente.html?id=${processo.cliente_id}">${text}</a>`,
+          html: `<a class="text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-600" href="./cliente?id=${processo.cliente_id}">${text}</a>`,
           empty: false,
         };
       }
@@ -5463,7 +5500,7 @@ async function initProcessoDetail() {
         text = decodeURIComponent(text);
       } catch (_) {}
       text = text.replace(/\s+[0-9a-f]{10,}$/i, '');
-      text = text.replace(/\s*\\([^)]*(\\.html|[0-9a-f]{10,})[^)]*\\)/gi, '');
+      text = text.replace(/\s*\\([^)]*(\\.(html|htlm)|[0-9a-f]{10,})[^)]*\\)/gi, '');
       return text.trim();
     };
 
