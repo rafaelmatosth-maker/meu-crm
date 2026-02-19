@@ -168,7 +168,52 @@
       </div>
     </div>
 
+    <div id="djenCadastroModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">Cadastrar Processo a Partir da Publicação</h2>
+          <button id="djenCadastroClose" class="text-stone-500 hover:text-stone-900">Fechar</button>
+        </div>
+
+        <div class="space-y-4 text-sm">
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Processo</div>
+            <div id="djenCadastroProcesso" class="mt-1 text-stone-900 font-medium">-</div>
+          </div>
+
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Escolha a Parte que Será o Cliente</div>
+            <div id="djenCadastroPartesList" class="mt-2 space-y-2"></div>
+          </div>
+
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Advogado(s) da Publicação</div>
+            <div id="djenCadastroAdvogados" class="mt-2 text-stone-700">-</div>
+          </div>
+
+          <p id="djenCadastroMessage" class="text-sm min-h-5"></p>
+
+          <div class="flex items-center justify-end gap-2 pt-2">
+            <button
+              id="djenCadastroCancel"
+              type="button"
+              class="px-4 py-2 text-sm rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50"
+            >
+              Cancelar
+            </button>
+            <button
+              id="djenCadastroSubmit"
+              type="button"
+              class="px-4 py-2 text-sm rounded-lg bg-[#0C1B33] text-white hover:bg-[#0A162A]"
+            >
+              Cadastrar Processo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260212-7"></script>
+    <script src="../assets/app.v2.js?v=20260219-1"></script>
   </body>
 </html>
