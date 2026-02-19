@@ -71,11 +71,7 @@
               <select id="processoFiltroStatus" class="border rounded-lg px-3 py-2 text-sm">
                 <option value="">Todos os status</option>
                 <option value="Ativo">Ativo</option>
-                <option value="Em andamento">Em andamento</option>
-                <option value="Suspenso">Suspenso</option>
-                <option value="Arquivado">Arquivado</option>
                 <option value="Encerrado">Encerrado</option>
-                <option value="Cancelado">Cancelado</option>
               </select>
               <label class="inline-flex items-center gap-2 text-sm text-stone-500">
                 <input
@@ -156,12 +152,7 @@
               <select id="processoStatus" class="mt-1 w-full border rounded-lg px-3 py-2">
                 <option value=""></option>
                 <option value="Ativo">Ativo</option>
-                <option value="Em andamento">Em andamento</option>
-                <option value="Inativo">Inativo</option>
-                <option value="Suspenso">Suspenso</option>
-                <option value="Arquivado">Arquivado</option>
                 <option value="Encerrado">Encerrado</option>
-                <option value="Cancelado">Cancelado</option>
               </select>
             </div>
             <div>
@@ -177,12 +168,36 @@
               </select>
             </div>
             <div>
-              <label class="text-sm text-stone-600">Fase</label>
-              <input id="processoFase" class="mt-1 w-full border rounded-lg px-3 py-2" />
-            </div>
-            <div>
               <label class="text-sm text-stone-600">Classe</label>
-              <input id="processoClasse" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              <select id="processoClasse" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value=""></option>
+                <option value="Danos morais">Danos morais</option>
+                <option value="Danos materiais">Danos materiais</option>
+                <option value="Obrigação de fazer">Obrigação de fazer</option>
+                <option value="Cobrança">Cobrança</option>
+                <option value="Execução de título extrajudicial">Execução de título extrajudicial</option>
+                <option value="Cumprimento de sentença">Cumprimento de sentença</option>
+                <option value="Aposentadoria rural">Aposentadoria rural</option>
+                <option value="Aposentadoria por idade">Aposentadoria por idade</option>
+                <option value="Aposentadoria por invalidez">Aposentadoria por invalidez</option>
+                <option value="Auxílio por incapacidade temporária">Auxílio por incapacidade temporária</option>
+                <option value="Salário maternidade">Salário maternidade</option>
+                <option value="Pensão por morte">Pensão por morte</option>
+                <option value="Benefício assistencial (BPC/LOAS)">Benefício assistencial (BPC/LOAS)</option>
+                <option value="Revisão de benefício">Revisão de benefício</option>
+                <option value="Reclamação trabalhista">Reclamação trabalhista</option>
+                <option value="Defesa trabalhista">Defesa trabalhista</option>
+                <option value="Rescisão indireta">Rescisão indireta</option>
+                <option value="Horas extras">Horas extras</option>
+                <option value="Adicional de insalubridade">Adicional de insalubridade</option>
+                <option value="Acidente de trabalho">Acidente de trabalho</option>
+                <option value="Inventário">Inventário</option>
+                <option value="Divórcio">Divórcio</option>
+                <option value="Guarda">Guarda</option>
+                <option value="Alimentos">Alimentos</option>
+                <option value="União estável">União estável</option>
+                <option value="Habeas corpus">Habeas corpus</option>
+              </select>
             </div>
             <div class="md:col-span-2">
               <label class="text-sm text-stone-600">Órgão</label>
@@ -278,14 +293,16 @@
               <label class="text-sm text-stone-600">Resultado</label>
               <select id="processoResultado" class="mt-1 w-full border rounded-lg px-3 py-2">
                 <option value=""></option>
-                <option value="Em andamento">Em andamento</option>
                 <option value="Procedente">Procedente</option>
-                <option value="Parcialmente procedente">Parcialmente procedente</option>
+                <option value="Procedente em parte">Procedente em parte</option>
                 <option value="Improcedente">Improcedente</option>
-                <option value="Acordo">Acordo</option>
-                <option value="Arquivado">Arquivado</option>
-                <option value="Encerrado">Encerrado</option>
               </select>
+            </div>
+            <div class="flex items-end">
+              <label class="inline-flex items-center gap-2 text-sm text-stone-700 pb-2">
+                <input id="processoInterpostoRecurso" type="checkbox" class="h-4 w-4 rounded border-stone-300" />
+                Interposto recurso
+              </label>
             </div>
             <div>
               <label class="text-sm text-stone-600">Parte contrária</label>
@@ -340,6 +357,6 @@
     </div>
 
     <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260212-7"></script>
+    <script src="../assets/app.v2.js?v=20260219-1"></script>
   </body>
 </html>

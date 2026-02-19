@@ -310,7 +310,8 @@ async function initDatabase() {
       ADD COLUMN IF NOT EXISTS ultima_movimentacao_em TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS ultima_sincronizacao_em TIMESTAMPTZ,
       ADD COLUMN IF NOT EXISTS tem_novo_andamento BOOLEAN NOT NULL DEFAULT false,
-      ADD COLUMN IF NOT EXISTS proveito_pago TEXT;`
+      ADD COLUMN IF NOT EXISTS proveito_pago TEXT,
+      ADD COLUMN IF NOT EXISTS recurso_inominado TEXT;`
   );
 
   await db.query(

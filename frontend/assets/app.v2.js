@@ -301,6 +301,36 @@ function fillDatalistWithColaboradores(datalistEl, colaboradores = []) {
     .join('');
 }
 
+function normalizeResultadoAndRecurso(resultadoValue, recursoValue) {
+  const rawResultado = String(resultadoValue || '').trim();
+  const normalized = rawResultado
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  let resultado = '';
+  if (normalized.includes('improcedente')) {
+    resultado = 'Improcedente';
+  } else if (normalized.includes('procedente em parte') || normalized.includes('parcialmente procedente')) {
+    resultado = 'Procedente em parte';
+  } else if (normalized.includes('procedente')) {
+    resultado = 'Procedente';
+  } else {
+    resultado = rawResultado;
+  }
+
+  const recursoNormalized = String(recursoValue || '')
+    .trim()
+    .toLowerCase();
+  const recursoFromResultado = normalized.includes('recurso') ? 'sim' : 'no';
+  const recurso = recursoNormalized || recursoFromResultado;
+
+  return {
+    resultado,
+    recurso: recurso === 'sim' ? 'Sim' : 'No',
+  };
+}
+
 function stripHashSuffixText(text) {
   return String(text || '').replace(/\s+[a-f0-9]{16,}$/i, '').trim();
 }
@@ -1634,7 +1664,6 @@ async function initProcessos() {
   const enviarDocumentoBtn = qs('#enviarDocumentoBtn');
   const numeroInput = qs('#processoNumero');
   const areaInput = qs('#processoArea');
-  const faseInput = qs('#processoFase');
   const statusInput = qs('#processoStatus');
   const classeInput = qs('#processoClasse');
   const orgaoInput = qs('#processoOrgao');
@@ -1646,6 +1675,7 @@ async function initProcessos() {
   const sistemaInput = qs('#processoSistema');
   const distribuicaoInput = qs('#processoDistribuicao');
   const resultadoInput = qs('#processoResultado');
+  const interpostoRecursoInput = qs('#processoInterpostoRecurso');
   const parteContrariaInput = qs('#processoParteContraria');
   const contaBeneficioWrap = qs('#processoContaBeneficioWrap');
   const abrirContaInput = qs('#processoAbrirConta');
@@ -1880,6 +1910,7 @@ async function initProcessos() {
     if (orgaoInput) orgaoInput.value = '';
     if (abrirContaInput) abrirContaInput.checked = false;
     if (contaAbertaInput) contaAbertaInput.checked = false;
+    if (interpostoRecursoInput) interpostoRecursoInput.checked = false;
     toggleContaBeneficio();
     if (orgaoGrid) {
       orgaoGrid.querySelectorAll('.orgao-btn').forEach((btn) => {
@@ -2002,9 +2033,18 @@ async function initProcessos() {
         }
         areaInput.value = areaValue;
       }
-      faseInput.value = processo.fase || '';
       statusInput.value = processo.status || '';
-      classeInput.value = processo.classe || '';
+      if (classeInput) {
+        const classeValue = processo.classe || '';
+        const hasClasse = Array.from(classeInput.options || []).some((opt) => opt.value === classeValue);
+        if (classeValue && !hasClasse) {
+          const opt = document.createElement('option');
+          opt.value = classeValue;
+          opt.textContent = classeValue;
+          classeInput.appendChild(opt);
+        }
+        classeInput.value = classeValue;
+      }
       orgaoInput.value = processo.orgao || '';
       varaInput.value = processo.vara || '';
       grauInput.value = processo.grau || '';
@@ -2012,7 +2052,11 @@ async function initProcessos() {
       estadoInput.value = processo.estado || '';
       sistemaInput.value = processo.sistema || '';
       distribuicaoInput.value = normalizeDateValue(processo.distribuicao || '');
-      resultadoInput.value = processo.resultado || '';
+      const resultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
+      resultadoInput.value = resultadoInfo.resultado || '';
+      if (interpostoRecursoInput) {
+        interpostoRecursoInput.checked = resultadoInfo.recurso === 'Sim';
+      }
       parteContrariaInput.value = processo.parte_contraria || '';
       if (abrirContaInput) abrirContaInput.checked = String(processo.abrir_conta || '').toLowerCase() === 'sim';
       if (contaAbertaInput) contaAbertaInput.checked = String(processo.conta_aberta || '').toLowerCase() === 'sim';
@@ -2128,7 +2172,7 @@ async function initProcessos() {
       cliente_id: Number(clienteId.value),
       numero_processo: numeroInput.value.trim(),
       area: areaInput.value.trim(),
-      fase: faseInput.value.trim(),
+      fase: '',
       status: statusInput.value.trim(),
       classe: classeInput.value.trim(),
       orgao: orgaoInput.value.trim(),
@@ -2139,6 +2183,7 @@ async function initProcessos() {
       sistema: sistemaInput.value.trim(),
       distribuicao: distribuicaoInput.value.trim(),
       resultado: resultadoInput.value.trim(),
+      recurso_inominado: interpostoRecursoInput?.checked ? 'Sim' : 'No',
       parte_contraria: parteContrariaInput.value.trim(),
       abrir_conta: isPrevidenciario(areaInput.value) ? (abrirContaInput?.checked ? 'Sim' : 'No') : null,
       conta_aberta: isPrevidenciario(areaInput.value) ? (contaAbertaInput?.checked ? 'Sim' : 'No') : null,
@@ -4483,6 +4528,14 @@ async function initPublicacoesDjen() {
   const detailAdvogadosEl = qs('#djenDetailAdvogados');
   const detailTextoEl = qs('#djenDetailTexto');
   const detailLinkEl = qs('#djenDetailLink');
+  const cadastroModal = qs('#djenCadastroModal');
+  const cadastroCloseBtn = qs('#djenCadastroClose');
+  const cadastroCancelBtn = qs('#djenCadastroCancel');
+  const cadastroSubmitBtn = qs('#djenCadastroSubmit');
+  const cadastroProcessoEl = qs('#djenCadastroProcesso');
+  const cadastroPartesListEl = qs('#djenCadastroPartesList');
+  const cadastroAdvogadosEl = qs('#djenCadastroAdvogados');
+  const cadastroMessageEl = qs('#djenCadastroMessage');
 
   if (!form || !dataInicioInput || !dataFimInput || !tableBody) return;
 
@@ -4618,6 +4671,9 @@ async function initPublicacoesDjen() {
   let total = 0;
   let limit = Number(limitInput?.value) || 20;
   let currentRows = [];
+  let cadastroItem = null;
+  let cadastroPartes = [];
+  let cadastroParteSelecionada = '';
 
   const escapeHtml = (value) =>
     String(value || '')
@@ -4626,6 +4682,224 @@ async function initPublicacoesDjen() {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+
+  const normalizeCompare = (value) =>
+    String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+  const formatAdvogadoLabel = (adv) => {
+    const nome = String(adv?.nome || '').trim();
+    const uf = String(adv?.uf_oab || '').trim().toUpperCase();
+    const numero = String(adv?.numero_oab || '').trim();
+    if (!nome && !uf && !numero) return '';
+    const oab = [uf, numero].filter(Boolean).join('-');
+    return oab ? `${nome || 'Advogado'} (${oab})` : nome;
+  };
+
+  const getPartesFromItem = (item) => {
+    const destinatarios = Array.isArray(item?.raw?.destinatarios) ? item.raw.destinatarios : [];
+    const destinatarioAdvogados = Array.isArray(item?.raw?.destinatarioadvogados)
+      ? item.raw.destinatarioadvogados
+      : [];
+    const map = new Map();
+
+    const ensureParte = (nome, poloRaw) => {
+      const nomeClean = String(nome || '').trim();
+      const key = normalizeCompare(nomeClean);
+      if (!key) return null;
+      const polo = String(poloRaw || '').trim().toUpperCase();
+      const poloLabel = polo === 'P' ? 'Polo ativo' : polo === 'A' ? 'Polo passivo' : '';
+      if (!map.has(key)) {
+        map.set(key, {
+          nome: nomeClean,
+          polo: poloLabel,
+          advogados: [],
+        });
+      } else if (poloLabel && !map.get(key).polo) {
+        map.get(key).polo = poloLabel;
+      }
+      return map.get(key);
+    };
+
+    const addAdvogadoToParte = (parte, adv) => {
+      if (!parte) return;
+      const label = formatAdvogadoLabel(adv);
+      if (!label) return;
+      const exists = parte.advogados.some((current) => normalizeCompare(current) === normalizeCompare(label));
+      if (!exists) parte.advogados.push(label);
+    };
+
+    destinatarios.forEach((entry) => {
+      const parte = ensureParte(entry?.nome, entry?.polo);
+      if (!parte) return;
+      if (Array.isArray(entry?.advogados)) {
+        entry.advogados.forEach((adv) => addAdvogadoToParte(parte, adv));
+      }
+      if (entry?.advogado) addAdvogadoToParte(parte, entry.advogado);
+    });
+
+    destinatarioAdvogados.forEach((entry) => {
+      const nomeDestinatario =
+        entry?.destinatario?.nome ||
+        entry?.destinatario_nome ||
+        entry?.nome_destinatario ||
+        '';
+      const poloDestinatario = entry?.destinatario?.polo || '';
+      const parte = ensureParte(nomeDestinatario, poloDestinatario);
+      if (!parte) return;
+      addAdvogadoToParte(parte, entry?.advogado);
+    });
+
+    return Array.from(map.values());
+  };
+
+  const getAdvogadosText = (item) => {
+    const list = Array.isArray(item?.advogados) ? item.advogados : [];
+    if (!list.length) return '-';
+    return list
+      .map((adv) => `${adv.nome || '-'} (${adv.uf_oab || '-'}-${adv.numero_oab || '-'})`)
+      .join(' | ');
+  };
+
+  const renderCadastroPartes = () => {
+    if (!cadastroPartesListEl) return;
+    if (!cadastroPartes.length) {
+      cadastroPartesListEl.innerHTML =
+        '<div class="text-sm text-stone-500">Nenhuma parte encontrada nesta publicação.</div>';
+      return;
+    }
+    cadastroPartesListEl.innerHTML = cadastroPartes
+      .map(
+        (parte, idx) => `
+          <label class="flex items-start gap-2 border border-stone-200 rounded-lg px-3 py-2 hover:bg-stone-50">
+            <input
+              type="radio"
+              name="djenCadastroParte"
+              value="${escapeHtml(parte.nome)}"
+              ${idx === 0 ? 'checked' : ''}
+              class="mt-0.5 accent-[#0C1B33]"
+            />
+            <span>
+              <span class="text-stone-900">${escapeHtml(parte.nome)}</span>
+              ${parte.polo ? `<span class="block text-xs text-stone-500">${escapeHtml(parte.polo)}</span>` : ''}
+              ${
+                Array.isArray(parte.advogados) && parte.advogados.length
+                  ? `<span class="block text-xs text-stone-500 mt-1">Advogado(s): ${escapeHtml(
+                      parte.advogados.join(' | ')
+                    )}</span>`
+                  : ''
+              }
+            </span>
+          </label>
+        `
+      )
+      .join('');
+    cadastroParteSelecionada = cadastroPartes[0]?.nome || '';
+  };
+
+  const closeCadastroModal = () => {
+    if (!cadastroModal) return;
+    cadastroModal.classList.add('hidden');
+    cadastroModal.classList.remove('flex');
+    cadastroItem = null;
+    cadastroPartes = [];
+    cadastroParteSelecionada = '';
+    showMessage(cadastroMessageEl, '');
+  };
+
+  const openCadastroModal = (item) => {
+    if (!item || !cadastroModal) return;
+    cadastroItem = item;
+    cadastroPartes = getPartesFromItem(item);
+    cadastroParteSelecionada = cadastroPartes[0]?.nome || '';
+    if (cadastroProcessoEl) {
+      cadastroProcessoEl.textContent = item.numero_processo_mascara || item.numero_processo || '-';
+    }
+    if (cadastroAdvogadosEl) {
+      cadastroAdvogadosEl.textContent = getAdvogadosText(item);
+    }
+    renderCadastroPartes();
+    showMessage(cadastroMessageEl, '');
+    if (cadastroSubmitBtn) cadastroSubmitBtn.disabled = !cadastroPartes.length;
+    if (!cadastroPartes.length) {
+      showMessage(cadastroMessageEl, 'Não foi possível identificar as partes desta publicação.');
+    }
+    cadastroModal.classList.remove('hidden');
+    cadastroModal.classList.add('flex');
+  };
+
+  const findOrCreateCliente = async (nome) => {
+    const searchResp = await api.clientes.list({ page: 1, limit: 30, search: nome });
+    const data = Array.isArray(searchResp?.data) ? searchResp.data : [];
+    const exact = data.find((c) => normalizeCompare(c.nome) === normalizeCompare(nome));
+    if (exact) return exact;
+    return api.clientes.create({
+      nome,
+      status: 'ativo',
+      estado: (ufInput?.value || '').trim().toUpperCase() || null,
+    });
+  };
+
+  const buildParteContraria = (selectedNome) => {
+    return cadastroPartes
+      .filter((parte) => normalizeCompare(parte.nome) !== normalizeCompare(selectedNome))
+      .map((parte) => parte.nome)
+      .join('; ');
+  };
+
+  const handleCadastroProcesso = async () => {
+    if (!cadastroItem) return;
+    if (!cadastroParteSelecionada) {
+      showMessage(cadastroMessageEl, 'Selecione uma parte para cadastrar como cliente.');
+      return;
+    }
+    const numeroProcesso = String(
+      cadastroItem.numero_processo_mascara || cadastroItem.numero_processo || ''
+    ).trim();
+    if (!numeroProcesso || numeroProcesso === '-') {
+      showMessage(cadastroMessageEl, 'Número de processo inválido na publicação.');
+      return;
+    }
+
+    if (cadastroSubmitBtn) cadastroSubmitBtn.disabled = true;
+    showMessage(cadastroMessageEl, 'Cadastrando cliente e processo...', 'sucesso');
+
+    try {
+      const cliente = await findOrCreateCliente(cadastroParteSelecionada);
+      const payload = {
+        cliente_id: Number(cliente.id),
+        numero_processo: numeroProcesso,
+        status: 'Ativo',
+        classe: String(cadastroItem?.raw?.nomeClasse || '').trim(),
+        orgao: String(cadastroItem.orgao || '').trim(),
+        parte_contraria: buildParteContraria(cadastroParteSelecionada),
+      };
+      const created = await api.processos.create(payload);
+      showMessage(cadastroMessageEl, 'Processo cadastrado com sucesso.', 'sucesso');
+      setTimeout(() => {
+        window.location.href = `./processo?id=${created.id}`;
+      }, 350);
+    } catch (err) {
+      const existingProcessId = Number(err?.data?.processo_id);
+      if (Number.isFinite(existingProcessId) && existingProcessId > 0) {
+        showMessage(
+          cadastroMessageEl,
+          `Esse processo já existe (#${existingProcessId}). Abrindo o cadastro existente...`,
+          'sucesso'
+        );
+        setTimeout(() => {
+          window.location.href = `./processo?id=${existingProcessId}`;
+        }, 500);
+        return;
+      }
+      showMessage(cadastroMessageEl, err.message || 'Erro ao cadastrar processo.');
+      if (cadastroSubmitBtn) cadastroSubmitBtn.disabled = false;
+    }
+  };
 
   const openDetail = (item) => {
     if (!item) return;
@@ -4676,14 +4950,15 @@ async function initPublicacoesDjen() {
         const processo = item.numero_processo_mascara || item.numero_processo || '-';
         const data = formatDateBR(item.data_disponibilizacao);
         const hasLinkedProcess = Boolean(item.processo_encontrado && item.processo_id);
+        const clienteVinculado = String(item.processo_cliente_nome || '').trim();
         const processoCell = hasLinkedProcess
-          ? `<a href="./processo?id=${item.processo_id}" class="text-blue-700 hover:text-blue-900 hover:underline underline-offset-2 font-medium">${escapeHtml(
-              processo
-            )}</a>`
+          ? `<span class="inline-flex items-center gap-1 whitespace-nowrap">
+              <a href="./processo?id=${item.processo_id}" class="text-blue-700 hover:text-blue-900 hover:underline underline-offset-2 font-medium">${escapeHtml(
+                processo
+              )}</a>
+              ${clienteVinculado ? `<span class="text-xs text-stone-500">- ${escapeHtml(clienteVinculado)}</span>` : ''}
+            </span>`
           : `<span>${escapeHtml(processo)}</span>`;
-        const novoProcessoHref = `./processos?novo=1&origem=djen&numero_processo=${encodeURIComponent(
-          processo
-        )}`;
         const actions = hasLinkedProcess
           ? `
             <button
@@ -4695,12 +4970,13 @@ async function initPublicacoesDjen() {
             </button>
           `
           : `
-            <a
-              href="${novoProcessoHref}"
+            <button
+              type="button"
+              data-djen-create="${index}"
               class="px-3 py-1.5 text-xs rounded-lg border border-blue-200 text-blue-700 hover:bg-blue-50"
             >
               Cadastrar processo
-            </a>
+            </button>
             <button
               type="button"
               data-djen-view="${index}"
@@ -4784,11 +5060,32 @@ async function initPublicacoesDjen() {
   });
 
   tableBody.addEventListener('click', (event) => {
+    const createBtn = event.target.closest('[data-djen-create]');
+    if (createBtn) {
+      const idx = Number(createBtn.getAttribute('data-djen-create'));
+      if (!Number.isFinite(idx)) return;
+      openCadastroModal(currentRows[idx]);
+      return;
+    }
+
     const btn = event.target.closest('[data-djen-view]');
     if (!btn) return;
     const idx = Number(btn.getAttribute('data-djen-view'));
     if (!Number.isFinite(idx)) return;
     openDetail(currentRows[idx]);
+  });
+
+  cadastroPartesListEl?.addEventListener('change', (event) => {
+    const target = event.target.closest('input[name="djenCadastroParte"]');
+    if (!target) return;
+    cadastroParteSelecionada = String(target.value || '').trim();
+  });
+
+  cadastroCloseBtn?.addEventListener('click', closeCadastroModal);
+  cadastroCancelBtn?.addEventListener('click', closeCadastroModal);
+  cadastroSubmitBtn?.addEventListener('click', handleCadastroProcesso);
+  cadastroModal?.addEventListener('click', (event) => {
+    if (event.target === cadastroModal) closeCadastroModal();
   });
 
   detailCloseBtn?.addEventListener('click', closeDetail);
@@ -5102,7 +5399,6 @@ async function initProcessoDetail() {
   const editNumero = qs('#processoEditNumero');
   const editStatus = qs('#processoEditStatus');
   const editArea = qs('#processoEditArea');
-  const editFase = qs('#processoEditFase');
   const editClasse = qs('#processoEditClasse');
   const editOrgao = qs('#processoEditOrgao');
   const editOrgaoGrid = qs('#processoEditOrgaoGrid');
@@ -5113,6 +5409,7 @@ async function initProcessoDetail() {
   const editSistema = qs('#processoEditSistema');
   const editDistribuicao = qs('#processoEditDistribuicao');
   const editResultado = qs('#processoEditResultado');
+  const editInterpostoRecurso = qs('#processoEditInterpostoRecurso');
   const editParteContraria = qs('#processoEditParteContraria');
   const editContaBeneficioWrap = qs('#processoEditContaBeneficioWrap');
   const editAbrirConta = qs('#processoEditAbrirConta');
@@ -5340,91 +5637,39 @@ async function initProcessoDetail() {
       return deduped.join(separator);
     };
 
-    const buildJuizoLabel = () => {
-      const varaRaw = String(processo.vara || '').trim();
-      const juizoRaw = String(processo.juizo || '').trim();
+    const buildTribunalLabel = () => {
+      const orgaoRaw = String(processo.orgao || processo.juizo || '').trim();
       const cidadeRaw = String(processo.cidade || '').trim();
       const estadoRaw = String(processo.estado || '').trim();
-
-      const varaPart = varaRaw
-        ? /vara/i.test(varaRaw)
-          ? varaRaw
-          : `${varaRaw} Vara`
-        : '';
-      const baseParts = [varaPart, juizoRaw].filter(Boolean);
-      const base = baseParts.join(' ').replace(/\s+/g, ' ').trim();
-      if (!base && !cidadeRaw && !estadoRaw) return '';
-      const cidadePart = cidadeRaw ? `de ${cidadeRaw}` : '';
-      const local = [base, cidadePart].filter(Boolean).join(' ').trim();
-      return estadoRaw && local ? `${local}, ${estadoRaw}` : local || estadoRaw;
+      const local = [cidadeRaw, estadoRaw].filter(Boolean).join(', ');
+      return uniqueJoin([orgaoRaw, local], ' · ');
     };
+
+    const resultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
 
     const computed = {
-      status_resumo: processo.status || processo.situacao || '',
-      classe_fase: uniqueJoin([processo.classe, processo.fase]),
-      orgao_juizo: buildJuizoLabel(),
+      assunto_resumo: uniqueJoin([processo.area, processo.classe || processo.fase]),
+      tribunal_resumo: buildTribunalLabel(),
+      resultado_resumo: resultadoInfo.resultado || '',
     };
 
-    const grupos = [
-      {
-        titulo: 'Essenciais',
-        campos: [
-          ['cliente_nome', 'Cliente'],
-          ['status_resumo', 'Status'],
-          ['area', 'Área'],
-          ['classe_fase', 'Classe/Fase'],
-          ['parte_contraria', 'Parte ré'],
-          ['orgao_juizo', 'Órgão/Juízo'],
-        ],
-      },
-    ];
-
-    const formatValue = (key, value) => {
+    const formatValue = (key, value, fallback = 'Não informado') => {
       const computedValue = Object.prototype.hasOwnProperty.call(computed, key) ? computed[key] : value;
       if (computedValue === null || computedValue === undefined || computedValue === '')
-        return { html: '', empty: true };
+        return { html: `<span class="text-stone-400">${fallback}</span>`, empty: false };
       let text = String(computedValue);
       try {
         text = decodeURIComponent(text);
       } catch (_) {}
-      if (key === 'area' || key === 'classe' || key === 'fase') {
+      if (
+        key === 'area' ||
+        key === 'classe' ||
+        key === 'fase' ||
+        key === 'assunto_resumo' ||
+        key === 'tribunal_resumo'
+      ) {
         text = text.replace(/\s*\([^)]*(\.(html|htlm)|[0-9a-f]{10,})[^)]*\)/gi, '');
         text = text.replace(/\s+[^\s]*\.(html|htlm)\b/gi, '');
-      }
-      if (key === 'grau') {
-        return {
-          html: `<span class="inline-flex items-center text-xs font-semibold px-2 py-1 rounded-full bg-stone-100 text-stone-700 border border-stone-200">${text}</span>`,
-          empty: false,
-        };
-      }
-      if (key === 'sistema') {
-        const logo = buildSystemLogo(text);
-        return {
-          html: `<div class="flex items-center gap-2">${logo}<span>${text}</span></div>`,
-          empty: false,
-        };
-      }
-      if (key === 'numero_processo') {
-        const grauText = processo.grau ? String(processo.grau) : '';
-        const sistemaText = processo.sistema ? String(processo.sistema) : '';
-        const grauChip = grauText
-          ? `<span class="inline-flex items-center text-[11px] font-semibold px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">${grauText}</span>`
-          : '';
-        const sistemaLogo = sistemaText ? buildSystemLogo(sistemaText) : '';
-        const sistemaBadge = sistemaText
-          ? `<span class="inline-flex items-center gap-2">${sistemaLogo}</span>`
-          : '';
-        return {
-          html: `
-            <div class="flex flex-wrap items-center gap-2">
-              ${renderCopyProcessButton(text)}
-              <strong class="font-semibold">${text}</strong>
-              ${grauChip}
-              ${sistemaBadge}
-            </div>
-          `,
-          empty: false,
-        };
       }
       if (key === 'cliente_nome' && processo.cliente_id) {
         return {
@@ -5441,34 +5686,69 @@ async function initProcessoDetail() {
       return { html: text, empty: false };
     };
 
-    const renderGrupo = (grupo) => {
-      const rows = grupo.campos
-        .map(([key, label]) => {
-          const value = formatValue(key, processo[key]);
-          if (value.empty) return '';
-          return `
-            <div class="py-3 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-2">
-              <div class="text-xs uppercase tracking-wide text-stone-400">${label}</div>
-              <div class="text-sm text-stone-900 break-words">${value.html}</div>
-            </div>
-          `;
-        })
-        .filter(Boolean)
-        .join('');
-
-      if (!rows) return '';
-
-      return `
-        <section class="bg-white border border-stone-200 rounded-2xl p-5">
-          <h2 class="text-sm font-semibold text-stone-700 mb-2">${grupo.titulo}</h2>
-          <div class="divide-y divide-stone-200/70">${rows}</div>
-        </section>
-      `;
+    const icon = (name) => {
+      const icons = {
+        processo: '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 7h8M8 12h8M8 17h5"/><path d="M6 3h9l3 3v15H6z"/></svg>',
+        assunto: '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h16"/><path d="M12 4v16"/><circle cx="12" cy="12" r="8"/></svg>',
+        tribunal: '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18M5 10v8h14v-8M9 10V6h6v4"/></svg>',
+        resultado: '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12l4 4 10-10"/></svg>',
+        envolvidos: '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M14.5 19c.2-2.1 1.9-3.8 4-4"/></svg>',
+      };
+      return icons[name] || icons.assunto;
     };
 
-    const [essenciais, ...restante] = grupos;
-    const essenciaisHtml = renderGrupo(essenciais);
-    const rightHtml = restante.map(renderGrupo).filter(Boolean).join('');
+    const infoItems = [
+      ['numero_processo', 'Número do processo', 'processo'],
+      ['assunto_resumo', 'Assunto', 'assunto'],
+      ['tribunal_resumo', 'Tribunal', 'tribunal'],
+      ['resultado_resumo', 'Resultado', 'resultado'],
+    ];
+
+    const infoRows = infoItems
+      .map(([key, label, iconName]) => {
+        const fallback = key === 'resultado_resumo' ? 'Em tramitação' : 'Não informado';
+        const value = formatValue(key, processo[key], fallback);
+        return `
+          <div class="py-3">
+            <div class="flex items-center gap-2 text-stone-800">
+              <span class="inline-flex items-center justify-center text-stone-600">${icon(iconName)}</span>
+              <span class="text-[15px] font-semibold">${label}</span>
+            </div>
+            <div class="mt-1 pl-6 text-sm text-stone-600 break-words">${value.html}</div>
+          </div>
+        `;
+      })
+      .join('');
+
+    const envolvidosHtml = `
+      <div class="py-3">
+        <div class="flex items-center gap-2 text-stone-800">
+          <span class="inline-flex items-center justify-center text-stone-600">${icon('envolvidos')}</span>
+          <span class="text-[15px] font-semibold">Envolvidos</span>
+        </div>
+        <div class="mt-2 pl-6 space-y-2">
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Polo ativo</div>
+            <div class="text-sm text-stone-700 break-words">${formatValue('cliente_nome', processo.cliente_nome, 'Não informado').html}</div>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-wide text-stone-400">Polo passivo</div>
+            <div class="text-sm text-stone-700 break-words">${formatValue('parte_contraria', processo.parte_contraria, 'Não informado').html}</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const infoCardHtml = `
+      <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+        <header class="px-6 py-5 border-b border-stone-200/80">
+          <h2 class="text-lg font-semibold text-stone-900">Dados essenciais</h2>
+          <p class="text-sm text-stone-600 mt-1">Resumo principal do processo.</p>
+        </header>
+        <div class="px-6 py-4 divide-y divide-stone-100">${infoRows}${envolvidosHtml}</div>
+      </section>
+    `;
+
     const atividadesPlaceholder = `
       <section id="processoAtividadesCard" class="bg-white border border-stone-200 rounded-2xl p-5">
         <h2 class="text-sm font-semibold text-stone-700 mb-2">Atividades do processo</h2>
@@ -5483,12 +5763,10 @@ async function initProcessoDetail() {
     `;
 
     propsEl.innerHTML =
-      (essenciaisHtml || rightHtml
-        ? `
-          <div class="space-y-6">${essenciaisHtml}</div>
-          <div class="space-y-6">${rightHtml}${atividadesPlaceholder}${contaBeneficioPlaceholder}</div>
-        `
-        : '<div class="text-sm text-stone-500">Nenhum detalhe adicional disponível.</div>');
+      `
+        <div class="space-y-6">${infoCardHtml}</div>
+        <div class="space-y-6">${atividadesPlaceholder}${contaBeneficioPlaceholder}</div>
+      `;
 
     const formatDateTime = (dateValue, timeValue) => formatDateOptionalTime(dateValue, timeValue);
 
@@ -5680,7 +5958,7 @@ async function initProcessoDetail() {
         numero_processo: processo.numero_processo || '',
         status: processo.status || '',
         area: processo.area || '',
-        fase: processo.fase || '',
+        fase: '',
         classe: processo.classe || '',
         orgao: processo.orgao || '',
         vara: processo.vara || '',
@@ -5690,6 +5968,7 @@ async function initProcessoDetail() {
         sistema: processo.sistema || '',
         distribuicao: processo.distribuicao || '',
         resultado: processo.resultado || '',
+        recurso_inominado: processo.recurso_inominado || 'No',
         parte_contraria: processo.parte_contraria || '',
         abrir_conta: processo.abrir_conta || 'No',
         conta_aberta: processo.conta_aberta || 'No',
@@ -6017,8 +6296,17 @@ async function initProcessoDetail() {
           }
           editArea.value = areaValue;
         }
-        editFase.value = processo.fase || '';
-        editClasse.value = processo.classe || '';
+        if (editClasse) {
+          const classeValue = processo.classe || '';
+          const hasClasse = Array.from(editClasse.options || []).some((opt) => opt.value === classeValue);
+          if (classeValue && !hasClasse) {
+            const opt = document.createElement('option');
+            opt.value = classeValue;
+            opt.textContent = classeValue;
+            editClasse.appendChild(opt);
+          }
+          editClasse.value = classeValue;
+        }
         editOrgao.value = processo.orgao || '';
         editVara.value = processo.vara || '';
         editGrau.value = processo.grau || '';
@@ -6026,7 +6314,11 @@ async function initProcessoDetail() {
         editEstado.value = processo.estado || '';
         editSistema.value = processo.sistema || '';
         editDistribuicao.value = processo.distribuicao || '';
-        editResultado.value = processo.resultado || '';
+        const editResultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
+        editResultado.value = editResultadoInfo.resultado || '';
+        if (editInterpostoRecurso) {
+          editInterpostoRecurso.checked = editResultadoInfo.recurso === 'Sim';
+        }
         editParteContraria.value = processo.parte_contraria || '';
         if (editAbrirConta) editAbrirConta.checked = String(processo.abrir_conta || '').toLowerCase() === 'sim';
         if (editContaAberta) editContaAberta.checked = String(processo.conta_aberta || '').toLowerCase() === 'sim';
@@ -6291,7 +6583,7 @@ async function initProcessoDetail() {
           numero_processo: editNumero.value.trim(),
           status: editStatus.value.trim(),
           area: editArea.value.trim(),
-          fase: editFase.value.trim(),
+          fase: '',
           classe: editClasse.value.trim(),
           orgao: editOrgao.value.trim(),
           vara: editVara.value.trim(),
@@ -6301,6 +6593,7 @@ async function initProcessoDetail() {
           sistema: editSistema.value.trim(),
           distribuicao: editDistribuicao.value.trim(),
           resultado: editResultado.value.trim(),
+          recurso_inominado: editInterpostoRecurso?.checked ? 'Sim' : 'No',
           parte_contraria: editParteContraria.value.trim(),
           abrir_conta: isPrevidenciario(editArea.value) ? (editAbrirConta?.checked ? 'Sim' : 'No') : null,
           conta_aberta: isPrevidenciario(editArea.value) ? (editContaAberta?.checked ? 'Sim' : 'No') : null,

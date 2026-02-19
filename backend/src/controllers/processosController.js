@@ -96,8 +96,34 @@ async function listar(req, res) {
     if (req.query.search) {
       const searchRaw = String(req.query.search || '').trim();
       if (searchRaw) {
-        params.push(`%${searchRaw}%`);
-        let clause = `(p.numero_processo ILIKE $${params.length} OR p.area ILIKE $${params.length} OR p.orgao ILIKE $${params.length} OR c.nome ILIKE $${params.length} OR p.status_pagamento ILIKE $${params.length})`;
+        const likeTerm = `%${searchRaw}%`;
+        params.push(likeTerm);
+        const likeIdx = params.length;
+
+        // For fuzzy client-name matching (typos/partial), we use pg_trgm's similarity.
+        // Avoid enabling it for tiny strings to prevent broad matches.
+        const enableSimilarity = searchRaw.length >= 3;
+        if (enableSimilarity) {
+          params.push(searchRaw);
+        }
+        const simIdx = params.length;
+
+        // Accent/case-insensitive search for human-entered fields.
+        // Requires Postgres extensions: unaccent (+ pg_trgm for similarity).
+        const parts = [
+          `p.numero_processo ILIKE $${likeIdx}`,
+          `unaccent(coalesce(p.area, '')) ILIKE unaccent($${likeIdx})`,
+          `unaccent(coalesce(p.orgao, '')) ILIKE unaccent($${likeIdx})`,
+          `unaccent(coalesce(c.nome, '')) ILIKE unaccent($${likeIdx})`,
+          `unaccent(coalesce(p.status_pagamento, '')) ILIKE unaccent($${likeIdx})`,
+        ];
+        if (enableSimilarity) {
+          parts.push(
+            `similarity(unaccent(coalesce(c.nome, '')), unaccent($${simIdx})) > 0.25`
+          );
+        }
+
+        let clause = `(${parts.join(' OR ')})`;
         const digits = searchRaw.replace(/\D/g, '');
         if (digits) {
           params.push(`%${digits}%`);
@@ -191,6 +217,7 @@ async function criar(req, res) {
     prazo,
     previsao,
     resultado,
+    recurso_inominado,
     proveito_economico,
     proveito_pago,
     status_pagamento,
@@ -253,6 +280,7 @@ async function criar(req, res) {
         prazo,
         previsao,
         resultado,
+        recurso_inominado,
         proveito_economico,
         proveito_pago,
         status_pagamento,
@@ -266,7 +294,7 @@ async function criar(req, res) {
         distribuicao,
         escritorio_id
       )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37)
        RETURNING *`,
       [
         cliente_id,
@@ -293,6 +321,7 @@ async function criar(req, res) {
         prazo || null,
         previsao || null,
         resultado || null,
+        recurso_inominado || null,
         proveito_economico || null,
         proveito_pago || null,
         status_pagamento || null,
@@ -346,6 +375,7 @@ async function atualizar(req, res) {
     prazo,
     previsao,
     resultado,
+    recurso_inominado,
     proveito_economico,
     proveito_pago,
     status_pagamento,
@@ -412,18 +442,19 @@ async function atualizar(req, res) {
            prazo = $22,
            previsao = $23,
            resultado = $24,
-           proveito_economico = $25,
-           proveito_pago = $26,
-           status_pagamento = $27,
-           comissao = $28,
-           honorario_adm = $29,
-           honorarios = $30,
-           honorarios_liquidos = $31,
-           repassado = $32,
-           repasse = $33,
-           parte_contraria = $34,
-           distribuicao = $35
-       WHERE id = $36 AND escritorio_id = $37
+           recurso_inominado = $25,
+           proveito_economico = $26,
+           proveito_pago = $27,
+           status_pagamento = $28,
+           comissao = $29,
+           honorario_adm = $30,
+           honorarios = $31,
+           honorarios_liquidos = $32,
+           repassado = $33,
+           repasse = $34,
+           parte_contraria = $35,
+           distribuicao = $36
+       WHERE id = $37 AND escritorio_id = $38
        RETURNING *`,
       [
         cliente_id,
@@ -450,6 +481,7 @@ async function atualizar(req, res) {
         prazo || null,
         previsao || null,
         resultado || null,
+        recurso_inominado || null,
         proveito_economico || null,
         proveito_pago || null,
         status_pagamento || null,
