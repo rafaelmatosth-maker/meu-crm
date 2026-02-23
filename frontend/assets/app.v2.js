@@ -2798,7 +2798,12 @@ async function initAtividades() {
 
   function toDateKey(value) {
     if (!value) return '';
-    const d = new Date(value);
+    const raw = String(value).trim();
+    const isoDateMatch = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|[T\s])/);
+    if (isoDateMatch) {
+      return `${isoDateMatch[1]}-${isoDateMatch[2]}-${isoDateMatch[3]}`;
+    }
+    const d = new Date(raw);
     if (Number.isNaN(d.getTime())) return '';
     d.setHours(0, 0, 0, 0);
     return d.toISOString().slice(0, 10);
@@ -6655,6 +6660,21 @@ async function initAjustes() {
   const procedimentoForm = qs('#ajustesProcedimentoForm');
   const procedimentosList = qs('#ajustesProcedimentosList');
 
+  const importacaoForm = qs('#ajustesImportacaoForm');
+  const importacaoOabPreset = qs('#ajustesImportacaoOabPreset');
+  const importacaoOabNumero = qs('#ajustesImportacaoOabNumero');
+  const importacaoOabUf = qs('#ajustesImportacaoOabUf');
+  const importacaoDataInicio = qs('#ajustesImportacaoDataInicio');
+  const importacaoDataFim = qs('#ajustesImportacaoDataFim');
+  const importacaoMaxPaginas = qs('#ajustesImportacaoMaxPaginas');
+  const importacaoMessage = qs('#ajustesImportacaoMessage');
+  const importacaoResumo = qs('#ajustesImportacaoResumo');
+  const importacaoBody = qs('#ajustesImportacaoBody');
+  const importacaoSelecionarTodosBtn = qs('#ajustesImportacaoSelecionarTodos');
+  const importacaoLimparSelecaoBtn = qs('#ajustesImportacaoLimparSelecao');
+  const importacaoCadastrarTodosBtn = qs('#ajustesImportacaoCadastrarTodos');
+  const importacaoAcoes = qs('#ajustesImportacaoAcoes');
+
   const escapeHtml = (value) =>
     String(value || '')
       .replace(/&/g, '&amp;')
@@ -6670,9 +6690,41 @@ async function initAjustes() {
     areas: [],
     oabs: [],
     procedimentos: [],
+    importacaoProcessos: [],
+    importacaoResumo: null,
   };
 
   const notify = (text, type = 'sucesso') => showMessage(msgEl, text, type);
+
+  const normalizeText = (value) => String(value || '').trim();
+  const normalizeDigits = (value) => String(value || '').replace(/\D/g, '');
+  const numeroProcessoKey = (value) => {
+    const digits = normalizeDigits(value);
+    if (digits) return `d:${digits}`;
+    const plain = normalizeText(value).toLowerCase();
+    return plain ? `e:${plain}` : '';
+  };
+
+  const ensureImportacaoDateDefaults = () => {
+    if (!importacaoDataInicio || !importacaoDataFim) return;
+    if (importacaoDataInicio.value && importacaoDataFim.value) return;
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 365);
+    const toIso = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+    if (!importacaoDataFim.value) importacaoDataFim.value = toIso(end);
+    if (!importacaoDataInicio.value) importacaoDataInicio.value = toIso(start);
+  };
+
+  const collectImportacaoSelecionados = () =>
+    (state.importacaoProcessos || []).filter(
+      (item) => !item.excluido && !item.processo_encontrado && !item.importado_agora
+    );
 
   const renderConfig = () => {
     if (!state.config) return;
@@ -6783,10 +6835,263 @@ async function initAjustes() {
       .join('');
   };
 
+  const renderImportacaoOabPreset = () => {
+    if (!importacaoOabPreset) return;
+    const options = (state.oabs || [])
+      .filter((item) => item.ativo !== false)
+      .map(
+        (item) =>
+          `<option value="${item.id}" data-numero="${escapeHtml(item.numero)}" data-uf="${escapeHtml(
+            item.uf
+          )}">${escapeHtml(item.numero)}/${escapeHtml(item.uf)}${item.etiqueta ? ` - ${escapeHtml(item.etiqueta)}` : ''}</option>`
+      )
+      .join('');
+    importacaoOabPreset.innerHTML = `<option value="custom">Outra OAB</option>${options}`;
+  };
+
+  const applyImportacaoPresetValue = () => {
+    if (!importacaoOabPreset || !importacaoOabNumero || !importacaoOabUf) return;
+    const selectedValue = String(importacaoOabPreset.value || 'custom');
+    if (selectedValue === 'custom') {
+      importacaoOabNumero.disabled = false;
+      importacaoOabUf.disabled = false;
+      if (!importacaoOabUf.value && state.config?.djen_uf_padrao) {
+        importacaoOabUf.value = String(state.config.djen_uf_padrao).toUpperCase();
+      }
+      return;
+    }
+    const selectedOption = importacaoOabPreset.options[importacaoOabPreset.selectedIndex];
+    const numero = selectedOption?.dataset?.numero || '';
+    const uf = selectedOption?.dataset?.uf || '';
+    importacaoOabNumero.value = numero;
+    importacaoOabUf.value = String(uf || state.config?.djen_uf_padrao || '').toUpperCase();
+    importacaoOabNumero.disabled = true;
+    importacaoOabUf.disabled = true;
+  };
+
+  const renderImportacaoResumo = () => {
+    const total = Number((state.importacaoProcessos || []).length || 0);
+    const selecionados = collectImportacaoSelecionados().length;
+
+    if (importacaoAcoes) {
+      importacaoAcoes.classList.toggle('hidden', total === 0);
+      importacaoAcoes.classList.toggle('flex', total > 0);
+    }
+
+    if (importacaoResumo) {
+      if (!total) {
+        importacaoResumo.textContent = 'Nenhuma busca realizada.';
+      } else {
+        const jaCadastrados = (state.importacaoProcessos || []).filter((item) => item.processo_encontrado).length;
+        const importadosAgora = (state.importacaoProcessos || []).filter((item) => item.importado_agora).length;
+        importacaoResumo.textContent = `${total} processo(s) • ${jaCadastrados} já cadastrado(s) • ${importadosAgora} importado(s) • ${selecionados} selecionado(s)`;
+      }
+    }
+
+    if (importacaoSelecionarTodosBtn) {
+      importacaoSelecionarTodosBtn.disabled = total === 0;
+      importacaoSelecionarTodosBtn.classList.toggle('opacity-50', total === 0);
+      importacaoSelecionarTodosBtn.classList.toggle('cursor-not-allowed', total === 0);
+    }
+    if (importacaoLimparSelecaoBtn) {
+      importacaoLimparSelecaoBtn.disabled = total === 0;
+      importacaoLimparSelecaoBtn.classList.toggle('opacity-50', total === 0);
+      importacaoLimparSelecaoBtn.classList.toggle('cursor-not-allowed', total === 0);
+    }
+    if (importacaoCadastrarTodosBtn) {
+      importacaoCadastrarTodosBtn.disabled = selecionados === 0;
+      importacaoCadastrarTodosBtn.classList.toggle('opacity-50', selecionados === 0);
+      importacaoCadastrarTodosBtn.classList.toggle('cursor-not-allowed', selecionados === 0);
+    }
+  };
+
+  const renderImportacaoResultados = () => {
+    if (!importacaoBody) return;
+    const rows = state.importacaoProcessos || [];
+    if (!rows.length) {
+      importacaoBody.innerHTML =
+        '<tr><td colspan="5" class="py-6 px-3 text-center text-stone-400">Nenhum processo listado.</td></tr>';
+      renderImportacaoResumo();
+      return;
+    }
+
+    importacaoBody.innerHTML = rows
+      .map((item, index) => {
+        const numero = escapeHtml(item.numero_processo || '-');
+        const clienteSugerido = escapeHtml(item.cliente_sugerido || '-');
+        const historico = `${Number(item.total_publicacoes || 0)} publicação(ões)`;
+        const periodo = `${formatDateBR(item.primeira_publicacao)} até ${formatDateBR(
+          item.ultima_publicacao
+        )}`;
+        const processoLink = item.processo_id
+          ? `<a href="./processo?id=${item.processo_id}" class="text-blue-700 hover:text-blue-900 underline">${numero}</a>`
+          : numero;
+        const bloqueado =
+          item.processo_encontrado ||
+          item.importado_agora ||
+          item.importacao_status === 'ja_cadastrado_outro_escritorio' ||
+          item.importacao_status === 'numero_invalido';
+        const checked = !item.excluido && !bloqueado;
+        const mutedClass = item.excluido && !bloqueado ? 'opacity-50' : '';
+
+        let statusHtml =
+          '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-stone-100 text-stone-700">Selecionado</span>';
+        if (item.importado_agora) {
+          statusHtml =
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-700">Importado</span>';
+        } else if (item.processo_encontrado) {
+          statusHtml = `<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-stone-100 text-stone-700">Já cadastrado${
+            item.processo_cliente_nome ? ` (${escapeHtml(item.processo_cliente_nome)})` : ''
+          }</span>`;
+        } else if (item.excluido) {
+          statusHtml =
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700">Excluído</span>';
+        }
+        if (item.importacao_status === 'ja_cadastrado_outro_escritorio') {
+          statusHtml =
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-700">Em outro escritório</span>';
+        }
+        if (item.importacao_status === 'numero_invalido') {
+          statusHtml =
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700">Número inválido</span>';
+        }
+        if (item.importacao_status === 'erro_importacao') {
+          statusHtml =
+            '<span class="inline-flex px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-700">Erro</span>';
+        }
+
+        const btnCadastrar = !bloqueado
+          ? `<button data-importacao-cadastrar="${index}" class="px-2 py-1 text-xs border border-stone-300 rounded-md hover:bg-stone-50">Cadastrar</button>`
+          : '';
+        const btnExcluir = !bloqueado
+          ? `<button data-importacao-toggle="${index}" class="px-2 py-1 text-xs border border-stone-300 rounded-md hover:bg-stone-50">${
+              item.excluido ? 'Reincluir' : 'Excluir'
+            }</button>`
+          : '';
+        const acoes =
+          btnCadastrar || btnExcluir
+            ? `${btnCadastrar} ${btnExcluir}`
+            : `<span class="text-xs text-stone-400">Sem ação</span>`;
+
+        return `
+          <tr class="border-b border-stone-100 ${mutedClass}">
+            <td class="py-2 px-3 align-top">
+              <input
+                type="checkbox"
+                data-importacao-checkbox="${index}"
+                class="accent-[#0C1B33]"
+                ${checked ? 'checked' : ''}
+                ${bloqueado ? 'disabled' : ''}
+              />
+            </td>
+            <td class="py-2 px-3 align-top">
+              <div class="font-medium text-stone-900">${processoLink}</div>
+              <div class="text-xs text-stone-500 mt-1">Cliente: ${clienteSugerido}</div>
+              <div class="text-xs text-stone-500">${escapeHtml(item.tribunal || '-')} · ${escapeHtml(item.orgao || '-')}</div>
+            </td>
+            <td class="py-2 px-3 align-top">
+              <div class="text-stone-700">${escapeHtml(historico)}</div>
+              <div class="text-xs text-stone-500 mt-1">${escapeHtml(periodo)}</div>
+            </td>
+            <td class="py-2 px-3 align-top">${statusHtml}</td>
+            <td class="py-2 px-3 align-top text-right">
+              <div class="inline-flex items-center gap-1">${acoes}</div>
+            </td>
+          </tr>
+        `;
+      })
+      .join('');
+
+    renderImportacaoResumo();
+  };
+
+  const normalizeImportacaoRows = (rows) =>
+    (rows || []).map((item) => ({
+      ...item,
+      cliente_sugerido: item.cliente_sugerido || '',
+      parte_contraria_sugerida: item.parte_contraria_sugerida || '',
+      numero_key: numeroProcessoKey(item.numero_processo || item.numero_processo_raw),
+      excluido: Boolean(item.processo_encontrado),
+      importado_agora: false,
+      importacao_status: '',
+    }));
+
+  const aplicarResultadoImportacao = (result) => {
+    const createdByKey = new Map(
+      (result?.created || []).map((item) => [numeroProcessoKey(item.numero_processo), item])
+    );
+    const skippedByKey = new Map(
+      (result?.skipped || []).map((item) => [numeroProcessoKey(item.numero_processo), item])
+    );
+    const errorsByKey = new Map(
+      (result?.errors || [])
+        .filter((item) => item?.numero_processo)
+        .map((item) => [numeroProcessoKey(item.numero_processo), item])
+    );
+    const invalidByKey = new Map(
+      (result?.invalidos || [])
+        .filter((item) => item?.numero_processo)
+        .map((item) => [numeroProcessoKey(item.numero_processo), item])
+    );
+
+    state.importacaoProcessos = (state.importacaoProcessos || []).map((item) => {
+      const key = item.numero_key || numeroProcessoKey(item.numero_processo);
+      const created = createdByKey.get(key);
+      if (created) {
+        return {
+          ...item,
+          importado_agora: true,
+          processo_encontrado: true,
+          processo_id: created.id,
+          processo_cliente_nome: created.cliente_nome || item.processo_cliente_nome || item.cliente_sugerido || null,
+          excluido: true,
+          importacao_status: 'importado',
+        };
+      }
+      const skipped = skippedByKey.get(key);
+      if (skipped && skipped.motivo === 'ja_cadastrado') {
+        return {
+          ...item,
+          processo_encontrado: true,
+          processo_id: skipped.processo_id || item.processo_id || null,
+          processo_cliente_nome: skipped.cliente_nome || item.processo_cliente_nome || null,
+          excluido: true,
+          importacao_status: 'ja_cadastrado',
+        };
+      }
+      if (skipped && skipped.motivo === 'ja_cadastrado_outro_escritorio') {
+        return {
+          ...item,
+          processo_encontrado: true,
+          processo_id: skipped.processo_id || item.processo_id || null,
+          processo_cliente_nome: skipped.cliente_nome || item.processo_cliente_nome || null,
+          excluido: true,
+          importacao_status: 'ja_cadastrado',
+        };
+      }
+      if (invalidByKey.has(key)) {
+        return {
+          ...item,
+          excluido: true,
+          importacao_status: 'numero_invalido',
+        };
+      }
+      if (errorsByKey.has(key)) {
+        return {
+          ...item,
+          excluido: true,
+          importacao_status: 'erro_importacao',
+        };
+      }
+      return item;
+    });
+  };
+
   const load = async () => {
     notify('');
     const resumo = await api.ajustes.resumo();
     state = {
+      ...state,
       escritorio: resumo.escritorio || null,
       config: resumo.config || null,
       colaboradores: resumo.colaboradores || [],
@@ -6794,10 +7099,14 @@ async function initAjustes() {
       oabs: resumo.oabs || [],
       procedimentos: resumo.procedimentos || [],
     };
+    ensureImportacaoDateDefaults();
     renderConfig();
     renderColaboradores();
     renderAreas();
     renderOabs();
+    renderImportacaoOabPreset();
+    applyImportacaoPresetValue();
+    renderImportacaoResultados();
     renderProcedimentos();
   };
 
@@ -6937,6 +7246,132 @@ async function initAjustes() {
         notify(err.message || 'Erro ao remover OAB.', 'erro');
       }
     }
+  });
+
+  importacaoOabPreset?.addEventListener('change', () => {
+    applyImportacaoPresetValue();
+  });
+
+  const executarImportacao = async (rows) => {
+    const processos = (rows || []).map((item) => ({
+      numero_processo: item.numero_processo,
+      tribunal: item.tribunal || '',
+      orgao: item.orgao || '',
+      classe: item.classe || '',
+      primeira_publicacao: item.primeira_publicacao || '',
+      cliente_sugerido: item.cliente_sugerido || '',
+      parte_contraria_sugerida: item.parte_contraria_sugerida || '',
+    }));
+    if (!processos.length) {
+      showMessage(importacaoMessage, 'Nenhum processo selecionado para importar.', 'erro');
+      return;
+    }
+
+    showMessage(importacaoMessage, 'Cadastrando processos selecionados...', 'sucesso');
+    try {
+      const result = await api.ajustes.importarProcessos({
+        fonte: 'djen',
+        processos,
+      });
+      aplicarResultadoImportacao(result);
+      renderImportacaoResultados();
+
+      const created = Number(result?.resumo?.created || 0);
+      const skipped = Number(result?.resumo?.skipped || 0);
+      const errors = Number(result?.resumo?.errors || 0);
+      showMessage(
+        importacaoMessage,
+        `Importação concluída: ${created} criado(s), ${skipped} ignorado(s), ${errors} erro(s).`,
+        errors ? 'erro' : 'sucesso'
+      );
+    } catch (err) {
+      showMessage(importacaoMessage, err.message || 'Erro ao importar processos.', 'erro');
+    }
+  };
+
+  importacaoForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const payload = {
+      fonte: 'djen',
+      numero_oab: importacaoOabNumero?.value?.trim() || '',
+      uf_oab: importacaoOabUf?.value?.trim() || '',
+      data_inicio: importacaoDataInicio?.value || '',
+      data_fim: importacaoDataFim?.value || '',
+      max_paginas: Number(importacaoMaxPaginas?.value || 20),
+      itens_por_pagina: 100,
+    };
+
+    showMessage(importacaoMessage, 'Buscando processos vinculados à OAB...', 'sucesso');
+    try {
+      const response = await api.ajustes.previewImportacaoProcessos(payload);
+      state.importacaoProcessos = normalizeImportacaoRows(response?.data || []);
+      state.importacaoResumo = response?.resumo || null;
+      renderImportacaoResultados();
+      const total = Number(response?.resumo?.total_processos_identificados || 0);
+      const truncado = response?.resumo?.truncado;
+      const suffix = truncado ? ' (resultado parcial: aumente o limite de páginas)' : '';
+      showMessage(importacaoMessage, `${total} processo(s) identificado(s).${suffix}`, 'sucesso');
+    } catch (err) {
+      state.importacaoProcessos = [];
+      state.importacaoResumo = null;
+      renderImportacaoResultados();
+      showMessage(importacaoMessage, err.message || 'Erro ao buscar processos por OAB.', 'erro');
+    }
+  });
+
+  importacaoSelecionarTodosBtn?.addEventListener('click', () => {
+    state.importacaoProcessos = (state.importacaoProcessos || []).map((item) => {
+      if (item.processo_encontrado || item.importado_agora) return item;
+      return { ...item, excluido: false };
+    });
+    renderImportacaoResultados();
+  });
+
+  importacaoLimparSelecaoBtn?.addEventListener('click', () => {
+    state.importacaoProcessos = (state.importacaoProcessos || []).map((item) => {
+      if (item.processo_encontrado || item.importado_agora) return item;
+      return { ...item, excluido: true };
+    });
+    renderImportacaoResultados();
+  });
+
+  importacaoCadastrarTodosBtn?.addEventListener('click', async () => {
+    const selecionados = collectImportacaoSelecionados();
+    await executarImportacao(selecionados);
+  });
+
+  importacaoBody?.addEventListener('click', async (event) => {
+    const toggleIndex = event.target.getAttribute('data-importacao-toggle');
+    if (toggleIndex !== null && toggleIndex !== undefined) {
+      const idx = Number(toggleIndex);
+      if (Number.isFinite(idx) && state.importacaoProcessos[idx]) {
+        const item = state.importacaoProcessos[idx];
+        if (!item.processo_encontrado && !item.importado_agora) {
+          state.importacaoProcessos[idx] = { ...item, excluido: !item.excluido };
+          renderImportacaoResultados();
+        }
+      }
+      return;
+    }
+
+    const cadastrarIndex = event.target.getAttribute('data-importacao-cadastrar');
+    if (cadastrarIndex !== null && cadastrarIndex !== undefined) {
+      const idx = Number(cadastrarIndex);
+      if (!Number.isFinite(idx) || !state.importacaoProcessos[idx]) return;
+      const item = state.importacaoProcessos[idx];
+      await executarImportacao([item]);
+    }
+  });
+
+  importacaoBody?.addEventListener('change', (event) => {
+    const checkbox = event.target.closest('[data-importacao-checkbox]');
+    if (!checkbox) return;
+    const idx = Number(checkbox.getAttribute('data-importacao-checkbox'));
+    if (!Number.isFinite(idx) || !state.importacaoProcessos[idx]) return;
+    const item = state.importacaoProcessos[idx];
+    if (item.processo_encontrado || item.importado_agora) return;
+    state.importacaoProcessos[idx] = { ...item, excluido: !checkbox.checked };
+    renderImportacaoResultados();
   });
 
   procedimentoForm?.addEventListener('submit', async (event) => {
