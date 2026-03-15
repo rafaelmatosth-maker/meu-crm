@@ -25,7 +25,7 @@
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
         <div class="flex items-center justify-center">
-          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+          <img src="../assets/brand/logo-trim-transparent.png" alt="Aurealex" class="crm-sidebar-logo h-20 w-auto" />
         </div>
         <nav class="mt-8 space-y-3 text-sm">
           <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
@@ -43,7 +43,7 @@
 
       <main class="flex-1 p-8">
         <div class="mx-auto w-full max-w-6xl">
-          <header class="flex items-center justify-between mb-6">
+          <header class="crm-page-header flex items-center justify-between mb-6">
             <div>
               <a class="text-sm text-stone-500" href="./processos">&larr; Voltar para processos</a>
               <h1 id="processoTitulo" class="text-2xl font-semibold mt-2">Processo</h1>
@@ -74,9 +74,9 @@
 
     <div
       id="processoEditModal"
-      class="fixed inset-0 bg-black/40 hidden items-center justify-center overflow-y-auto"
+      class="fixed inset-0 bg-black/40 hidden items-start justify-center overflow-y-auto p-4 md:p-6"
     >
-      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl my-10 max-h-[85vh] overflow-y-auto">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold">Editar processo</h2>
           <button id="processoEditClose" class="text-stone-500">Fechar</button>
@@ -225,7 +225,9 @@
             </div>
             <div>
               <label class="text-sm text-stone-600">Cidade</label>
-              <input id="processoEditCidade" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              <select id="processoEditCidade" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">Selecione o estado</option>
+              </select>
             </div>
             <div>
               <label class="text-sm text-stone-600">Estado</label>
@@ -311,8 +313,9 @@
             </div>
           </div>
 
+          <div class="sticky bottom-0 bg-white pt-3 border-t border-stone-200">
           <p id="processoEditMessage" class="text-sm"></p>
-          <div class="flex flex-col md:flex-row md:items-center gap-3">
+          <div class="flex flex-col md:flex-row md:items-center gap-3 mt-2">
             <button
               type="button"
               id="processoEditCancel"
@@ -327,6 +330,7 @@
             >
               Salvar alterações
             </button>
+          </div>
           </div>
         </form>
       </div>
@@ -445,10 +449,11 @@
     >
       <div class="bg-white rounded-2xl p-6 w-full max-w-lg">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Nova atividade</h2>
+          <h2 id="atividadeQuickModalTitle" class="text-lg font-semibold">Nova atividade</h2>
           <button id="atividadeQuickClose" class="text-stone-500">Fechar</button>
         </div>
         <form id="atividadeQuickForm" class="space-y-3">
+          <input id="atividadeQuickId" type="hidden" />
           <input id="atividadeQuickProcessoId" type="hidden" />
           <div>
             <label class="text-sm text-stone-600">Número do processo</label>
@@ -476,7 +481,7 @@
             ></textarea>
           </div>
           <div>
-            <label class="text-sm text-stone-600">Data (prazo)</label>
+            <label class="text-sm text-stone-600">Data (opcional)</label>
             <input id="atividadeQuickPrazo" type="date" class="mt-1 w-full border rounded-lg px-3 py-2" />
           </div>
           <div id="atividadeQuickHoraWrap" class="hidden">
@@ -493,14 +498,14 @@
               Cancelar
             </button>
             <button class="w-full md:flex-1 bg-[#0C1B33] text-white py-2 rounded-lg hover:bg-[#0A162A]">
-              Salvar atividade
+              <span id="atividadeQuickSubmitLabel">Salvar atividade</span>
             </button>
           </div>
         </form>
       </div>
     </div>
 
-    <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260219-1"></script>
+    <script src="../assets/api.v2.js?v=20260311-chat1"></script>
+    <script src="../assets/app.v2.js?v=20260312-roles1"></script>
   </body>
 </html>

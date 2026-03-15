@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    Small-size favicon source (16/32/48/64):
+    Keep it very simple and crisp:
+    a solid tower silhouette with straight bottom (no "V" notch), scaled larger in the canvas.
+    This avoids artifacts in 16x16/32x32 while matching the overall symbol shape.
+  -->
+  <path d="M512 40 L940 360 V980 H84 V360 Z" fill="#0C1B33" />
+</svg>

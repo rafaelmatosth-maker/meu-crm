@@ -6,6 +6,143 @@ function qsa(selector) {
   return Array.from(document.querySelectorAll(selector));
 }
 
+const CRM_THEME_STORAGE_KEY = 'crm_theme';
+const CRM_THEME_FALLBACK = 'classic';
+const CRM_THEME_VALUES = ['classic', 'aurora', 'oceano', 'amanhecer'];
+const CRM_THEME_SWATCH_FALLBACK = {
+  classic: '#fafaf9',
+  aurora: '#3f58bb',
+  oceano: '#155fa1',
+  amanhecer: '#7a39b8',
+};
+
+function ensureThemeStylesheet() {
+  if (qs('#crmThemeStylesheet')) return;
+  const link = document.createElement('link');
+  link.id = 'crmThemeStylesheet';
+  link.rel = 'stylesheet';
+  link.href = '/assets/themes.css?v=20260313-theme1';
+  document.head.appendChild(link);
+}
+
+function normalizeThemeValue(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  return CRM_THEME_VALUES.includes(normalized) ? normalized : CRM_THEME_FALLBACK;
+}
+
+function getStoredThemeValue() {
+  try {
+    return normalizeThemeValue(localStorage.getItem(CRM_THEME_STORAGE_KEY));
+  } catch (_) {
+    return CRM_THEME_FALLBACK;
+  }
+}
+
+function parseThemeSwatchColor(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+
+  const shortHex = raw.match(/^#([0-9a-f]{3})$/i);
+  if (shortHex) {
+    const [r, g, b] = shortHex[1].split('').map((part) => Number.parseInt(part + part, 16));
+    return { r, g, b };
+  }
+
+  const longHex = raw.match(/^#([0-9a-f]{6})$/i);
+  if (longHex) {
+    return {
+      r: Number.parseInt(longHex[1].slice(0, 2), 16),
+      g: Number.parseInt(longHex[1].slice(2, 4), 16),
+      b: Number.parseInt(longHex[1].slice(4, 6), 16),
+    };
+  }
+
+  const rgbMatch = raw.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+\s*)?\)$/i);
+  if (rgbMatch) {
+    return {
+      r: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[1])))),
+      g: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[2])))),
+      b: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[3])))),
+    };
+  }
+
+  return null;
+}
+
+function toRelativeLuminance(rgb) {
+  const channel = (value) => {
+    const normalized = value / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  };
+
+  const r = channel(rgb.r);
+  const g = channel(rgb.g);
+  const b = channel(rgb.b);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function resolveThemeInk(theme) {
+  const body = document.body;
+  if (!body) return 'dark';
+  const fallback = CRM_THEME_SWATCH_FALLBACK[theme] || CRM_THEME_SWATCH_FALLBACK.classic;
+  const swatchFromCss = getComputedStyle(body).getPropertyValue('--crm-ink-swatch').trim();
+  const color = parseThemeSwatchColor(swatchFromCss) || parseThemeSwatchColor(fallback);
+  if (!color) return 'dark';
+  const luminance = toRelativeLuminance(color);
+  const contrastWhite = 1.05 / (luminance + 0.05);
+  const contrastBlack = (luminance + 0.05) / 0.05;
+  return contrastWhite >= contrastBlack ? 'light' : 'dark';
+}
+
+function updateSidebarLogoVariant(theme, ink) {
+  const useLightVariant = theme !== 'classic' && ink === 'light';
+  qsa('.crm-sidebar-logo').forEach((logo) => {
+    const current = String(logo.getAttribute('src') || '').trim();
+    if (!logo.dataset.logoDarkSrc) {
+      logo.dataset.logoDarkSrc = current;
+    }
+    if (!logo.dataset.logoLightSrc) {
+      const dark = logo.dataset.logoDarkSrc || current;
+      logo.dataset.logoLightSrc = dark.includes('logo-trim-transparent.png')
+        ? dark.replace('logo-trim-transparent.png', 'logo-trim-transparent-white.png')
+        : dark;
+    }
+    const nextSrc = useLightVariant ? logo.dataset.logoLightSrc : logo.dataset.logoDarkSrc;
+    if (nextSrc && current !== nextSrc) {
+      logo.setAttribute('src', nextSrc);
+    }
+  });
+}
+
+function applyTheme(theme, options = {}) {
+  const persist = options.persist !== false;
+  const normalized = normalizeThemeValue(theme);
+  const body = document.body;
+  if (!body) return normalized;
+  body.classList.add('crm-theme-ready');
+  body.dataset.theme = normalized;
+  const ink = resolveThemeInk(normalized);
+  body.dataset.themeInk = ink;
+  updateSidebarLogoVariant(normalized, ink);
+  if (persist) {
+    try {
+      localStorage.setItem(CRM_THEME_STORAGE_KEY, normalized);
+    } catch (_) {
+      // ignore localStorage failures
+    }
+  }
+  return normalized;
+}
+
+function initTheme() {
+  ensureThemeStylesheet();
+  applyTheme(getStoredThemeValue(), { persist: false });
+}
+
 function formatCpf(value) {
   const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 3) return digits;
@@ -138,6 +275,980 @@ function closeModal(modal) {
   modal.classList.add('hidden');
 }
 
+const chatWidgetState = {
+  initialized: false,
+  isOpen: false,
+  me: null,
+  conversations: [],
+  selectedConversationId: null,
+  messagesByConversation: {},
+  collaborators: [],
+  pollTimerId: null,
+  loadingConversations: false,
+  loadingMessages: false,
+};
+
+function chatEscapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function chatFormatHour(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function chatFormatListTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const now = new Date();
+  const sameDay =
+    now.getFullYear() === date.getFullYear() &&
+    now.getMonth() === date.getMonth() &&
+    now.getDate() === date.getDate();
+  if (sameDay) return chatFormatHour(value);
+  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function chatGetSelectedConversation() {
+  const selectedId = Number(chatWidgetState.selectedConversationId);
+  return chatWidgetState.conversations.find((item) => Number(item.id) === selectedId) || null;
+}
+
+function chatSetStatus(message, isError = false) {
+  const statusEl = qs('#chatWidgetStatus');
+  if (!statusEl) return;
+  statusEl.textContent = String(message || '');
+  statusEl.className = isError ? 'chat-widget-status chat-widget-status-error' : 'chat-widget-status';
+  if (!message) return;
+  setTimeout(() => {
+    if (statusEl.textContent === message) {
+      statusEl.textContent = '';
+      statusEl.className = 'chat-widget-status';
+    }
+  }, 3200);
+}
+
+function chatInjectStyles() {
+  if (qs('#chatWidgetStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'chatWidgetStyles';
+  style.textContent = `
+    .chat-widget-fab {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1100;
+      width: 56px;
+      height: 56px;
+      padding: 0;
+      border: 1px solid #d6d3d1;
+      background: #0c1b33;
+      color: #fff;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px rgba(12, 27, 51, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .chat-widget-fab-icon {
+      width: 24px;
+      height: 24px;
+    }
+    .chat-widget-fab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(12, 27, 51, 0.32);
+    }
+    .chat-widget-fab-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      line-height: 20px;
+      text-align: center;
+      padding: 0 6px;
+      font-weight: 700;
+    }
+    .chat-widget-fab-badge.hidden {
+      display: none;
+    }
+    .chat-widget-panel {
+      position: fixed;
+      right: 18px;
+      bottom: 80px;
+      width: min(920px, calc(100vw - 24px));
+      height: min(640px, calc(100vh - 110px));
+      z-index: 1101;
+      background: #fff;
+      border: 1px solid #d6d3d1;
+      border-radius: 18px;
+      box-shadow: 0 24px 52px rgba(12, 27, 51, 0.22);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-widget-panel.hidden {
+      display: none;
+    }
+    .chat-widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid #e7e5e4;
+      background: linear-gradient(180deg, #fafaf9 0%, #ffffff 100%);
+    }
+    .chat-widget-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .chat-widget-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1c1917;
+      letter-spacing: 0.01em;
+    }
+    .chat-widget-status {
+      font-size: 11px;
+      color: #78716c;
+      min-height: 14px;
+    }
+    .chat-widget-status-error {
+      color: #dc2626;
+    }
+    .chat-widget-header-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-widget-btn {
+      border: 1px solid #d6d3d1;
+      background: #fff;
+      color: #44403c;
+      height: 32px;
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .chat-widget-btn-primary {
+      border-color: #0c1b33;
+      background: #0c1b33;
+      color: #fff;
+    }
+    .chat-widget-body {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 290px 1fr;
+    }
+    .chat-widget-sidebar {
+      border-right: 1px solid #e7e5e4;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: #fcfcfb;
+    }
+    .chat-widget-search {
+      margin: 10px;
+      border: 1px solid #d6d3d1;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #44403c;
+      outline: none;
+      background: #fff;
+    }
+    .chat-widget-search:focus {
+      border-color: #0c1b33;
+      box-shadow: 0 0 0 3px rgba(12, 27, 51, 0.08);
+    }
+    .chat-widget-conversations {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 4px 8px 10px;
+    }
+    .chat-widget-conv-item {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+      margin-bottom: 4px;
+      background: #fff;
+    }
+    .chat-widget-conv-item:hover {
+      border-color: #d6d3d1;
+      background: #fafaf9;
+    }
+    .chat-widget-conv-item.active {
+      border-color: #0c1b33;
+      background: #f5f7fb;
+    }
+    .chat-widget-conv-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .chat-widget-conv-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1c1917;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-widget-conv-time {
+      font-size: 11px;
+      color: #78716c;
+      flex-shrink: 0;
+    }
+    .chat-widget-conv-preview {
+      font-size: 12px;
+      color: #57534e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-widget-conv-unread {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 0 6px;
+    }
+    .chat-widget-chat {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 0;
+    }
+    .chat-widget-chat-head {
+      border-bottom: 1px solid #e7e5e4;
+      padding: 10px 12px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .chat-widget-chat-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1c1917;
+    }
+    .chat-widget-chat-subtitle {
+      font-size: 11px;
+      color: #78716c;
+      margin-top: 2px;
+    }
+    .chat-widget-messages {
+      min-height: 0;
+      overflow: auto;
+      padding: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #fafaf9 100%);
+    }
+    .chat-widget-empty {
+      border: 1px dashed #d6d3d1;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      color: #78716c;
+      font-size: 12px;
+      background: #fff;
+    }
+    .chat-widget-message {
+      max-width: 78%;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      border: 1px solid #e7e5e4;
+      background: #fff;
+      padding: 8px 10px;
+      word-break: break-word;
+    }
+    .chat-widget-message.mine {
+      margin-left: auto;
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+    .chat-widget-message-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 10px;
+      color: #57534e;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .chat-widget-message-text {
+      font-size: 13px;
+      color: #1c1917;
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+    .chat-widget-attachments {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .chat-widget-attachment-btn {
+      border: 1px solid #d6d3d1;
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      color: #1f2937;
+      cursor: pointer;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-widget-composer {
+      border-top: 1px solid #e7e5e4;
+      padding: 10px;
+      background: #fff;
+    }
+    .chat-widget-files-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      min-height: 18px;
+    }
+    .chat-widget-file-pill {
+      border: 1px solid #d6d3d1;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      color: #57534e;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-widget-compose-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .chat-widget-textarea {
+      flex: 1;
+      min-height: 42px;
+      max-height: 132px;
+      resize: vertical;
+      border: 1px solid #d6d3d1;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: #292524;
+      outline: none;
+      background: #fff;
+    }
+    .chat-widget-textarea:focus {
+      border-color: #0c1b33;
+      box-shadow: 0 0 0 3px rgba(12, 27, 51, 0.08);
+    }
+    .chat-widget-hidden-file {
+      display: none;
+    }
+    .chat-widget-picker {
+      position: absolute;
+      top: 54px;
+      right: 14px;
+      width: min(320px, calc(100vw - 52px));
+      max-height: 380px;
+      border: 1px solid #d6d3d1;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 16px 32px rgba(12, 27, 51, 0.2);
+      overflow: hidden;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-widget-picker.hidden {
+      display: none;
+    }
+    .chat-widget-picker-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 10px;
+      border-bottom: 1px solid #e7e5e4;
+      background: #fafaf9;
+    }
+    .chat-widget-picker-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1c1917;
+    }
+    .chat-widget-picker-list {
+      overflow: auto;
+      min-height: 0;
+      padding: 6px;
+    }
+    .chat-widget-picker-item {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+    }
+    .chat-widget-picker-item:hover {
+      border-color: #d6d3d1;
+      background: #fafaf9;
+    }
+    .chat-widget-picker-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1c1917;
+    }
+    .chat-widget-picker-email {
+      font-size: 11px;
+      color: #78716c;
+      margin-top: 2px;
+    }
+    @media (max-width: 920px) {
+      .chat-widget-panel {
+        right: 12px;
+        left: 12px;
+        bottom: 76px;
+        width: auto;
+        height: min(680px, calc(100vh - 94px));
+      }
+      .chat-widget-body {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px 1fr;
+      }
+      .chat-widget-sidebar {
+        border-right: 0;
+        border-bottom: 1px solid #e7e5e4;
+      }
+      .chat-widget-message {
+        max-width: 90%;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function chatInjectMarkup() {
+  if (qs('#chatWidgetFab')) return;
+  const wrapper = document.createElement('div');
+  wrapper.id = 'chatWidgetRoot';
+  wrapper.innerHTML = `
+    <button id="chatWidgetFab" class="chat-widget-fab" type="button" aria-label="Abrir conversas" title="Conversas">
+      <svg class="chat-widget-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 14c-1.7 0-3-1.3-3-3V6c0-1.7 1.3-3 3-3h8c1.7 0 3 1.3 3 3v5c0 1.7-1.3 3-3 3H9l-4 3z"></path>
+        <path d="M13 9h6c1.7 0 3 1.3 3 3v4c0 1.7-1.3 3-3 3h-3l-3 2.2V12"></path>
+      </svg>
+      <span id="chatWidgetFabBadge" class="chat-widget-fab-badge hidden"></span>
+    </button>
+    <div id="chatWidgetPanel" class="chat-widget-panel hidden" aria-hidden="true">
+      <div class="chat-widget-header">
+        <div class="chat-widget-header-left">
+          <div class="chat-widget-title">Chat interno</div>
+          <div id="chatWidgetStatus" class="chat-widget-status"></div>
+        </div>
+        <div class="chat-widget-header-actions">
+          <button id="chatWidgetNewBtn" class="chat-widget-btn" type="button">Nova conversa</button>
+          <button id="chatWidgetCloseBtn" class="chat-widget-btn" type="button">Fechar</button>
+        </div>
+      </div>
+      <div class="chat-widget-body">
+        <aside class="chat-widget-sidebar">
+          <input id="chatWidgetConversationSearch" class="chat-widget-search" type="search" placeholder="Buscar conversa" />
+          <div id="chatWidgetConversations" class="chat-widget-conversations"></div>
+        </aside>
+        <section class="chat-widget-chat">
+          <div class="chat-widget-chat-head">
+            <div>
+              <div id="chatWidgetConversationTitle" class="chat-widget-chat-title">Selecione uma conversa</div>
+              <div id="chatWidgetConversationSubtitle" class="chat-widget-chat-subtitle">Envie mensagens e arquivos para o time</div>
+            </div>
+          </div>
+          <div id="chatWidgetMessages" class="chat-widget-messages"></div>
+          <div class="chat-widget-composer">
+            <div id="chatWidgetFilesPreview" class="chat-widget-files-preview"></div>
+            <div class="chat-widget-compose-row">
+              <textarea id="chatWidgetComposer" class="chat-widget-textarea" placeholder="Escreva uma mensagem... (Enter envia)" rows="2"></textarea>
+              <label for="chatWidgetFilesInput" class="chat-widget-btn" title="Anexar arquivos">Anexar</label>
+              <input id="chatWidgetFilesInput" class="chat-widget-hidden-file" type="file" multiple />
+              <button id="chatWidgetSendBtn" class="chat-widget-btn chat-widget-btn-primary" type="button">Enviar</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div id="chatWidgetPicker" class="chat-widget-picker hidden">
+        <div class="chat-widget-picker-head">
+          <span class="chat-widget-picker-title">Nova conversa direta</span>
+          <button id="chatWidgetPickerCloseBtn" class="chat-widget-btn" type="button">Fechar</button>
+        </div>
+        <input id="chatWidgetPickerSearch" class="chat-widget-search" type="search" placeholder="Buscar colaborador" />
+        <div id="chatWidgetPickerList" class="chat-widget-picker-list"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrapper);
+}
+
+function chatRenderFabBadge() {
+  const badge = qs('#chatWidgetFabBadge');
+  if (!badge) return;
+  const total = chatWidgetState.conversations.reduce((acc, item) => acc + Number(item.nao_lidas || 0), 0);
+  if (total > 0) {
+    badge.textContent = total > 99 ? '99+' : String(total);
+    badge.classList.remove('hidden');
+  } else {
+    badge.textContent = '';
+    badge.classList.add('hidden');
+  }
+}
+
+function chatSetPanelOpen(nextOpen) {
+  const panel = qs('#chatWidgetPanel');
+  if (!panel) return;
+  chatWidgetState.isOpen = Boolean(nextOpen);
+  panel.classList.toggle('hidden', !chatWidgetState.isOpen);
+  panel.setAttribute('aria-hidden', chatWidgetState.isOpen ? 'false' : 'true');
+  if (chatWidgetState.isOpen && chatWidgetState.selectedConversationId) {
+    chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true }).catch(() => {});
+  }
+}
+
+function chatRenderConversations() {
+  const listEl = qs('#chatWidgetConversations');
+  if (!listEl) return;
+  const term = String((qs('#chatWidgetConversationSearch') && qs('#chatWidgetConversationSearch').value) || '')
+    .trim()
+    .toLowerCase();
+
+  const rows = chatWidgetState.conversations.filter((item) => {
+    if (!term) return true;
+    const name = String(item.nome_exibicao || '').toLowerCase();
+    const preview = String(item.ultima_mensagem_texto || '').toLowerCase();
+    return name.includes(term) || preview.includes(term);
+  });
+
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="chat-widget-empty">Nenhuma conversa encontrada.</div>';
+    return;
+  }
+
+  listEl.innerHTML = rows
+    .map((item) => {
+      const isActive = Number(item.id) === Number(chatWidgetState.selectedConversationId);
+      const preview = item.ultima_mensagem_texto
+        ? chatEscapeHtml(item.ultima_mensagem_texto)
+        : item.ultima_mensagem_id
+          ? 'Arquivo enviado'
+          : 'Sem mensagens ainda';
+      const unread = Number(item.nao_lidas || 0);
+
+      return `
+        <div class="chat-widget-conv-item ${isActive ? 'active' : ''}" data-chat-conversa-id="${item.id}">
+          <div class="chat-widget-conv-head">
+            <div class="chat-widget-conv-name">${chatEscapeHtml(item.nome_exibicao || 'Conversa')}</div>
+            <div class="chat-widget-conv-time">${chatEscapeHtml(chatFormatListTime(item.ultima_mensagem_em || item.updated_at || item.created_at))}</div>
+          </div>
+          <div class="chat-widget-conv-preview">${preview}</div>
+          ${unread > 0 ? `<span class="chat-widget-conv-unread">${unread > 99 ? '99+' : unread}</span>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function chatScrollMessagesToBottom() {
+  const el = qs('#chatWidgetMessages');
+  if (!el) return;
+  el.scrollTop = el.scrollHeight;
+}
+
+function chatRenderMessages() {
+  const messagesEl = qs('#chatWidgetMessages');
+  const titleEl = qs('#chatWidgetConversationTitle');
+  const subtitleEl = qs('#chatWidgetConversationSubtitle');
+  if (!messagesEl || !titleEl || !subtitleEl) return;
+
+  const selected = chatGetSelectedConversation();
+  if (!selected) {
+    titleEl.textContent = 'Selecione uma conversa';
+    subtitleEl.textContent = 'Envie mensagens e arquivos para o time';
+    messagesEl.innerHTML = '<div class="chat-widget-empty">Escolha uma conversa para iniciar.</div>';
+    return;
+  }
+
+  titleEl.textContent = selected.nome_exibicao || 'Conversa';
+  subtitleEl.textContent = selected.tipo === 'direta' ? 'Conversa direta' : 'Conversa em grupo';
+
+  const mensagens = chatWidgetState.messagesByConversation[String(selected.id)] || [];
+  if (!mensagens.length) {
+    messagesEl.innerHTML = '<div class="chat-widget-empty">Nenhuma mensagem ainda. Envie a primeira.</div>';
+    return;
+  }
+
+  messagesEl.innerHTML = mensagens
+    .map((mensagem) => {
+      const isMine = Number(mensagem.autor_id) === Number(chatWidgetState.me && chatWidgetState.me.id);
+      const anexos = Array.isArray(mensagem.anexos) ? mensagem.anexos : [];
+      const anexosHtml = anexos.length
+        ? `
+            <div class="chat-widget-attachments">
+              ${anexos
+                .map(
+                  (anexo) => `
+                    <button
+                      type="button"
+                      class="chat-widget-attachment-btn"
+                      data-chat-anexo-id="${anexo.id}"
+                      data-chat-anexo-nome="${encodeURIComponent(anexo.nome_original || 'anexo')}"
+                    >
+                      ${chatEscapeHtml(anexo.nome_original || 'Anexo')}
+                    </button>
+                  `
+                )
+                .join('')}
+            </div>
+          `
+        : '';
+
+      const textHtml = mensagem.texto
+        ? `<div class="chat-widget-message-text">${chatEscapeHtml(mensagem.texto)}</div>`
+        : '';
+
+      return `
+        <div class="chat-widget-message ${isMine ? 'mine' : ''}">
+          <div class="chat-widget-message-meta">
+            <span>${chatEscapeHtml(isMine ? 'Voce' : mensagem.autor_nome || 'Colaborador')}</span>
+            <span>${chatEscapeHtml(chatFormatHour(mensagem.created_at))}</span>
+          </div>
+          ${textHtml}
+          ${anexosHtml}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function chatRenderSelectedFiles() {
+  const filesEl = qs('#chatWidgetFilesPreview');
+  const input = qs('#chatWidgetFilesInput');
+  if (!filesEl || !input) return;
+  const files = Array.from(input.files || []);
+  if (!files.length) {
+    filesEl.innerHTML = '';
+    return;
+  }
+  filesEl.innerHTML = files
+    .map((file) => `<span class="chat-widget-file-pill">${chatEscapeHtml(file.name)}</span>`)
+    .join('');
+}
+
+function chatRenderCollaborators() {
+  const listEl = qs('#chatWidgetPickerList');
+  const searchEl = qs('#chatWidgetPickerSearch');
+  if (!listEl) return;
+  const term = String((searchEl && searchEl.value) || '')
+    .trim()
+    .toLowerCase();
+  const rows = chatWidgetState.collaborators.filter((item) => {
+    if (!term) return true;
+    return (
+      String(item.nome || '')
+        .toLowerCase()
+        .includes(term) ||
+      String(item.email || '')
+        .toLowerCase()
+        .includes(term)
+    );
+  });
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="chat-widget-empty">Nenhum colaborador encontrado.</div>';
+    return;
+  }
+  listEl.innerHTML = rows
+    .map(
+      (item) => `
+        <div class="chat-widget-picker-item" data-chat-colaborador-id="${item.id}">
+          <div class="chat-widget-picker-name">${chatEscapeHtml(item.nome || 'Colaborador')}</div>
+          <div class="chat-widget-picker-email">${chatEscapeHtml(item.email || '')}</div>
+        </div>
+      `
+    )
+    .join('');
+}
+
+async function chatLoadConversations(options = {}) {
+  if (chatWidgetState.loadingConversations) return;
+  chatWidgetState.loadingConversations = true;
+  const keepSelection = options.keepSelection !== false;
+  const previousSelectedId = Number(chatWidgetState.selectedConversationId || 0);
+  try {
+    const response = await api.chat.listConversas();
+    chatWidgetState.conversations = Array.isArray(response.data) ? response.data : [];
+
+    if (!keepSelection || !chatWidgetState.selectedConversationId) {
+      chatWidgetState.selectedConversationId = chatWidgetState.conversations[0]
+        ? Number(chatWidgetState.conversations[0].id)
+        : null;
+    } else {
+      const exists = chatWidgetState.conversations.some((item) => Number(item.id) === previousSelectedId);
+      chatWidgetState.selectedConversationId = exists
+        ? previousSelectedId
+        : chatWidgetState.conversations[0]
+          ? Number(chatWidgetState.conversations[0].id)
+          : null;
+    }
+
+    chatRenderFabBadge();
+    chatRenderConversations();
+    chatRenderMessages();
+  } catch (err) {
+    if (!options.silent) chatSetStatus(err.message || 'Falha ao carregar conversas.', true);
+  } finally {
+    chatWidgetState.loadingConversations = false;
+  }
+}
+
+async function chatLoadMessages(conversaId, options = {}) {
+  if (!conversaId || chatWidgetState.loadingMessages) return;
+  chatWidgetState.loadingMessages = true;
+  try {
+    const response = await api.chat.listMensagens(conversaId, { limit: 80 });
+    chatWidgetState.messagesByConversation[String(conversaId)] = Array.isArray(response.data) ? response.data : [];
+    const conversa = chatWidgetState.conversations.find((item) => Number(item.id) === Number(conversaId));
+    if (conversa) conversa.nao_lidas = 0;
+    chatRenderFabBadge();
+    chatRenderConversations();
+    chatRenderMessages();
+    chatScrollMessagesToBottom();
+  } catch (err) {
+    if (!options.silent) chatSetStatus(err.message || 'Falha ao carregar mensagens.', true);
+  } finally {
+    chatWidgetState.loadingMessages = false;
+  }
+}
+
+async function chatCreateDirectConversation(usuarioId) {
+  try {
+    const response = await api.chat.criarConversaDireta(usuarioId);
+    const conversaId = response && response.conversa ? Number(response.conversa.id) : null;
+    await chatLoadConversations({ keepSelection: false, silent: true });
+    if (conversaId) {
+      chatWidgetState.selectedConversationId = conversaId;
+      chatRenderConversations();
+      await chatLoadMessages(conversaId, { silent: true });
+    }
+    const picker = qs('#chatWidgetPicker');
+    if (picker) picker.classList.add('hidden');
+    chatSetPanelOpen(true);
+  } catch (err) {
+    chatSetStatus(err.message || 'Nao foi possivel criar a conversa.', true);
+  }
+}
+
+async function chatHandleSendMessage() {
+  const selected = chatGetSelectedConversation();
+  if (!selected) {
+    chatSetStatus('Selecione uma conversa para enviar.', true);
+    return;
+  }
+
+  const textarea = qs('#chatWidgetComposer');
+  const input = qs('#chatWidgetFilesInput');
+  const sendBtn = qs('#chatWidgetSendBtn');
+  const texto = textarea ? String(textarea.value || '').trim() : '';
+  const arquivos = input ? Array.from(input.files || []) : [];
+  if (!texto && !arquivos.length) return;
+
+  if (sendBtn) sendBtn.disabled = true;
+  try {
+    const response = await api.chat.enviarMensagem(selected.id, texto, arquivos);
+    const mensagem = response && response.mensagem ? response.mensagem : null;
+    if (mensagem) {
+      const key = String(selected.id);
+      const currentList = chatWidgetState.messagesByConversation[key] || [];
+      chatWidgetState.messagesByConversation[key] = [...currentList, mensagem];
+    }
+    if (textarea) textarea.value = '';
+    if (input) input.value = '';
+    chatRenderSelectedFiles();
+    chatRenderMessages();
+    chatScrollMessagesToBottom();
+    await chatLoadConversations({ keepSelection: true, silent: true });
+  } catch (err) {
+    chatSetStatus(err.message || 'Falha ao enviar mensagem.', true);
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+async function chatOpenPicker() {
+  const picker = qs('#chatWidgetPicker');
+  const pickerSearch = qs('#chatWidgetPickerSearch');
+  if (!picker) return;
+  picker.classList.remove('hidden');
+  if (!chatWidgetState.collaborators.length) {
+    try {
+      const response = await api.chat.listColaboradores();
+      chatWidgetState.collaborators = Array.isArray(response.data) ? response.data : [];
+    } catch (err) {
+      chatSetStatus(err.message || 'Falha ao listar colaboradores.', true);
+      return;
+    }
+  }
+  if (pickerSearch) pickerSearch.value = '';
+  chatRenderCollaborators();
+}
+
+function chatStartPolling() {
+  if (chatWidgetState.pollTimerId) return;
+  chatWidgetState.pollTimerId = setInterval(async () => {
+    if (document.hidden) return;
+    await chatLoadConversations({ keepSelection: true, silent: true });
+    if (chatWidgetState.isOpen && chatWidgetState.selectedConversationId) {
+      await chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true });
+    }
+  }, 6000);
+}
+
+function chatBindEvents() {
+  const fab = qs('#chatWidgetFab');
+  const closeBtn = qs('#chatWidgetCloseBtn');
+  const newBtn = qs('#chatWidgetNewBtn');
+  const pickerCloseBtn = qs('#chatWidgetPickerCloseBtn');
+  const convSearch = qs('#chatWidgetConversationSearch');
+  const pickerSearch = qs('#chatWidgetPickerSearch');
+  const convList = qs('#chatWidgetConversations');
+  const pickerList = qs('#chatWidgetPickerList');
+  const sendBtn = qs('#chatWidgetSendBtn');
+  const composer = qs('#chatWidgetComposer');
+  const input = qs('#chatWidgetFilesInput');
+  const messagesEl = qs('#chatWidgetMessages');
+
+  if (fab) {
+    fab.addEventListener('click', () => chatSetPanelOpen(!chatWidgetState.isOpen));
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => chatSetPanelOpen(false));
+  }
+  if (newBtn) {
+    newBtn.addEventListener('click', () => {
+      chatOpenPicker().catch(() => {});
+    });
+  }
+  if (pickerCloseBtn) {
+    pickerCloseBtn.addEventListener('click', () => {
+      const picker = qs('#chatWidgetPicker');
+      if (picker) picker.classList.add('hidden');
+    });
+  }
+  if (convSearch) {
+    convSearch.addEventListener('input', () => chatRenderConversations());
+  }
+  if (pickerSearch) {
+    pickerSearch.addEventListener('input', () => chatRenderCollaborators());
+  }
+  if (input) {
+    input.addEventListener('change', () => chatRenderSelectedFiles());
+  }
+  if (sendBtn) {
+    sendBtn.addEventListener('click', () => {
+      chatHandleSendMessage().catch(() => {});
+    });
+  }
+  if (composer) {
+    composer.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        chatHandleSendMessage().catch(() => {});
+      }
+    });
+  }
+  if (convList) {
+    convList.addEventListener('click', (event) => {
+      const card = event.target.closest('[data-chat-conversa-id]');
+      if (!card) return;
+      const conversaId = Number(card.getAttribute('data-chat-conversa-id'));
+      if (!conversaId) return;
+      chatWidgetState.selectedConversationId = conversaId;
+      chatRenderConversations();
+      chatLoadMessages(conversaId).catch(() => {});
+    });
+  }
+  if (pickerList) {
+    pickerList.addEventListener('click', (event) => {
+      const row = event.target.closest('[data-chat-colaborador-id]');
+      if (!row) return;
+      const colaboradorId = Number(row.getAttribute('data-chat-colaborador-id'));
+      if (!colaboradorId) return;
+      chatCreateDirectConversation(colaboradorId).catch(() => {});
+    });
+  }
+  if (messagesEl) {
+    messagesEl.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-chat-anexo-id]');
+      if (!btn) return;
+      const anexoId = Number(btn.getAttribute('data-chat-anexo-id'));
+      if (!anexoId) return;
+      const nomeRaw = btn.getAttribute('data-chat-anexo-nome');
+      const nome = nomeRaw ? decodeURIComponent(nomeRaw) : 'anexo';
+      api.chat.downloadAnexo(anexoId, nome).catch((err) => {
+        chatSetStatus(err.message || 'Falha ao baixar anexo.', true);
+      });
+    });
+  }
+}
+
+async function initChatWidget(meData) {
+  if (chatWidgetState.initialized) return;
+  if (document.body.dataset.page === 'login') return;
+  const usuario = meData && meData.usuario ? meData.usuario : null;
+  if (!usuario || !usuario.id) return;
+
+  chatWidgetState.me = usuario;
+  chatInjectStyles();
+  chatInjectMarkup();
+  chatBindEvents();
+  chatWidgetState.initialized = true;
+
+  await chatLoadConversations({ keepSelection: false, silent: true });
+  if (chatWidgetState.selectedConversationId) {
+    await chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true });
+  } else {
+    chatRenderMessages();
+  }
+  chatStartPolling();
+}
+
 async function updateProcessosBadge() {
   const badge = qs('#processosBadge');
   if (!badge) return;
@@ -177,8 +1288,11 @@ function captureTokenFromUrl() {
 
 async function guardAuth() {
   try {
-    await getMe();
+    const me = await getMe();
+    window.__currentUser = me && me.usuario ? me.usuario : null;
     updateProcessosBadge();
+    initChatWidget(me).catch(() => {});
+    return me;
   } catch (err) {
     clearToken();
     window.location.href = './login';
@@ -193,6 +1307,10 @@ function bindLogout() {
       await logout();
     } catch (_) {
       clearToken();
+    }
+    if (chatWidgetState.pollTimerId) {
+      clearInterval(chatWidgetState.pollTimerId);
+      chatWidgetState.pollTimerId = null;
     }
     window.location.href = './login';
   });
@@ -1902,6 +3020,11 @@ async function initDocumentos() {
         showMessage(modeloUploadMsg, 'Selecione um arquivo .docx.');
         return;
       }
+      const maxTemplateBytes = 10 * 1024 * 1024;
+      if (Number(file.size || 0) > maxTemplateBytes) {
+        showMessage(modeloUploadMsg, 'Arquivo maior que 10MB. Reduza o .docx antes do envio.');
+        return;
+      }
       try {
         await api.documentosModelos.upload(nome, file);
         modeloNome.value = '';
@@ -3044,6 +4167,7 @@ async function initProcessoDetail() {
 }
 
 async function init() {
+  initTheme();
   captureTokenFromUrl();
   const page = document.body.dataset.page;
   if (page === 'login') return initLogin();

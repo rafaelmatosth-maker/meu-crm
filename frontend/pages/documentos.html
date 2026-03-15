@@ -42,7 +42,7 @@
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
         <div class="flex items-center justify-center">
-          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+          <img src="../assets/brand/logo-trim-transparent.png" alt="Aurealex" class="crm-sidebar-logo h-20 w-auto" />
         </div>
         <nav class="mt-8 space-y-3 text-sm">
           <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
@@ -58,14 +58,16 @@
       </aside>
 
       <main class="flex-1 p-10">
-        <header class="mb-8">
+        <header class="crm-page-header mb-8">
           <h1 class="text-2xl font-semibold">Documentos</h1>
           <p class="text-stone-500 mt-1">Carregue modelos e gere documentos personalizados.</p>
         </header>
 
         <section class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
           <h2 class="text-lg font-semibold">Modelos do escritório</h2>
-          <p class="text-sm text-stone-500 mt-1">Envie arquivos .docx com campos como {{nome}}.</p>
+          <p class="text-sm text-stone-500 mt-1">
+            Envie arquivos .docx com campos como {{nome}} (tamanho recomendado: até 10MB).
+          </p>
 
           <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>

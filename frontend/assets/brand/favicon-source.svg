@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!--
+    Favicon source: Aurealex symbol (tower) with smooth curved bottom and vertical gradient.
+    The bottom fades to transparent (alpha) so it looks correct on transparent backgrounds.
+  -->
+  <defs>
+    <linearGradient id="towerFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b3b55" />
+      <stop offset="55%" stop-color="#8e97a6" />
+      <stop offset="100%" stop-color="#e7eaee" />
+    </linearGradient>
+
+    <linearGradient id="alphaFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="white" stop-opacity="1" />
+      <stop offset="62%" stop-color="white" stop-opacity="1" />
+      <stop offset="100%" stop-color="white" stop-opacity="0" />
+    </linearGradient>
+
+    <mask id="fadeMask">
+      <rect x="0" y="0" width="1024" height="1024" fill="url(#alphaFade)" />
+    </mask>
+
+    <radialGradient id="bottomGlow" cx="50%" cy="92%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+      <stop offset="65%" stop-color="#ffffff" stop-opacity="0.0" />
+    </radialGradient>
+
+    <clipPath id="towerClip">
+      <path d="M512 90 L850 360 V900 H174 V360 Z" />
+    </clipPath>
+  </defs>
+
+  <!-- Tower (large). Straight bottom edge; fade to transparent happens via mask. -->
+  <path
+    d="M512 90 L850 360 V900 H174 V360 Z"
+    fill="url(#towerFill)"
+    mask="url(#fadeMask)"
+  />
+
+  <!-- Center seam (subtle) -->
+  <rect x="507" y="120" width="10" height="740" fill="#ffffff" opacity="0.06" mask="url(#fadeMask)" />
+
+  <!-- Bottom glow arc (keeps the "curved" look without cutting out the shape) -->
+  <g clip-path="url(#towerClip)" mask="url(#fadeMask)">
+    <ellipse cx="512" cy="900" rx="420" ry="170" fill="url(#bottomGlow)" />
+  </g>
+</svg>

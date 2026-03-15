@@ -19,13 +19,111 @@
       body {
         font-family: 'IBM Plex Sans', sans-serif;
       }
+
+      .dashboard-create-btn {
+        border: 1px solid rgba(16, 185, 129, 0.58);
+        background: linear-gradient(135deg, rgba(24, 185, 124, 0.96), rgba(10, 158, 107, 0.94));
+        color: #f8fffb;
+        box-shadow: 0 12px 24px -16px rgba(5, 150, 105, 0.78);
+      }
+
+      .dashboard-create-btn:hover {
+        background: linear-gradient(135deg, rgba(20, 173, 116, 0.98), rgba(8, 143, 96, 0.96));
+      }
+
+      .cliente-detail-overlay {
+        background: transparent;
+      }
+
+      .cliente-detail-backdrop {
+        background: rgba(15, 23, 42, 0.26);
+        backdrop-filter: blur(9px) saturate(110%);
+        -webkit-backdrop-filter: blur(9px) saturate(110%);
+      }
+
+      .cliente-detail-shell {
+        background: rgba(246, 248, 250, 0.9);
+        border: 1px solid rgba(203, 213, 225, 0.78);
+        box-shadow:
+          0 30px 70px -30px rgba(15, 23, 42, 0.68),
+          0 8px 28px -12px rgba(15, 23, 42, 0.32);
+        transform: translateY(0);
+      }
+
+      body[data-page='clientes'] .min-h-screen.flex > aside,
+      body[data-page='clientes'] .min-h-screen.flex > main {
+        transition: filter 0.22s ease, transform 0.22s ease, opacity 0.22s ease;
+      }
+
+      body[data-page='clientes'].cliente-detail-open .min-h-screen.flex > aside,
+      body[data-page='clientes'].cliente-detail-open .min-h-screen.flex > main {
+        filter: blur(4px) saturate(94%);
+        transform: scale(0.995);
+        opacity: 0.86;
+      }
+
+      body[data-page='clientes'].cliente-detail-open .cliente-detail-shell {
+        box-shadow:
+          0 44px 100px -36px rgba(15, 23, 42, 0.82),
+          0 16px 38px -18px rgba(15, 23, 42, 0.46);
+      }
+
+      .cliente-detail-tabs {
+        background: rgba(226, 232, 240, 0.62);
+        border: 1px solid rgba(203, 213, 225, 0.72);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .cliente-detail-tab {
+        color: #475569;
+      }
+
+      .cliente-detail-tab.is-active {
+        background: #ffffff;
+        color: #0f172a;
+        border-color: rgba(148, 163, 184, 0.42);
+        box-shadow: 0 12px 24px -20px rgba(15, 23, 42, 0.38);
+      }
+
+      .cliente-left-card {
+        border: 1px solid #d9dde3;
+        border-radius: 1rem;
+        background: transparent;
+        overflow: hidden;
+      }
+
+      .cliente-left-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.9rem 1rem 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .cliente-left-card-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #4b5563;
+      }
+
+      .cliente-left-card-edit {
+        font-size: 0.82rem;
+        color: #9ca3af;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body data-page="clientes" class="bg-stone-50 text-stone-900">
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
         <div class="flex items-center justify-center">
-          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+          <img src="../assets/brand/logo-trim-transparent.png" alt="Aurealex" class="crm-sidebar-logo h-20 w-auto" />
         </div>
         <nav class="mt-8 space-y-3 text-sm">
           <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
@@ -42,14 +140,14 @@
       </aside>
 
       <main class="flex-1 p-10">
-        <header class="flex items-center justify-between mb-6">
+        <header class="crm-page-header flex items-center justify-between mb-6">
           <div>
             <h1 class="text-2xl font-semibold">Clientes</h1>
             <p class="text-stone-500 mt-1">Gerencie seus clientes e contatos.</p>
           </div>
           <button
             id="novoClienteBtn"
-            class="bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]"
+            class="dashboard-create-btn px-4 py-2 rounded-full"
           >
             Novo cliente
           </button>
@@ -111,7 +209,7 @@
       </main>
     </div>
 
-    <div id="clienteModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
+    <div id="clienteModal" class="fixed inset-0 z-50 bg-black/40 hidden flex items-center justify-center">
       <div class="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold">Cliente</h2>
@@ -203,7 +301,7 @@
 
           <div>
             <label class="text-sm text-stone-600">E-mail</label>
-            <input id="clienteEmail" type="email" class="mt-1 w-full border rounded-lg px-3 py-2" />
+            <input id="clienteEmail" class="mt-1 w-full border rounded-lg px-3 py-2" />
           </div>
 
           <div>
@@ -370,7 +468,43 @@
       </div>
     </div>
 
-    <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260212-7"></script>
+    <div id="clienteDetailOverlay" class="cliente-detail-overlay fixed inset-0 z-40 hidden">
+      <div class="cliente-detail-backdrop absolute inset-0 lg:left-64" data-cliente-detail-close></div>
+      <section class="cliente-detail-shell absolute inset-y-4 left-4 right-6 lg:left-[17rem] lg:right-10 flex h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-3xl">
+        <header class="flex items-start justify-between border-b border-slate-200/80 px-6 py-5">
+          <div class="min-w-0">
+            <h2 class="flex items-center gap-2 truncate text-[2rem] font-semibold text-slate-800">
+              <span id="clienteDetailStatusDot" class="inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-stone-300"></span>
+              <span id="clienteDetailNome" class="truncate">Cliente</span>
+            </h2>
+          </div>
+          <button id="clienteDetailCloseBtn" class="rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-sm text-slate-600 hover:bg-white">
+            Fechar
+          </button>
+        </header>
+
+        <div class="px-6 pt-4">
+          <div class="cliente-detail-tabs inline-flex flex-wrap items-center gap-1 rounded-2xl p-1.5 text-sm">
+            <button type="button" class="cliente-detail-tab is-active rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-cliente-detail-tab="complementares">Dados gerais</button>
+            <button type="button" class="cliente-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-cliente-detail-tab="relacionamento">Relacionamento</button>
+            <button type="button" class="cliente-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-cliente-detail-tab="financeiros">Dados financeiros</button>
+            <button type="button" class="cliente-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-cliente-detail-tab="qualificacao">Qualificação</button>
+            <button type="button" class="cliente-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-cliente-detail-tab="processos">Processos vinculados</button>
+          </div>
+        </div>
+
+        <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden px-6 pb-6 pt-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.2fr)]">
+          <section class="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
+            <div id="clienteDetailTabContent"></div>
+          </section>
+          <section class="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
+            <div id="clienteDetailAtividades"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <script src="../assets/api.v2.js?v=20260311-chat1"></script>
+    <script src="../assets/app.v2.js?v=20260312-roles1"></script>
   </body>
 </html>

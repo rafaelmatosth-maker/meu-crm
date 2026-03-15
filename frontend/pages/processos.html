@@ -24,13 +24,32 @@
         visibility: visible !important;
         opacity: 1 !important;
       }
+      body[data-page='processos'] .min-h-screen.flex > aside,
+      body[data-page='processos'] .min-h-screen.flex > main {
+        transition: filter 0.22s ease, transform 0.22s ease, opacity 0.22s ease;
+      }
+      body[data-page='processos'].processo-detail-open .min-h-screen.flex > aside,
+      body[data-page='processos'].processo-detail-open .min-h-screen.flex > main {
+        filter: blur(4px) saturate(94%);
+        transform: scale(0.996);
+        opacity: 0.92;
+      }
+      .processo-detail-tabs {
+        background: rgba(226, 232, 240, 0.62);
+      }
+      .processo-detail-tab.is-active {
+        background: #ffffff;
+        border-color: rgba(148, 163, 184, 0.42);
+        color: #0f172a;
+        box-shadow: 0 12px 24px -20px rgba(15, 23, 42, 0.38);
+      }
     </style>
   </head>
   <body data-page="processos" class="bg-stone-50 text-stone-900">
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
         <div class="flex items-center justify-center">
-          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+          <img src="../assets/brand/logo-trim-transparent.png" alt="Aurealex" class="crm-sidebar-logo h-20 w-auto" />
         </div>
         <nav class="mt-8 space-y-3 text-sm">
           <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
@@ -47,14 +66,14 @@
       </aside>
 
       <main class="flex-1 p-10">
-        <header class="flex items-center justify-between mb-6">
+        <header class="crm-page-header flex items-center justify-between mb-6">
           <div>
             <h1 class="text-2xl font-semibold">Processos</h1>
             <p class="text-stone-500 mt-1">Acompanhe processos vinculados aos clientes.</p>
           </div>
           <button
             id="novoProcessoBtn"
-            class="bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]"
+            class="bg-emerald-600 text-white px-5 py-2 rounded-full hover:bg-emerald-700"
           >
             Novo processo
           </button>
@@ -123,8 +142,60 @@
       </main>
     </div>
 
-    <div id="processoModal" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center">
-      <div class="bg-white rounded-2xl p-6 w-full max-w-lg">
+    <div id="processoDetailOverlay" class="fixed inset-0 z-40 hidden">
+      <div class="absolute inset-0 lg:left-64 bg-slate-900/25 backdrop-blur-[6px]" data-processo-detail-close></div>
+      <section class="absolute inset-y-4 left-4 right-6 lg:left-[17rem] lg:right-10 flex h-[calc(100vh-2rem)] flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 shadow-[0_30px_70px_-30px_rgba(15,23,42,0.68),0_8px_28px_-12px_rgba(15,23,42,0.32)]">
+        <header class="flex items-start justify-between border-b border-slate-200/80 px-6 py-5">
+          <div class="min-w-0">
+            <h2 class="truncate text-2xl font-semibold text-slate-800">
+              <span id="processoDetailNumero">Processo</span>
+            </h2>
+            <p id="processoDetailSubtitulo" class="mt-1 text-sm text-slate-500">Painel de informações sem sair da listagem.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              id="processoDetailEditBtn"
+              type="button"
+              class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm text-emerald-700 hover:bg-emerald-100"
+            >
+              Editar
+            </button>
+            <button
+              id="processoDetailCloseBtn"
+              type="button"
+              class="rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-sm text-slate-600 hover:bg-white"
+            >
+              Fechar
+            </button>
+          </div>
+        </header>
+
+        <div class="px-6 pt-4">
+          <div class="processo-detail-tabs inline-flex flex-wrap items-center gap-1 rounded-2xl p-1.5 text-sm">
+            <button type="button" class="processo-detail-tab is-active rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-processo-detail-tab="dados">Dados gerais</button>
+            <button type="button" class="processo-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-processo-detail-tab="financeiro">Financeiro</button>
+            <button type="button" class="processo-detail-tab rounded-xl border border-transparent px-3 py-1.5 text-slate-600" data-processo-detail-tab="andamentos">Andamentos</button>
+          </div>
+        </div>
+
+        <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 overflow-hidden px-6 pb-6 pt-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.2fr)]">
+          <section class="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
+            <div id="processoDetailDados"></div>
+            <div id="processoDetailFinanceiro" class="hidden"></div>
+            <div id="processoDetailAndamentos" class="hidden"></div>
+          </section>
+          <section class="min-h-0 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-4">
+            <div id="processoDetailAtividades"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="processoModal"
+      class="fixed inset-0 bg-black/40 hidden flex items-start justify-center overflow-y-auto p-4 md:p-6"
+    >
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold">Processo</h2>
           <button id="fecharProcessoModal" class="text-stone-500">Fechar</button>
@@ -132,13 +203,19 @@
         <form id="processoForm" class="space-y-3">
           <div>
             <label class="text-sm text-stone-600">Cliente</label>
-            <input
-              id="processoClienteInput"
-              list="processoClienteOptions"
-              class="mt-1 w-full border rounded-lg px-3 py-2"
-              placeholder="Digite para buscar cliente"
-              required
-            />
+            <div class="relative mt-1">
+              <input
+                id="processoClienteInput"
+                autocomplete="off"
+                class="w-full border rounded-lg px-3 py-2"
+                placeholder="Digite para buscar cliente"
+                required
+              />
+              <div
+                id="processoClienteSuggestions"
+                class="absolute z-20 mt-1 left-0 right-0 hidden max-h-48 overflow-y-auto rounded-lg border border-stone-200 bg-white shadow-lg"
+              ></div>
+            </div>
             <datalist id="processoClienteOptions"></datalist>
             <input id="processoClienteId" type="hidden" />
           </div>
@@ -258,7 +335,9 @@
             </div>
             <div>
               <label class="text-sm text-stone-600">Cidade</label>
-              <input id="processoCidade" class="mt-1 w-full border rounded-lg px-3 py-2" />
+              <select id="processoCidade" class="mt-1 w-full border rounded-lg px-3 py-2">
+                <option value="">Selecione o estado</option>
+              </select>
             </div>
             <div>
               <label class="text-sm text-stone-600">Estado</label>
@@ -324,10 +403,12 @@
               </div>
             </div>
           </div>
-          <p id="processoMessage" class="text-sm"></p>
-          <button class="w-full bg-[#0C1B33] text-white py-2 rounded-lg hover:bg-[#0A162A]">
-            Salvar
-          </button>
+          <div class="sticky bottom-0 bg-white pt-3 border-t border-stone-200">
+            <p id="processoMessage" class="text-sm mb-2"></p>
+            <button type="submit" class="w-full bg-[#0C1B33] text-white py-2 rounded-lg hover:bg-[#0A162A]">
+              Salvar
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -356,7 +437,7 @@
       </div>
     </div>
 
-    <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260219-1"></script>
+    <script src="../assets/api.v2.js?v=20260311-chat1"></script>
+    <script src="../assets/app.v2.js?v=20260312-roles1"></script>
   </body>
 </html>

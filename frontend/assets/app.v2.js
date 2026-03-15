@@ -6,6 +6,145 @@ function qsa(selector) {
   return Array.from(document.querySelectorAll(selector));
 }
 
+const CRM_THEME_STORAGE_KEY = 'crm_theme';
+const CRM_THEME_FALLBACK = 'classic';
+const CRM_THEME_VALUES = ['classic', 'aurora', 'oceano', 'amanhecer'];
+const CRM_THEME_SWATCH_FALLBACK = {
+  classic: '#fafaf9',
+  aurora: '#3f58bb',
+  oceano: '#155fa1',
+  amanhecer: '#7a39b8',
+};
+
+function ensureThemeStylesheet() {
+  if (qs('#crmThemeStylesheet')) return;
+  const link = document.createElement('link');
+  link.id = 'crmThemeStylesheet';
+  link.rel = 'stylesheet';
+  link.href = '/assets/themes.css?v=20260313-theme1';
+  document.head.appendChild(link);
+}
+
+function normalizeThemeValue(value) {
+  const normalized = String(value || '')
+    .trim()
+    .toLowerCase();
+  return CRM_THEME_VALUES.includes(normalized) ? normalized : CRM_THEME_FALLBACK;
+}
+
+function getStoredThemeValue() {
+  try {
+    return normalizeThemeValue(localStorage.getItem(CRM_THEME_STORAGE_KEY));
+  } catch (_) {
+    return CRM_THEME_FALLBACK;
+  }
+}
+
+function setStoredThemeValue(theme) {
+  try {
+    localStorage.setItem(CRM_THEME_STORAGE_KEY, normalizeThemeValue(theme));
+  } catch (_) {
+    // ignore localStorage failures
+  }
+}
+
+function parseThemeSwatchColor(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+
+  const shortHex = raw.match(/^#([0-9a-f]{3})$/i);
+  if (shortHex) {
+    const [r, g, b] = shortHex[1].split('').map((part) => Number.parseInt(part + part, 16));
+    return { r, g, b };
+  }
+
+  const longHex = raw.match(/^#([0-9a-f]{6})$/i);
+  if (longHex) {
+    return {
+      r: Number.parseInt(longHex[1].slice(0, 2), 16),
+      g: Number.parseInt(longHex[1].slice(2, 4), 16),
+      b: Number.parseInt(longHex[1].slice(4, 6), 16),
+    };
+  }
+
+  const rgbMatch = raw.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*[\d.]+\s*)?\)$/i);
+  if (rgbMatch) {
+    return {
+      r: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[1])))),
+      g: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[2])))),
+      b: Math.max(0, Math.min(255, Math.round(Number(rgbMatch[3])))),
+    };
+  }
+
+  return null;
+}
+
+function toRelativeLuminance(rgb) {
+  const channel = (value) => {
+    const normalized = value / 255;
+    return normalized <= 0.03928
+      ? normalized / 12.92
+      : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  };
+
+  const r = channel(rgb.r);
+  const g = channel(rgb.g);
+  const b = channel(rgb.b);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function resolveThemeInk(theme) {
+  const body = document.body;
+  if (!body) return 'dark';
+  const fallback = CRM_THEME_SWATCH_FALLBACK[theme] || CRM_THEME_SWATCH_FALLBACK.classic;
+  const swatchFromCss = getComputedStyle(body).getPropertyValue('--crm-ink-swatch').trim();
+  const color = parseThemeSwatchColor(swatchFromCss) || parseThemeSwatchColor(fallback);
+  if (!color) return 'dark';
+  const luminance = toRelativeLuminance(color);
+  const contrastWhite = 1.05 / (luminance + 0.05);
+  const contrastBlack = (luminance + 0.05) / 0.05;
+  return contrastWhite >= contrastBlack ? 'light' : 'dark';
+}
+
+function updateSidebarLogoVariant(theme, ink) {
+  const useLightVariant = theme !== 'classic' && ink === 'light';
+  qsa('.crm-sidebar-logo').forEach((logo) => {
+    const current = String(logo.getAttribute('src') || '').trim();
+    if (!logo.dataset.logoDarkSrc) {
+      logo.dataset.logoDarkSrc = current;
+    }
+    if (!logo.dataset.logoLightSrc) {
+      const dark = logo.dataset.logoDarkSrc || current;
+      logo.dataset.logoLightSrc = dark.includes('logo-trim-transparent.png')
+        ? dark.replace('logo-trim-transparent.png', 'logo-trim-transparent-white.png')
+        : dark;
+    }
+    const nextSrc = useLightVariant ? logo.dataset.logoLightSrc : logo.dataset.logoDarkSrc;
+    if (nextSrc && current !== nextSrc) {
+      logo.setAttribute('src', nextSrc);
+    }
+  });
+}
+
+function applyTheme(theme, options = {}) {
+  const persist = options.persist !== false;
+  const normalized = normalizeThemeValue(theme);
+  const body = document.body;
+  if (!body) return normalized;
+  body.classList.add('crm-theme-ready');
+  body.dataset.theme = normalized;
+  const ink = resolveThemeInk(normalized);
+  body.dataset.themeInk = ink;
+  updateSidebarLogoVariant(normalized, ink);
+  if (persist) setStoredThemeValue(normalized);
+  return normalized;
+}
+
+function initTheme() {
+  ensureThemeStylesheet();
+  applyTheme(getStoredThemeValue(), { persist: false });
+}
+
 function formatCpf(value) {
   const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 3) return digits;
@@ -194,6 +333,10 @@ function normalizeMonthValue(value) {
   return '';
 }
 
+function stripHashSuffix(text) {
+  return String(text || '').replace(/\s+[a-f0-9]{16,}$/i, '').trim();
+}
+
 function isTruthyFlag(value) {
   const normalized = String(value || '').trim().toLowerCase();
   return ['sim', 'yes', 'true', '1'].includes(normalized);
@@ -219,6 +362,125 @@ function atualizarIdade(dataInput, idadeInfo, idadeHidden) {
   if (idadeInfo) {
     idadeInfo.textContent = idade ? `Idade: ${idade} anos` : 'Idade: -';
   }
+}
+
+function formatDateLongBR(value) {
+  const date = parseDateTimeInput(value);
+  if (!date) return '';
+  return date.toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function buildClienteQualificacaoAuto(cliente = {}) {
+  const nome = String(cliente.nome || '').trim();
+  if (!nome) return '';
+
+  const qualificadores = [
+    String(cliente.nacionalidade || '').trim(),
+    String(cliente.estado_civil || '').trim(),
+    String(cliente.profissao || '').trim(),
+  ].filter(Boolean);
+
+  const partes = [qualificadores.length ? `${nome}, ${qualificadores.join(', ')}` : nome];
+
+  const dataNascimento = formatDateLongBR(cliente.data_nascimento);
+  if (dataNascimento) partes.push(`nascido(a) em ${dataNascimento}`);
+
+  const filiacao = String(cliente.filiacao || '').trim();
+  if (filiacao) partes.push(`filho(a) de ${filiacao}`);
+
+  const rg = String(cliente.rg || '').trim();
+  if (rg) partes.push(`portador(a) do RG ${rg}`);
+
+  const cpf = String(cliente.cpf || '').trim();
+  if (cpf) partes.push(`CPF ${cpf}`);
+
+  const enderecoLinha = [
+    String(cliente.endereco || '').trim(),
+    String(cliente.numero_casa || '').trim(),
+  ]
+    .filter(Boolean)
+    .join(', ');
+  const cidadeUf = [String(cliente.cidade || '').trim(), String(cliente.estado || '').trim()]
+    .filter(Boolean)
+    .join(' - ');
+  const cep = String(cliente.cep || '').trim();
+  const enderecoCompleto = [enderecoLinha, cidadeUf, cep ? `CEP ${cep}` : '']
+    .filter(Boolean)
+    .join(', ');
+  if (enderecoCompleto) partes.push(`residente e domiciliado(a) em ${enderecoCompleto}`);
+
+  return partes.filter(Boolean).join(', ');
+}
+
+function isQualificacaoPlaceholder(text = '') {
+  const raw = String(text || '').trim();
+  if (!raw) return true;
+  const normalized = raw.toLowerCase();
+  if (/(^|,)\s*,/.test(raw)) return true;
+  if (/nascido\s*\(a\)\s*em\s*,/i.test(normalized)) return true;
+  if (/filho\s*\(a\)\s*de\s*,/i.test(normalized)) return true;
+  if (/sob o n[ºo]\s*,/i.test(normalized)) return true;
+  if (/cpf\s*,/i.test(normalized)) return true;
+  if (/residente e domiciliado\s*\(a\)\s*em\s*,\s*,/i.test(normalized)) return true;
+  return false;
+}
+
+function normalizeCompareText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function normalizeDigits(value = '') {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function shouldPreferAutoQualificacao(cliente = {}, manual = '', auto = '') {
+  const manualText = String(manual || '').trim();
+  const autoText = String(auto || '').trim();
+  if (!autoText) return false;
+  if (!manualText || isQualificacaoPlaceholder(manualText)) return true;
+
+  const normalizedManual = normalizeCompareText(manualText);
+  let missingSignals = 0;
+
+  const cpfDigits = normalizeDigits(cliente.cpf);
+  if (cpfDigits && !normalizeDigits(manualText).includes(cpfDigits)) missingSignals += 1;
+
+  const rgDigits = normalizeDigits(cliente.rg);
+  if (rgDigits && !normalizeDigits(manualText).includes(rgDigits)) missingSignals += 1;
+
+  const filiacao = normalizeCompareText(cliente.filiacao);
+  if (filiacao && !normalizedManual.includes(filiacao)) missingSignals += 1;
+
+  const endereco = normalizeCompareText(cliente.endereco);
+  if (endereco && !normalizedManual.includes(endereco)) missingSignals += 1;
+
+  const cidade = normalizeCompareText(cliente.cidade);
+  if (cidade && !normalizedManual.includes(cidade)) missingSignals += 1;
+
+  const cepDigits = normalizeDigits(cliente.cep);
+  if (cepDigits && !normalizeDigits(manualText).includes(cepDigits)) missingSignals += 1;
+
+  const dataNascimento = String(cliente.data_nascimento || '').trim();
+  if (dataNascimento) {
+    const yearMatch = dataNascimento.match(/(\d{4})/);
+    if (yearMatch && !manualText.includes(yearMatch[1])) missingSignals += 1;
+  }
+
+  return missingSignals >= 2 || manualText.length < autoText.length * 0.7;
+}
+
+function getClienteQualificacaoText(cliente = {}) {
+  const manual = String(cliente.qualificacao || '').trim();
+  const auto = buildClienteQualificacaoAuto(cliente);
+  if (manual && !shouldPreferAutoQualificacao(cliente, manual, auto)) return manual;
+  return auto;
 }
 
 async function buscarCep(cep) {
@@ -253,12 +515,153 @@ function showMessage(target, text, type = 'erro') {
   target.className = type === 'sucesso' ? 'text-green-600 text-sm' : 'text-red-600 text-sm';
 }
 
+const ibgeMunicipiosCache = new Map();
+
+async function fetchMunicipiosByUf(uf) {
+  const normalizedUf = String(uf || '').trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalizedUf)) return [];
+  if (ibgeMunicipiosCache.has(normalizedUf)) return ibgeMunicipiosCache.get(normalizedUf);
+
+  const promise = (async () => {
+    const url = `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${encodeURIComponent(
+      normalizedUf
+    )}/municipios?orderBy=nome`;
+    const response = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!response.ok) {
+      throw new Error('Falha ao carregar cidades.');
+    }
+    const data = await response.json().catch(() => []);
+    const cidades = Array.isArray(data)
+      ? data
+          .map((item) => String(item?.nome || '').trim())
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+      : [];
+    return cidades;
+  })();
+
+  ibgeMunicipiosCache.set(normalizedUf, promise);
+  try {
+    return await promise;
+  } catch (err) {
+    ibgeMunicipiosCache.delete(normalizedUf);
+    throw err;
+  }
+}
+
+function setCidadeSelectOptions(selectEl, cidades = [], { currentValue = '', placeholder = 'Selecione a cidade' } = {}) {
+  if (!selectEl) return;
+  const current = String(currentValue || '').trim();
+  selectEl.innerHTML = '';
+  const placeholderOpt = document.createElement('option');
+  placeholderOpt.value = '';
+  placeholderOpt.textContent = placeholder;
+  selectEl.appendChild(placeholderOpt);
+  cidades.forEach((cidade) => {
+    const opt = document.createElement('option');
+    opt.value = cidade;
+    opt.textContent = cidade;
+    selectEl.appendChild(opt);
+  });
+  if (current) {
+    const hasCurrent = Array.from(selectEl.options).some((opt) => opt.value === current);
+    if (!hasCurrent) {
+      const opt = document.createElement('option');
+      opt.value = current;
+      opt.textContent = current;
+      selectEl.appendChild(opt);
+    }
+    selectEl.value = current;
+  } else {
+    selectEl.value = '';
+  }
+}
+
+async function hydrateCidadeSelectByEstado(estadoValue, cidadeSelectEl, { currentValue = '' } = {}) {
+  if (!cidadeSelectEl) return;
+  const uf = String(estadoValue || '').trim().toUpperCase();
+  const requestId = String(Number(cidadeSelectEl.dataset.cityReqId || 0) + 1);
+  cidadeSelectEl.dataset.cityReqId = requestId;
+
+  if (!uf) {
+    cidadeSelectEl.disabled = true;
+    setCidadeSelectOptions(cidadeSelectEl, [], {
+      currentValue,
+      placeholder: currentValue ? 'Cidade' : 'Selecione o estado',
+    });
+    return;
+  }
+
+  cidadeSelectEl.disabled = true;
+  setCidadeSelectOptions(cidadeSelectEl, [], {
+    currentValue,
+    placeholder: 'Carregando cidades...',
+  });
+
+  try {
+    const cidades = await fetchMunicipiosByUf(uf);
+    if (cidadeSelectEl.dataset.cityReqId !== requestId) return;
+    cidadeSelectEl.disabled = false;
+    setCidadeSelectOptions(cidadeSelectEl, cidades, {
+      currentValue,
+      placeholder: 'Selecione a cidade',
+    });
+  } catch (_) {
+    if (cidadeSelectEl.dataset.cityReqId !== requestId) return;
+    cidadeSelectEl.disabled = false;
+    setCidadeSelectOptions(cidadeSelectEl, [], {
+      currentValue,
+      placeholder: currentValue ? 'Cidade' : 'Não foi possível carregar',
+    });
+  }
+}
+
+function syncModalBodyScrollLock() {
+  // Consider only modal containers, not buttons like "fecharProcessoModal".
+  const hasOpenModal = Array.from(document.querySelectorAll('[id$="Modal"]')).some((el) => {
+    if (!(el instanceof HTMLElement)) return false;
+    if (el.classList.contains('hidden')) return false;
+    const tag = el.tagName.toLowerCase();
+    return tag === 'div' || tag === 'section' || tag === 'dialog';
+  });
+  document.documentElement.classList.toggle('overflow-hidden', hasOpenModal);
+  document.body.classList.toggle('overflow-hidden', hasOpenModal);
+}
+
+function ensureModalBodyScrollLockObserver() {
+  if (window.__modalBodyScrollLockObserverInitialized) return;
+  window.__modalBodyScrollLockObserverInitialized = true;
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type !== 'attributes') continue;
+      const target = mutation.target;
+      if (!(target instanceof HTMLElement)) continue;
+      if (!target.id || !target.id.endsWith('Modal')) continue;
+      syncModalBodyScrollLock();
+      return;
+    }
+  });
+
+  observer.observe(document.body, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  syncModalBodyScrollLock();
+}
+
 function openModal(modal) {
+  if (!modal) return;
   modal.classList.remove('hidden');
+  syncModalBodyScrollLock();
 }
 
 function closeModal(modal) {
+  if (!modal) return;
   modal.classList.add('hidden');
+  syncModalBodyScrollLock();
 }
 
 async function fetchAjustesResumoSafe() {
@@ -426,13 +829,667 @@ function captureTokenFromUrl() {
   } catch (_) {}
 }
 
+const chatWidgetState = {
+  initialized: false,
+  isOpen: false,
+  me: null,
+  conversations: [],
+  selectedConversationId: null,
+  messagesByConversation: {},
+  collaborators: [],
+  pollTimerId: null,
+  loadingConversations: false,
+  loadingMessages: false,
+};
+
+function chatEscapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function chatFormatHour(value) {
+  const date = parseDateTimeInput(value);
+  if (!date) return '';
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function chatFormatListTime(value) {
+  const date = parseDateTimeInput(value);
+  if (!date) return '';
+  const now = new Date();
+  const sameDay =
+    now.getFullYear() === date.getFullYear() &&
+    now.getMonth() === date.getMonth() &&
+    now.getDate() === date.getDate();
+  if (sameDay) return chatFormatHour(value);
+  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function chatGetSelectedConversation() {
+  const selectedId = Number(chatWidgetState.selectedConversationId);
+  return chatWidgetState.conversations.find((item) => Number(item.id) === selectedId) || null;
+}
+
+function chatSetStatus(message, isError = false) {
+  const el = qs('#chatWidgetStatus');
+  if (!el) return;
+  el.textContent = String(message || '');
+  el.style.color = isError ? '#dc2626' : '#78716c';
+  if (!message) return;
+  setTimeout(() => {
+    if (el.textContent === message) el.textContent = '';
+  }, 3000);
+}
+
+function chatInjectStyles() {
+  if (qs('#chatWidgetStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'chatWidgetStyles';
+  style.textContent = `
+    .chat-fab {
+      position: fixed; right: 18px; bottom: 18px; z-index: 1100;
+      width: 56px; height: 56px; padding: 0;
+      border: 1px solid #d6d3d1; background: #0c1b33; color: #fff;
+      border-radius: 999px; display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 12px 30px rgba(12, 27, 51, 0.25);
+    }
+    .chat-fab-icon { width: 24px; height: 24px; }
+    .chat-fab-badge {
+      position: absolute; top: -5px; right: -5px;
+      min-width: 20px; height: 20px; border-radius: 999px; background: #dc2626;
+      color: #fff; text-align: center; line-height: 20px; font-size: 11px; font-weight: 700; padding: 0 6px;
+    }
+    .chat-fab-badge.hidden { display: none; }
+    .chat-panel {
+      position: fixed; right: 18px; bottom: 80px; z-index: 1101;
+      width: min(900px, calc(100vw - 24px)); height: min(620px, calc(100vh - 110px));
+      border: 1px solid #d6d3d1; border-radius: 16px; background: #fff;
+      box-shadow: 0 24px 52px rgba(12, 27, 51, 0.22); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .chat-panel.hidden { display: none; }
+    .chat-head {
+      border-bottom: 1px solid #e7e5e4; padding: 10px 12px; background: #fafaf9;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-head-title { font-size: 14px; font-weight: 700; color: #1c1917; }
+    .chat-status { font-size: 11px; color: #78716c; min-height: 14px; margin-top: 2px; }
+    .chat-btn {
+      border: 1px solid #d6d3d1; background: #fff; color: #44403c;
+      border-radius: 8px; font-size: 12px; padding: 6px 10px; cursor: pointer;
+    }
+    .chat-btn-primary { border-color: #0c1b33; background: #0c1b33; color: #fff; }
+    .chat-body {
+      flex: 1; min-height: 0; display: grid; grid-template-columns: 290px 1fr;
+    }
+    .chat-sidebar {
+      border-right: 1px solid #e7e5e4; background: #fcfcfb; display: flex; flex-direction: column; min-height: 0;
+    }
+    .chat-search {
+      margin: 10px; border: 1px solid #d6d3d1; border-radius: 8px; padding: 8px 10px; font-size: 12px;
+    }
+    .chat-conversations { flex: 1; min-height: 0; overflow: auto; padding: 4px 8px 8px; }
+    .chat-conversation {
+      border: 1px solid transparent; border-radius: 10px; padding: 8px; margin-bottom: 4px; background: #fff; cursor: pointer;
+    }
+    .chat-conversation:hover { border-color: #d6d3d1; background: #fafaf9; }
+    .chat-conversation.active { border-color: #0c1b33; background: #f5f7fb; }
+    .chat-conversation-name { font-size: 13px; font-weight: 600; color: #1c1917; }
+    .chat-conversation-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+    .chat-conversation-preview {
+      font-size: 12px; color: #57534e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px;
+    }
+    .chat-conversation-time { font-size: 11px; color: #78716c; }
+    .chat-conversation-unread {
+      margin-top: 6px; display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; border-radius: 999px; background: #dc2626; color: #fff;
+      font-size: 11px; font-weight: 700; padding: 0 6px;
+    }
+    .chat-main { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+    .chat-main-head { border-bottom: 1px solid #e7e5e4; padding: 10px 12px; }
+    .chat-main-title { font-size: 13px; font-weight: 700; color: #1c1917; }
+    .chat-main-subtitle { font-size: 11px; color: #78716c; margin-top: 2px; }
+    .chat-messages { min-height: 0; overflow: auto; padding: 12px; background: linear-gradient(180deg, #fff 0%, #fafaf9 100%); }
+    .chat-message {
+      max-width: 78%; margin-bottom: 10px; border: 1px solid #e7e5e4;
+      border-radius: 10px; padding: 8px 10px; background: #fff;
+    }
+    .chat-message.mine { margin-left: auto; border-color: #bfdbfe; background: #eff6ff; }
+    .chat-message-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10px; color: #57534e; margin-bottom: 4px; text-transform: uppercase;
+    }
+    .chat-message-text { font-size: 13px; color: #1c1917; white-space: pre-wrap; line-height: 1.35; }
+    .chat-empty {
+      border: 1px dashed #d6d3d1; border-radius: 10px; padding: 12px;
+      text-align: center; color: #78716c; font-size: 12px; background: #fff;
+    }
+    .chat-attachments { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chat-attachment {
+      border: 1px solid #d6d3d1; background: #fff; border-radius: 999px;
+      padding: 4px 9px; font-size: 11px; cursor: pointer; max-width: 100%;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .chat-compose { border-top: 1px solid #e7e5e4; padding: 10px; background: #fff; }
+    .chat-files { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; min-height: 16px; }
+    .chat-file-pill {
+      border: 1px solid #d6d3d1; border-radius: 999px; padding: 2px 8px;
+      font-size: 11px; color: #57534e; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .chat-compose-row { display: flex; align-items: flex-end; gap: 8px; }
+    .chat-textarea {
+      flex: 1; min-height: 40px; max-height: 120px; resize: vertical;
+      border: 1px solid #d6d3d1; border-radius: 8px; padding: 8px 10px; font-size: 13px;
+    }
+    .chat-hidden-file { display: none; }
+    .chat-picker {
+      position: absolute; right: 12px; top: 54px; z-index: 5;
+      width: min(320px, calc(100vw - 52px)); max-height: 360px;
+      border: 1px solid #d6d3d1; border-radius: 10px; background: #fff;
+      box-shadow: 0 16px 32px rgba(12,27,51,.18); overflow: hidden; display: flex; flex-direction: column;
+    }
+    .chat-picker.hidden { display: none; }
+    .chat-picker-list { overflow: auto; min-height: 0; padding: 6px; }
+    .chat-picker-item { border: 1px solid transparent; border-radius: 8px; padding: 8px; cursor: pointer; }
+    .chat-picker-item:hover { border-color: #d6d3d1; background: #fafaf9; }
+    .chat-picker-name { font-size: 13px; font-weight: 600; color: #1c1917; }
+    .chat-picker-email { font-size: 11px; color: #78716c; margin-top: 2px; }
+    @media (max-width: 920px) {
+      .chat-panel { right: 12px; left: 12px; bottom: 76px; width: auto; }
+      .chat-body { grid-template-columns: 1fr; grid-template-rows: 210px 1fr; }
+      .chat-sidebar { border-right: 0; border-bottom: 1px solid #e7e5e4; }
+      .chat-message { max-width: 90%; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function chatInjectMarkup() {
+  if (qs('#chatWidgetFab')) return;
+  const wrapper = document.createElement('div');
+  wrapper.id = 'chatWidgetRoot';
+  wrapper.innerHTML = `
+    <button id="chatWidgetFab" type="button" class="chat-fab" aria-label="Abrir conversas" title="Conversas">
+      <svg class="chat-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 14c-1.7 0-3-1.3-3-3V6c0-1.7 1.3-3 3-3h8c1.7 0 3 1.3 3 3v5c0 1.7-1.3 3-3 3H9l-4 3z"></path>
+        <path d="M13 9h6c1.7 0 3 1.3 3 3v4c0 1.7-1.3 3-3 3h-3l-3 2.2V12"></path>
+      </svg>
+      <span id="chatWidgetFabBadge" class="chat-fab-badge hidden"></span>
+    </button>
+    <div id="chatWidgetPanel" class="chat-panel hidden">
+      <div class="chat-head">
+        <div>
+          <div class="chat-head-title">Chat interno</div>
+          <div id="chatWidgetStatus" class="chat-status"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="chatWidgetNewBtn" type="button" class="chat-btn">Nova conversa</button>
+          <button id="chatWidgetCloseBtn" type="button" class="chat-btn">Fechar</button>
+        </div>
+      </div>
+      <div class="chat-body">
+        <aside class="chat-sidebar">
+          <input id="chatWidgetConversationSearch" class="chat-search" type="search" placeholder="Buscar conversa" />
+          <div id="chatWidgetConversations" class="chat-conversations"></div>
+        </aside>
+        <section class="chat-main">
+          <div class="chat-main-head">
+            <div id="chatWidgetConversationTitle" class="chat-main-title">Selecione uma conversa</div>
+            <div id="chatWidgetConversationSubtitle" class="chat-main-subtitle">Envie mensagens e arquivos para o time</div>
+          </div>
+          <div id="chatWidgetMessages" class="chat-messages"></div>
+          <div class="chat-compose">
+            <div id="chatWidgetFilesPreview" class="chat-files"></div>
+            <div class="chat-compose-row">
+              <textarea id="chatWidgetComposer" class="chat-textarea" rows="2" placeholder="Escreva uma mensagem... (Enter envia)"></textarea>
+              <label for="chatWidgetFilesInput" class="chat-btn" title="Anexar arquivos">Anexar</label>
+              <input id="chatWidgetFilesInput" class="chat-hidden-file" type="file" multiple />
+              <button id="chatWidgetSendBtn" type="button" class="chat-btn chat-btn-primary">Enviar</button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div id="chatWidgetPicker" class="chat-picker hidden">
+        <div class="chat-head">
+          <div class="chat-head-title">Nova conversa direta</div>
+          <button id="chatWidgetPickerCloseBtn" type="button" class="chat-btn">Fechar</button>
+        </div>
+        <input id="chatWidgetPickerSearch" class="chat-search" type="search" placeholder="Buscar colaborador" />
+        <div id="chatWidgetPickerList" class="chat-picker-list"></div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrapper);
+}
+
+function chatRenderFabBadge() {
+  const badge = qs('#chatWidgetFabBadge');
+  if (!badge) return;
+  const total = chatWidgetState.conversations.reduce((acc, item) => acc + Number(item.nao_lidas || 0), 0);
+  if (total > 0) {
+    badge.textContent = total > 99 ? '99+' : String(total);
+    badge.classList.remove('hidden');
+  } else {
+    badge.textContent = '';
+    badge.classList.add('hidden');
+  }
+}
+
+function chatSetPanelOpen(isOpen) {
+  const panel = qs('#chatWidgetPanel');
+  if (!panel) return;
+  chatWidgetState.isOpen = Boolean(isOpen);
+  panel.classList.toggle('hidden', !chatWidgetState.isOpen);
+  if (chatWidgetState.isOpen && chatWidgetState.selectedConversationId) {
+    chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true }).catch(() => {});
+  }
+}
+
+function chatRenderConversations() {
+  const listEl = qs('#chatWidgetConversations');
+  if (!listEl) return;
+  const term = String((qs('#chatWidgetConversationSearch') && qs('#chatWidgetConversationSearch').value) || '')
+    .trim()
+    .toLowerCase();
+  const rows = chatWidgetState.conversations.filter((item) => {
+    if (!term) return true;
+    return (
+      String(item.nome_exibicao || '').toLowerCase().includes(term) ||
+      String(item.ultima_mensagem_texto || '').toLowerCase().includes(term)
+    );
+  });
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="chat-empty">Nenhuma conversa encontrada.</div>';
+    return;
+  }
+  listEl.innerHTML = rows
+    .map((item) => {
+      const active = Number(item.id) === Number(chatWidgetState.selectedConversationId);
+      const unread = Number(item.nao_lidas || 0);
+      const preview = item.ultima_mensagem_texto
+        ? chatEscapeHtml(item.ultima_mensagem_texto)
+        : item.ultima_mensagem_id
+          ? 'Arquivo enviado'
+          : 'Sem mensagens ainda';
+      return `
+        <div class="chat-conversation ${active ? 'active' : ''}" data-chat-conversa-id="${item.id}">
+          <div class="chat-conversation-name">${chatEscapeHtml(item.nome_exibicao || 'Conversa')}</div>
+          <div class="chat-conversation-meta">
+            <div class="chat-conversation-preview">${preview}</div>
+            <div class="chat-conversation-time">${chatEscapeHtml(chatFormatListTime(item.ultima_mensagem_em || item.updated_at || item.created_at))}</div>
+          </div>
+          ${unread > 0 ? `<span class="chat-conversation-unread">${unread > 99 ? '99+' : unread}</span>` : ''}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function chatRenderMessages() {
+  const messagesEl = qs('#chatWidgetMessages');
+  const titleEl = qs('#chatWidgetConversationTitle');
+  const subtitleEl = qs('#chatWidgetConversationSubtitle');
+  if (!messagesEl || !titleEl || !subtitleEl) return;
+  const selected = chatGetSelectedConversation();
+  if (!selected) {
+    titleEl.textContent = 'Selecione uma conversa';
+    subtitleEl.textContent = 'Envie mensagens e arquivos para o time';
+    messagesEl.innerHTML = '<div class="chat-empty">Escolha uma conversa para iniciar.</div>';
+    return;
+  }
+  titleEl.textContent = selected.nome_exibicao || 'Conversa';
+  subtitleEl.textContent = selected.tipo === 'direta' ? 'Conversa direta' : 'Conversa em grupo';
+  const mensagens = chatWidgetState.messagesByConversation[String(selected.id)] || [];
+  if (!mensagens.length) {
+    messagesEl.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Envie a primeira.</div>';
+    return;
+  }
+  messagesEl.innerHTML = mensagens
+    .map((mensagem) => {
+      const isMine = Number(mensagem.autor_id) === Number(chatWidgetState.me && chatWidgetState.me.id);
+      const anexos = Array.isArray(mensagem.anexos) ? mensagem.anexos : [];
+      const anexosHtml = anexos.length
+        ? `<div class="chat-attachments">
+            ${anexos
+              .map(
+                (anexo) => `
+                  <button
+                    type="button"
+                    class="chat-attachment"
+                    data-chat-anexo-id="${anexo.id}"
+                    data-chat-anexo-nome="${encodeURIComponent(anexo.nome_original || 'anexo')}"
+                  >
+                    ${chatEscapeHtml(anexo.nome_original || 'Anexo')}
+                  </button>
+                `
+              )
+              .join('')}
+          </div>`
+        : '';
+      return `
+        <div class="chat-message ${isMine ? 'mine' : ''}">
+          <div class="chat-message-meta">
+            <span>${chatEscapeHtml(isMine ? 'Voce' : mensagem.autor_nome || 'Colaborador')}</span>
+            <span>${chatEscapeHtml(chatFormatHour(mensagem.created_at))}</span>
+          </div>
+          ${mensagem.texto ? `<div class="chat-message-text">${chatEscapeHtml(mensagem.texto)}</div>` : ''}
+          ${anexosHtml}
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function chatRenderFilesPreview() {
+  const filesEl = qs('#chatWidgetFilesPreview');
+  const input = qs('#chatWidgetFilesInput');
+  if (!filesEl || !input) return;
+  const files = Array.from(input.files || []);
+  filesEl.innerHTML = files
+    .map((file) => `<span class="chat-file-pill">${chatEscapeHtml(file.name)}</span>`)
+    .join('');
+}
+
+function chatRenderCollaborators() {
+  const listEl = qs('#chatWidgetPickerList');
+  const searchEl = qs('#chatWidgetPickerSearch');
+  if (!listEl) return;
+  const term = String((searchEl && searchEl.value) || '')
+    .trim()
+    .toLowerCase();
+  const rows = chatWidgetState.collaborators.filter((item) => {
+    if (!term) return true;
+    return (
+      String(item.nome || '').toLowerCase().includes(term) ||
+      String(item.email || '').toLowerCase().includes(term)
+    );
+  });
+  if (!rows.length) {
+    listEl.innerHTML = '<div class="chat-empty">Nenhum colaborador encontrado.</div>';
+    return;
+  }
+  listEl.innerHTML = rows
+    .map(
+      (item) => `
+        <div class="chat-picker-item" data-chat-colaborador-id="${item.id}">
+          <div class="chat-picker-name">${chatEscapeHtml(item.nome || 'Colaborador')}</div>
+          <div class="chat-picker-email">${chatEscapeHtml(item.email || '')}</div>
+        </div>
+      `
+    )
+    .join('');
+}
+
+async function chatLoadConversations(options = {}) {
+  if (!api.chat || chatWidgetState.loadingConversations) return;
+  chatWidgetState.loadingConversations = true;
+  const keepSelection = options.keepSelection !== false;
+  const oldSelected = Number(chatWidgetState.selectedConversationId || 0);
+  try {
+    const response = await api.chat.listConversas();
+    chatWidgetState.conversations = Array.isArray(response.data) ? response.data : [];
+    if (!keepSelection || !chatWidgetState.selectedConversationId) {
+      chatWidgetState.selectedConversationId = chatWidgetState.conversations[0]
+        ? Number(chatWidgetState.conversations[0].id)
+        : null;
+    } else {
+      const exists = chatWidgetState.conversations.some((item) => Number(item.id) === oldSelected);
+      chatWidgetState.selectedConversationId = exists
+        ? oldSelected
+        : chatWidgetState.conversations[0]
+          ? Number(chatWidgetState.conversations[0].id)
+          : null;
+    }
+    chatRenderFabBadge();
+    chatRenderConversations();
+    chatRenderMessages();
+  } catch (err) {
+    if (!options.silent) chatSetStatus(err.message || 'Falha ao carregar conversas.', true);
+  } finally {
+    chatWidgetState.loadingConversations = false;
+  }
+}
+
+async function chatLoadMessages(conversaId, options = {}) {
+  if (!api.chat || !conversaId || chatWidgetState.loadingMessages) return;
+  chatWidgetState.loadingMessages = true;
+  try {
+    const response = await api.chat.listMensagens(conversaId, { limit: 80 });
+    chatWidgetState.messagesByConversation[String(conversaId)] = Array.isArray(response.data) ? response.data : [];
+    const conversa = chatWidgetState.conversations.find((item) => Number(item.id) === Number(conversaId));
+    if (conversa) conversa.nao_lidas = 0;
+    chatRenderFabBadge();
+    chatRenderConversations();
+    chatRenderMessages();
+    const messagesEl = qs('#chatWidgetMessages');
+    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+  } catch (err) {
+    if (!options.silent) chatSetStatus(err.message || 'Falha ao carregar mensagens.', true);
+  } finally {
+    chatWidgetState.loadingMessages = false;
+  }
+}
+
+async function chatOpenNewConversationPicker() {
+  if (!api.chat) return;
+  const picker = qs('#chatWidgetPicker');
+  const pickerSearch = qs('#chatWidgetPickerSearch');
+  if (!picker) return;
+  picker.classList.remove('hidden');
+  if (!chatWidgetState.collaborators.length) {
+    try {
+      const response = await api.chat.listColaboradores();
+      chatWidgetState.collaborators = Array.isArray(response.data) ? response.data : [];
+    } catch (err) {
+      chatSetStatus(err.message || 'Falha ao carregar colaboradores.', true);
+      return;
+    }
+  }
+  if (pickerSearch) pickerSearch.value = '';
+  chatRenderCollaborators();
+}
+
+async function chatCreateDirectConversation(colaboradorId) {
+  if (!api.chat) return;
+  try {
+    const response = await api.chat.criarConversaDireta(colaboradorId);
+    const conversaId = response && response.conversa ? Number(response.conversa.id) : null;
+    await chatLoadConversations({ keepSelection: false, silent: true });
+    if (conversaId) {
+      chatWidgetState.selectedConversationId = conversaId;
+      chatRenderConversations();
+      await chatLoadMessages(conversaId, { silent: true });
+    }
+    const picker = qs('#chatWidgetPicker');
+    if (picker) picker.classList.add('hidden');
+    chatSetPanelOpen(true);
+  } catch (err) {
+    chatSetStatus(err.message || 'Nao foi possivel criar a conversa.', true);
+  }
+}
+
+async function chatHandleSendMessage() {
+  const selected = chatGetSelectedConversation();
+  if (!selected || !api.chat) return;
+  const textarea = qs('#chatWidgetComposer');
+  const fileInput = qs('#chatWidgetFilesInput');
+  const sendBtn = qs('#chatWidgetSendBtn');
+  const texto = textarea ? String(textarea.value || '').trim() : '';
+  const arquivos = fileInput ? Array.from(fileInput.files || []) : [];
+  if (!texto && !arquivos.length) return;
+  if (sendBtn) sendBtn.disabled = true;
+  try {
+    const response = await api.chat.enviarMensagem(selected.id, texto, arquivos);
+    const mensagem = response && response.mensagem ? response.mensagem : null;
+    if (mensagem) {
+      const key = String(selected.id);
+      const current = chatWidgetState.messagesByConversation[key] || [];
+      chatWidgetState.messagesByConversation[key] = [...current, mensagem];
+    }
+    if (textarea) textarea.value = '';
+    if (fileInput) fileInput.value = '';
+    chatRenderFilesPreview();
+    chatRenderMessages();
+    const messagesEl = qs('#chatWidgetMessages');
+    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+    await chatLoadConversations({ keepSelection: true, silent: true });
+  } catch (err) {
+    chatSetStatus(err.message || 'Falha ao enviar mensagem.', true);
+  } finally {
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+function chatStartPolling() {
+  if (chatWidgetState.pollTimerId || !api.chat) return;
+  chatWidgetState.pollTimerId = setInterval(async () => {
+    if (document.hidden) return;
+    await chatLoadConversations({ keepSelection: true, silent: true });
+    if (chatWidgetState.isOpen && chatWidgetState.selectedConversationId) {
+      await chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true });
+    }
+  }, 6000);
+}
+
+function chatBindEvents() {
+  const fab = qs('#chatWidgetFab');
+  const closeBtn = qs('#chatWidgetCloseBtn');
+  const newBtn = qs('#chatWidgetNewBtn');
+  const pickerClose = qs('#chatWidgetPickerCloseBtn');
+  const conversationSearch = qs('#chatWidgetConversationSearch');
+  const pickerSearch = qs('#chatWidgetPickerSearch');
+  const conversationList = qs('#chatWidgetConversations');
+  const pickerList = qs('#chatWidgetPickerList');
+  const sendBtn = qs('#chatWidgetSendBtn');
+  const composer = qs('#chatWidgetComposer');
+  const fileInput = qs('#chatWidgetFilesInput');
+  const messagesEl = qs('#chatWidgetMessages');
+
+  fab?.addEventListener('click', () => chatSetPanelOpen(!chatWidgetState.isOpen));
+  closeBtn?.addEventListener('click', () => chatSetPanelOpen(false));
+  newBtn?.addEventListener('click', () => {
+    chatOpenNewConversationPicker().catch(() => {});
+  });
+  pickerClose?.addEventListener('click', () => {
+    qs('#chatWidgetPicker')?.classList.add('hidden');
+  });
+  conversationSearch?.addEventListener('input', () => chatRenderConversations());
+  pickerSearch?.addEventListener('input', () => chatRenderCollaborators());
+  fileInput?.addEventListener('change', () => chatRenderFilesPreview());
+  sendBtn?.addEventListener('click', () => {
+    chatHandleSendMessage().catch(() => {});
+  });
+  composer?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      chatHandleSendMessage().catch(() => {});
+    }
+  });
+
+  conversationList?.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-chat-conversa-id]');
+    if (!card) return;
+    const conversaId = Number(card.getAttribute('data-chat-conversa-id'));
+    if (!conversaId) return;
+    chatWidgetState.selectedConversationId = conversaId;
+    chatRenderConversations();
+    chatLoadMessages(conversaId).catch(() => {});
+  });
+
+  pickerList?.addEventListener('click', (event) => {
+    const row = event.target.closest('[data-chat-colaborador-id]');
+    if (!row) return;
+    const colaboradorId = Number(row.getAttribute('data-chat-colaborador-id'));
+    if (!colaboradorId) return;
+    chatCreateDirectConversation(colaboradorId).catch(() => {});
+  });
+
+  messagesEl?.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-chat-anexo-id]');
+    if (!btn || !api.chat) return;
+    const anexoId = Number(btn.getAttribute('data-chat-anexo-id'));
+    if (!anexoId) return;
+    const nome = decodeURIComponent(btn.getAttribute('data-chat-anexo-nome') || 'anexo');
+    api.chat.downloadAnexo(anexoId, nome).catch((err) => {
+      chatSetStatus(err.message || 'Falha ao baixar anexo.', true);
+    });
+  });
+}
+
+async function initChatWidget(meData) {
+  if (chatWidgetState.initialized) return;
+  if (document.body.dataset.page === 'login') return;
+  if (!api.chat) return;
+  const usuario = meData && meData.usuario ? meData.usuario : null;
+  if (!usuario || !usuario.id) return;
+
+  chatWidgetState.me = usuario;
+  chatInjectStyles();
+  chatInjectMarkup();
+  chatBindEvents();
+  chatWidgetState.initialized = true;
+
+  await chatLoadConversations({ keepSelection: false, silent: true });
+  if (chatWidgetState.selectedConversationId) {
+    await chatLoadMessages(chatWidgetState.selectedConversationId, { silent: true });
+  } else {
+    chatRenderMessages();
+  }
+  chatStartPolling();
+}
+
 async function guardAuth() {
   try {
-    await getMe();
+    const me = await getMe();
+    window.__currentUser = me && me.usuario ? me.usuario : null;
+    applyRolePermissionsUI(me);
     updateProcessosBadge();
+    initChatWidget(me).catch(() => {});
+    return me;
   } catch (err) {
     clearToken();
     window.location.href = './login';
+  }
+}
+
+function normalizeUserRole(value) {
+  const raw = String(value || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  if (!raw) return '';
+  if (raw === 'owner' || raw === 'admin' || raw === 'administrador') return 'administrador';
+  if (raw === 'colaborador' || raw === 'advogado') return 'advogado';
+  if (raw === 'estagiario') return 'estagiario';
+  return raw;
+}
+
+function getCurrentUserRole() {
+  return normalizeUserRole(window.__currentUser?.papel || '');
+}
+
+function canAccessFinanceiro(role = getCurrentUserRole()) {
+  return role === 'administrador';
+}
+
+function canCreateDeleteAtividades(role = getCurrentUserRole()) {
+  return role !== 'estagiario';
+}
+
+function applyRolePermissionsUI(me) {
+  const role = normalizeUserRole(me?.usuario?.papel || '');
+
+  if (!canAccessFinanceiro(role)) {
+    qsa('a[href="./financeiro"], a[href="/financeiro"], a[href$="/financeiro"]').forEach((link) =>
+      link.classList.add('hidden')
+    );
+    if (document.body?.dataset?.page === 'financeiro') {
+      window.location.href = './dashboard';
+    }
   }
 }
 
@@ -444,6 +1501,10 @@ function bindLogout() {
       await logout();
     } catch (_) {
       clearToken();
+    }
+    if (chatWidgetState.pollTimerId) {
+      clearInterval(chatWidgetState.pollTimerId);
+      chatWidgetState.pollTimerId = null;
     }
     window.location.href = './login';
   });
@@ -588,28 +1649,44 @@ async function initDashboard() {
   await guardAuth();
   bindLogout();
 
-  const getTodayIso = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+  const toIsoDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  };
+
+  const getTodayIso = () => toIsoDate(new Date());
+  const addDaysToIso = (isoDate, days) => {
+    const base = new Date(`${isoDate}T00:00:00`);
+    base.setDate(base.getDate() + days);
+    return toIsoDate(base);
   };
 
   const hoje = getTodayIso();
 
-  const [clientes, processos, atividadesTotal, atividadesHoje, atividadesFeitas] = await Promise.all([
-    api.clientes.list({ page: 1, limit: 1 }),
-    api.processos.list({ page: 1, limit: 1, exclude_sem_processo: 'true' }),
-    api.atividades.list({ page: 1, limit: 1 }),
-    api.atividades.list({ page: 1, limit: 1, prazo: hoje }),
-    api.atividades.list({ page: 1, limit: 1, status: 'feito' }),
-  ]);
+  const countClientesEl = qs('#countClientes');
+  const countProcessosEl = qs('#countProcessos');
+  const countAtividadesEl = qs('#countAtividades');
+  const countAtividadesLabelEl = qs('#countAtividadesLabel');
+  const countAtivasEl = qs('#countAtivas');
+  const periodoEl = qs('#dashboardHojePeriodo');
+  const rangeButtons = qsa('[data-dashboard-range]');
 
-  qs('#countClientes').textContent = clientes.total;
-  qs('#countProcessos').textContent = processos.total;
-  qs('#countAtividades').textContent = atividadesHoje.total;
-  qs('#countAtivas').textContent = atividadesTotal.total - atividadesFeitas.total;
+  if (countClientesEl || countProcessosEl || countAtividadesEl || countAtivasEl) {
+    const [clientes, processos, atividadesTotal, atividadesHoje, atividadesFeitas] = await Promise.all([
+      api.clientes.list({ page: 1, limit: 1 }),
+      api.processos.list({ page: 1, limit: 1, exclude_sem_processo: 'true' }),
+      api.atividades.list({ page: 1, limit: 1 }),
+      api.atividades.list({ page: 1, limit: 1, prazo: hoje }),
+      api.atividades.list({ page: 1, limit: 1, status: 'feito' }),
+    ]);
+
+    if (countClientesEl) countClientesEl.textContent = clientes.total;
+    if (countProcessosEl) countProcessosEl.textContent = processos.total;
+    if (countAtividadesEl) countAtividadesEl.textContent = atividadesHoje.total;
+    if (countAtivasEl) countAtivasEl.textContent = atividadesTotal.total - atividadesFeitas.total;
+  }
 
   const listaEl = qs('#dashboardHojeLista');
   const vazioEl = qs('#dashboardHojeVazio');
@@ -629,9 +1706,379 @@ async function initDashboard() {
   const detalheStatus = qs('#dashboardAtividadeStatus');
   const detalhePrioridade = qs('#dashboardAtividadePrioridade');
   const detalheDescricao = qs('#dashboardAtividadeDescricao');
+  const quickSearchForm = qs('#dashboardQuickSearchForm');
+  const quickSearchInput = qs('#dashboardQuickSearchInput');
+  const quickSearchStatus = qs('#dashboardQuickSearchStatus');
+  const quickSearchResults = qs('#dashboardQuickSearchResults');
+  const quickSearchBtn = qs('#dashboardQuickSearchBtn');
+  const quickCreateBtn = qs('#dashboardQuickCreateBtn');
+  const quickCreateMenu = qs('#dashboardQuickCreateMenu');
+  const createModal = qs('#dashboardCreateModal');
+  const createCloseBtn = qs('#dashboardCreateClose');
+  const createTitleEl = qs('#dashboardCreateTitle');
+  const createTabButtons = qsa('[data-dashboard-create-tab]');
+  const createPanels = qsa('[data-dashboard-create-panel]');
+  const createTabAtividadeBtn = qs('[data-dashboard-create-tab-atividade]');
+  const createClienteForm = qs('#dashboardCreateClienteForm');
+  const createClienteNome = qs('#dashboardCreateClienteNome');
+  const createClienteTelefone = qs('#dashboardCreateClienteTelefone');
+  const createClienteCpf = qs('#dashboardCreateClienteCpf');
+  const createClienteStatus = qs('#dashboardCreateClienteStatus');
+  const createClienteMsg = qs('#dashboardCreateClienteMessage');
+  const createProcessoForm = qs('#dashboardCreateProcessoForm');
+  const createProcessoClienteInput = qs('#dashboardCreateProcessoClienteInput');
+  const createProcessoClienteSugestoesEl = qs('#dashboardCreateProcessoClienteSugestoes');
+  const createProcessoNumero = qs('#dashboardCreateProcessoNumero');
+  const createProcessoStatus = qs('#dashboardCreateProcessoStatus');
+  const createProcessoMsg = qs('#dashboardCreateProcessoMessage');
+  const createAtividadeForm = qs('#dashboardCreateAtividadeForm');
+  const createAtividadeTitulo = qs('#dashboardCreateAtividadeTitulo');
+  const createAtividadeClienteInput = qs('#dashboardCreateAtividadeClienteInput');
+  const createAtividadeClienteSugestoesEl = qs('#dashboardCreateAtividadeClienteSugestoes');
+  const createAtividadeProcessoInput = qs('#dashboardCreateAtividadeProcessoInput');
+  const createAtividadeProcessoSugestoesEl = qs('#dashboardCreateAtividadeProcessoSugestoes');
+  const createAtividadeStatus = qs('#dashboardCreateAtividadeStatus');
+  const createAtividadePrioridade = qs('#dashboardCreateAtividadePrioridade');
+  const createAtividadePrazo = qs('#dashboardCreateAtividadePrazo');
+  const createAtividadeDescricao = qs('#dashboardCreateAtividadeDescricao');
+  const createAtividadeMsg = qs('#dashboardCreateAtividadeMessage');
+  const canManageAtividades = canCreateDeleteAtividades();
+  const dashboardRanges = {
+    today: {
+      countLabel: 'Atividades de hoje',
+      focusLabel: 'hoje',
+      emptyLabel: 'para hoje',
+      getParams: () => ({ prazo: hoje }),
+    },
+    '7d': {
+      countLabel: 'Atividades (7 dias)',
+      focusLabel: 'próximos 7 dias',
+      emptyLabel: 'nos próximos 7 dias',
+      getParams: () => ({ prazo_from: hoje, prazo_to: addDaysToIso(hoje, 6) }),
+    },
+    '30d': {
+      countLabel: 'Atividades (30 dias)',
+      focusLabel: 'próximos 30 dias',
+      emptyLabel: 'nos próximos 30 dias',
+      getParams: () => ({ prazo_from: hoje, prazo_to: addDaysToIso(hoje, 29) }),
+    },
+  };
+  let dashboardRange = 'today';
   let audienciasPage = 1;
   const audienciasPageSize = 5;
   let audienciasCache = [];
+  let atividadesPeriodoCache = [];
+  let quickSearchDebounceTimer = null;
+  let quickSearchRequestId = 0;
+  let quickSearchItems = [];
+  let createCurrentTab = 'cliente';
+  let createProcessoClienteId = '';
+  let createAtividadeClienteId = '';
+  let createAtividadeProcessoId = '';
+  let createProcessoClienteSuggestions = [];
+  let createAtividadeClienteSuggestions = [];
+  let createAtividadeProcessoSuggestions = [];
+  let createProcessoClienteReqId = 0;
+  let createAtividadeClienteReqId = 0;
+  let createAtividadeProcessoReqId = 0;
+  let createProcessoClienteTimer = null;
+  let createAtividadeClienteTimer = null;
+  let createAtividadeProcessoTimer = null;
+
+  const escapeQuickSearchHtml = (value) =>
+    String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+  const setQuickSearchStatus = (text) => {
+    if (!quickSearchStatus) return;
+    quickSearchStatus.textContent = String(text || '');
+  };
+
+  const openDashboardSearchResult = (item) => {
+    if (!item || !item.id || !item.type) return;
+    const path = item.type === 'cliente' ? `./cliente?id=${item.id}` : `./processo?id=${item.id}`;
+    window.location.href = path;
+  };
+
+  const renderQuickSearchResults = (items) => {
+    if (!quickSearchResults) return;
+    quickSearchItems = Array.isArray(items) ? items : [];
+    if (!quickSearchItems.length) {
+      quickSearchResults.innerHTML = '';
+      quickSearchResults.classList.add('hidden');
+      return;
+    }
+    quickSearchResults.classList.remove('hidden');
+    quickSearchResults.innerHTML = quickSearchItems
+      .map(
+        (item, idx) => `
+          <button
+            type="button"
+            class="w-full py-3 text-left hover:bg-stone-50 px-2 rounded-lg"
+            data-dashboard-search-index="${idx}"
+          >
+            <div class="dashboard-quick-search-item text-sm">${escapeQuickSearchHtml(item.label)}</div>
+            <div class="dashboard-quick-search-item-meta text-xs mt-0.5">${escapeQuickSearchHtml(item.meta)}</div>
+          </button>
+        `
+      )
+      .join('');
+  };
+
+  const clearQuickSearchResults = () => {
+    quickSearchItems = [];
+    if (!quickSearchResults) return;
+    quickSearchResults.innerHTML = '';
+    quickSearchResults.classList.add('hidden');
+  };
+
+  const setQuickCreateMenuOpen = (open) => {
+    if (!quickCreateMenu || !quickCreateBtn) return;
+    quickCreateMenu.classList.toggle('hidden', !open);
+    quickCreateBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  const hideCreateSuggestions = () => {
+    createProcessoClienteSuggestions = [];
+    createAtividadeClienteSuggestions = [];
+    createAtividadeProcessoSuggestions = [];
+    if (createProcessoClienteSugestoesEl) {
+      createProcessoClienteSugestoesEl.innerHTML = '';
+      createProcessoClienteSugestoesEl.classList.add('hidden');
+    }
+    if (createAtividadeClienteSugestoesEl) {
+      createAtividadeClienteSugestoesEl.innerHTML = '';
+      createAtividadeClienteSugestoesEl.classList.add('hidden');
+    }
+    if (createAtividadeProcessoSugestoesEl) {
+      createAtividadeProcessoSugestoesEl.innerHTML = '';
+      createAtividadeProcessoSugestoesEl.classList.add('hidden');
+    }
+  };
+
+  const setCreateTab = (tab) => {
+    const normalized = String(tab || '').trim().toLowerCase();
+    let nextTab = ['cliente', 'processo', 'atividade'].includes(normalized) ? normalized : 'cliente';
+    if (nextTab === 'atividade' && !canManageAtividades) nextTab = 'cliente';
+    createCurrentTab = nextTab;
+    createTabButtons.forEach((btn) => {
+      const active = (btn.dataset.dashboardCreateTab || '') === createCurrentTab;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    createPanels.forEach((panel) => {
+      const panelTab = panel.dataset.dashboardCreatePanel || '';
+      panel.classList.toggle('hidden', panelTab !== createCurrentTab);
+    });
+    if (createTitleEl) {
+      const titles = {
+        cliente: 'Criar cliente',
+        processo: 'Criar processo',
+        atividade: 'Criar atividade',
+      };
+      createTitleEl.textContent = titles[createCurrentTab] || 'Criar';
+    }
+  };
+
+  const resetCreateModalState = () => {
+    createProcessoClienteId = '';
+    createAtividadeClienteId = '';
+    createAtividadeProcessoId = '';
+    if (createClienteForm) createClienteForm.reset();
+    if (createProcessoForm) createProcessoForm.reset();
+    if (createAtividadeForm) createAtividadeForm.reset();
+    if (createClienteStatus) createClienteStatus.value = 'lead';
+    if (createAtividadeStatus) createAtividadeStatus.value = 'a_fazer';
+    if (createAtividadePrioridade) createAtividadePrioridade.value = 'media';
+    showMessage(createClienteMsg, '');
+    showMessage(createProcessoMsg, '');
+    showMessage(createAtividadeMsg, '');
+    hideCreateSuggestions();
+  };
+
+  const closeDashboardCreateModal = () => {
+    if (!createModal) return;
+    closeModal(createModal);
+    hideCreateSuggestions();
+  };
+
+  const renderCreateProcessoClienteSuggestions = () => {
+    if (!createProcessoClienteSugestoesEl) return;
+    if (!createProcessoClienteSuggestions.length) {
+      createProcessoClienteSugestoesEl.innerHTML = '';
+      createProcessoClienteSugestoesEl.classList.add('hidden');
+      return;
+    }
+    createProcessoClienteSugestoesEl.classList.remove('hidden');
+    createProcessoClienteSugestoesEl.innerHTML = createProcessoClienteSuggestions
+      .map(
+        (item, idx) => `
+          <button type="button" class="w-full text-left px-3 py-2 text-sm border-b border-stone-100 last:border-b-0" data-dashboard-create-proc-cliente-index="${idx}">
+            ${escapeQuickSearchHtml(item.nome || 'Cliente')}
+          </button>
+        `
+      )
+      .join('');
+  };
+
+  const renderCreateAtividadeClienteSuggestions = () => {
+    if (!createAtividadeClienteSugestoesEl) return;
+    if (!createAtividadeClienteSuggestions.length) {
+      createAtividadeClienteSugestoesEl.innerHTML = '';
+      createAtividadeClienteSugestoesEl.classList.add('hidden');
+      return;
+    }
+    createAtividadeClienteSugestoesEl.classList.remove('hidden');
+    createAtividadeClienteSugestoesEl.innerHTML = createAtividadeClienteSuggestions
+      .map(
+        (item, idx) => `
+          <button type="button" class="w-full text-left px-3 py-2 text-sm border-b border-stone-100 last:border-b-0" data-dashboard-create-atividade-cliente-index="${idx}">
+            ${escapeQuickSearchHtml(item.nome || 'Cliente')}
+          </button>
+        `
+      )
+      .join('');
+  };
+
+  const renderCreateAtividadeProcessoSuggestions = () => {
+    if (!createAtividadeProcessoSugestoesEl) return;
+    if (!createAtividadeProcessoSuggestions.length) {
+      createAtividadeProcessoSugestoesEl.innerHTML = '';
+      createAtividadeProcessoSugestoesEl.classList.add('hidden');
+      return;
+    }
+    createAtividadeProcessoSugestoesEl.classList.remove('hidden');
+    createAtividadeProcessoSugestoesEl.innerHTML = createAtividadeProcessoSuggestions
+      .map(
+        (item, idx) => `
+          <button type="button" class="w-full text-left px-3 py-2 text-sm border-b border-stone-100 last:border-b-0" data-dashboard-create-atividade-processo-index="${idx}">
+            <div>${escapeQuickSearchHtml(item.numero_processo || 'Processo')}</div>
+            <div class="text-xs text-stone-500 mt-0.5">${escapeQuickSearchHtml(item.cliente_nome || '')}</div>
+          </button>
+        `
+      )
+      .join('');
+  };
+
+  const openDashboardCreateFlow = (target) => {
+    if (!createModal) return;
+    setQuickCreateMenuOpen(false);
+    resetCreateModalState();
+    setCreateTab(target || 'cliente');
+    openModal(createModal);
+    if (createCurrentTab === 'cliente' && createClienteNome) createClienteNome.focus();
+    if (createCurrentTab === 'processo' && createProcessoClienteInput) createProcessoClienteInput.focus();
+    if (createCurrentTab === 'atividade' && createAtividadeTitulo) createAtividadeTitulo.focus();
+  };
+  const loadDashboardQuickSearch = async (rawTerm) => {
+    const term = String(rawTerm || '').trim();
+    if (!term) {
+      setQuickSearchStatus('');
+      clearQuickSearchResults();
+      return [];
+    }
+
+    const reqId = ++quickSearchRequestId;
+    setQuickSearchStatus('Buscando...');
+    if (quickSearchBtn) quickSearchBtn.disabled = true;
+    try {
+      const [clientesResp, processosResp] = await Promise.all([
+        api.clientes.list({ page: 1, limit: 5, search: term }),
+        api.processos.list({ page: 1, limit: 5, search: term, exclude_sem_processo: 'true' }),
+      ]);
+      if (reqId !== quickSearchRequestId) return [];
+
+      const clientes = (clientesResp?.data || []).map((item) => ({
+        type: 'cliente',
+        id: item.id,
+        label: item.nome || 'Cliente',
+        meta: `Cliente${item.cpf ? ` · CPF ${item.cpf}` : ''}${item.telefone ? ` · ${item.telefone}` : ''}`,
+      }));
+
+      const processos = (processosResp?.data || []).map((item) => ({
+        type: 'processo',
+        id: item.id,
+        label: item.numero_processo || 'Processo',
+        meta: `Processo${item.cliente_nome ? ` · ${item.cliente_nome}` : ''}`,
+      }));
+
+      const results = [...clientes, ...processos];
+      renderQuickSearchResults(results);
+      setQuickSearchStatus(results.length ? `${results.length} resultado(s).` : 'Nenhum resultado encontrado.');
+      return results;
+    } catch (err) {
+      if (reqId !== quickSearchRequestId) return [];
+      clearQuickSearchResults();
+      setQuickSearchStatus(err.message || 'Não foi possível pesquisar agora.');
+      return [];
+    } finally {
+      if (quickSearchBtn) quickSearchBtn.disabled = false;
+    }
+  };
+
+  const searchCreateProcessoClientes = async (term) => {
+    const query = String(term || '').trim();
+    if (query.length < 2) {
+      createProcessoClienteSuggestions = [];
+      renderCreateProcessoClienteSuggestions();
+      return;
+    }
+    const reqId = ++createProcessoClienteReqId;
+    try {
+      const resp = await api.clientes.list({ page: 1, limit: 8, search: query });
+      if (reqId !== createProcessoClienteReqId) return;
+      createProcessoClienteSuggestions = Array.isArray(resp?.data) ? resp.data : [];
+      renderCreateProcessoClienteSuggestions();
+    } catch (_) {
+      if (reqId !== createProcessoClienteReqId) return;
+      createProcessoClienteSuggestions = [];
+      renderCreateProcessoClienteSuggestions();
+    }
+  };
+
+  const searchCreateAtividadeClientes = async (term) => {
+    const query = String(term || '').trim();
+    if (query.length < 2) {
+      createAtividadeClienteSuggestions = [];
+      renderCreateAtividadeClienteSuggestions();
+      return;
+    }
+    const reqId = ++createAtividadeClienteReqId;
+    try {
+      const resp = await api.clientes.list({ page: 1, limit: 8, search: query });
+      if (reqId !== createAtividadeClienteReqId) return;
+      createAtividadeClienteSuggestions = Array.isArray(resp?.data) ? resp.data : [];
+      renderCreateAtividadeClienteSuggestions();
+    } catch (_) {
+      if (reqId !== createAtividadeClienteReqId) return;
+      createAtividadeClienteSuggestions = [];
+      renderCreateAtividadeClienteSuggestions();
+    }
+  };
+
+  const searchCreateAtividadeProcessos = async (term) => {
+    const query = String(term || '').trim();
+    if (query.length < 2) {
+      createAtividadeProcessoSuggestions = [];
+      renderCreateAtividadeProcessoSuggestions();
+      return;
+    }
+    const reqId = ++createAtividadeProcessoReqId;
+    try {
+      const resp = await api.processos.list({ page: 1, limit: 8, search: query, exclude_sem_processo: 'true' });
+      if (reqId !== createAtividadeProcessoReqId) return;
+      createAtividadeProcessoSuggestions = Array.isArray(resp?.data) ? resp.data : [];
+      renderCreateAtividadeProcessoSuggestions();
+    } catch (_) {
+      if (reqId !== createAtividadeProcessoReqId) return;
+      createAtividadeProcessoSuggestions = [];
+      renderCreateAtividadeProcessoSuggestions();
+    }
+  };
 
   const openDashboardAtividadeDetalhe = async (id) => {
     if (!id || !detalheModal) return;
@@ -655,75 +2102,128 @@ async function initDashboard() {
     }
   };
 
-  const renderHoje = async () => {
-    const response = await api.atividades.list({ page: 1, limit: 100, prazo: hoje });
-    const itens = response.data || [];
+  const updateRangeButtons = () => {
+    rangeButtons.forEach((btn) => {
+      const isActive = (btn.dataset.dashboardRange || '') === dashboardRange;
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  };
 
-    infoEl.textContent = `${itens.length} item(s)`;
-    if (!itens.length) {
-      listaEl.innerHTML = '';
-      vazioEl.classList.remove('hidden');
-      return;
+  const loadAtividadesDashboard = async (params) => {
+    const first = await api.atividades.list({ ...params, page: 1, limit: 100 });
+    let itens = first.data || [];
+    const limit = Number(first.limit || 100);
+    const total = Number(first.total || itens.length);
+    const totalPages = Math.max(1, Math.ceil(total / (limit || 100)));
+    for (let p = 2; p <= totalPages; p += 1) {
+      const resp = await api.atividades.list({ ...params, page: p, limit: limit || 100 });
+      itens = itens.concat(resp.data || []);
     }
-    vazioEl.classList.add('hidden');
-    listaEl.innerHTML = itens
-      .map((a) => {
-        const titulo = stripHashSuffixText(a.titulo || '');
-        const processo = (a.numero_processo || '').trim() || '-';
-        const cliente = (a.cliente_nome || '').trim() || '-';
-        const prazoLabel = formatDateOptionalTime(a.prazo, a.prazo_hora);
-        const processoHtml = a.processo_id
-          ? `
-            <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-600">
-              ${renderCopyProcessButton(processo)}
+    return itens;
+  };
+
+  const renderAtividadesPeriodo = async () => {
+    if (!listaEl || !vazioEl || !infoEl) return;
+    const range = dashboardRanges[dashboardRange] || dashboardRanges.today;
+    if (countAtividadesLabelEl) countAtividadesLabelEl.textContent = range.countLabel;
+    if (periodoEl) periodoEl.textContent = range.focusLabel;
+
+    try {
+      const itens = await loadAtividadesDashboard(range.getParams());
+      itens.sort((a, b) => {
+        const dataA = parseDateTimeInput(normalizeDateValue(a.prazo)) || new Date(8640000000000000);
+        const dataB = parseDateTimeInput(normalizeDateValue(b.prazo)) || new Date(8640000000000000);
+        const diff = dataA.getTime() - dataB.getTime();
+        if (diff !== 0) return diff;
+        return String(a.prazo_hora || '').localeCompare(String(b.prazo_hora || ''));
+      });
+      atividadesPeriodoCache = itens;
+
+      if (countAtividadesEl) countAtividadesEl.textContent = itens.length;
+      infoEl.textContent = `${itens.length} item(s)`;
+      if (!itens.length) {
+        atividadesPeriodoCache = [];
+        listaEl.innerHTML = '';
+        vazioEl.textContent = `Nenhuma atividade ${range.emptyLabel}.`;
+        vazioEl.classList.remove('hidden');
+        return;
+      }
+
+      vazioEl.classList.add('hidden');
+      listaEl.innerHTML = itens
+        .map((a) => {
+          const titulo = stripHashSuffixText(a.titulo || '');
+          const processo = (a.numero_processo || '').trim() || '-';
+          const cliente = (a.cliente_nome || '').trim() || '-';
+          const prazoLabel = formatDateOptionalTime(a.prazo, a.prazo_hora);
+          const statusAtual = String(a.status || 'a_fazer');
+          const statusMap = {
+            a_fazer: 'A fazer',
+            fazendo: 'Fazendo',
+            feito: 'Concluída',
+            cancelado: 'Cancelada',
+          };
+          const statusLabel = statusMap[statusAtual] || 'A fazer';
+          const isFeita = statusAtual === 'feito';
+          const clienteHtml = a.cliente_id
+            ? `
               <a
-                href="./processo?id=${a.processo_id}"
-                class="inline-flex items-center gap-2 hover:text-stone-900"
-                title="Abrir processo"
+                href="./cliente?id=${a.cliente_id}"
+                class="text-stone-700 hover:text-stone-900 hover:underline"
+                title="Abrir cliente"
               >
-              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-100 text-[10px] font-semibold">P</span>
-              <span class="truncate max-w-[220px]">${processo}</span>
+                ${cliente}
               </a>
-            </span>
-          `
-          : `
-            <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-400">
-              ${renderCopyProcessButton(processo)}
-              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-100 text-[10px] font-semibold">P</span>
-              <span class="truncate max-w-[220px]">${processo}</span>
-            </span>
-          `;
-        const clienteHtml = a.cliente_id
-          ? `
-            <a
-              href="./cliente?id=${a.cliente_id}"
-              class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-600 hover:bg-stone-50"
-              title="Abrir cliente"
-            >
-              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-100 text-[10px] font-semibold">C</span>
-              <span class="truncate max-w-[220px]">${cliente}</span>
-            </a>
-          `
-          : `
-            <span class="inline-flex items-center gap-2 px-2 py-1 rounded-full border border-stone-200 text-xs text-stone-400">
-              <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-stone-100 text-[10px] font-semibold">C</span>
-              <span class="truncate max-w-[220px]">${cliente}</span>
-            </span>
-          `;
-        return `
-          <div class="border border-stone-200 rounded-xl p-4" data-atividade-id="${a.id}" role="button" tabindex="0">
-            <button type="button" class="font-medium text-stone-900 hover:underline text-left" data-atividade-id="${a.id}">
-              ${titulo || 'Atividade'}
-            </button>
-            <div class="mt-2 flex flex-wrap items-center gap-2">
-              ${processoHtml}
-              ${clienteHtml}
+            `
+            : `<span class="text-stone-500">${cliente}</span>`;
+          const processoHtml = a.processo_id
+            ? `
+              <a href="./processo?id=${a.processo_id}" class="text-stone-700 hover:text-stone-900 hover:underline" title="Abrir processo">
+                ${processo}
+              </a>
+            `
+            : `<span class="text-stone-500">${processo}</span>`;
+          return `
+            <div class="py-3 border-b border-stone-100 last:border-b-0" data-atividade-id="${a.id}" role="button" tabindex="0">
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  class="mt-1 h-4 w-4 rounded border-stone-300 accent-stone-900 cursor-pointer"
+                  data-atividade-toggle-feito="${a.id}"
+                  aria-label="Marcar atividade como concluída"
+                  ${isFeita ? 'checked' : ''}
+                />
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-4">
+                    <button type="button" class="font-medium text-stone-900 hover:underline text-left text-sm leading-snug ${isFeita ? 'line-through opacity-70' : ''}" data-atividade-id="${a.id}">
+                      ${titulo || 'Atividade'}
+                    </button>
+                    <span class="text-[11px] text-stone-400 whitespace-nowrap">${prazoLabel}</span>
+                  </div>
+                  <div class="mt-1 text-xs text-stone-500 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span>${statusLabel}</span>
+                    <span class="text-stone-300">•</span>
+                    <span>Cliente:</span>
+                    ${clienteHtml}
+                    <span class="text-stone-300">•</span>
+                    <span>Processo:</span>
+                    ${processoHtml}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="text-xs text-stone-500 mt-2">Data: ${prazoLabel}</div>
-          </div>
-        `;
-      })
-      .join('');
+          `;
+        })
+        .join('');
+    } catch (err) {
+      atividadesPeriodoCache = [];
+      if (countAtividadesEl) countAtividadesEl.textContent = '0';
+      infoEl.textContent = '-';
+      listaEl.innerHTML = '';
+      vazioEl.textContent = err.message || 'Não foi possível carregar as atividades.';
+      vazioEl.classList.remove('hidden');
+    }
   };
 
   const renderAudiencias = async () => {
@@ -738,7 +2238,18 @@ async function initDashboard() {
         itens = itens.concat(resp.data || []);
       }
       itens = itens.filter((a) => a.prazo);
-      itens.sort((a, b) => new Date(a.prazo).getTime() - new Date(b.prazo).getTime());
+      itens.sort((a, b) => {
+        const dataA = parseDateTimeInput(normalizeDateValue(a.prazo)) || new Date(0);
+        const dataB = parseDateTimeInput(normalizeDateValue(b.prazo)) || new Date(0);
+        const base = dataA.getTime() - dataB.getTime();
+        if (base !== 0) return base;
+        const horaA = String(a.prazo_hora || '');
+        const horaB = String(b.prazo_hora || '');
+        if (horaA && horaB) return horaA.localeCompare(horaB);
+        if (horaA) return -1;
+        if (horaB) return 1;
+        return String(a.titulo || '').localeCompare(String(b.titulo || ''));
+      });
       audienciasCache = itens;
     }
 
@@ -759,7 +2270,7 @@ async function initDashboard() {
       .map((a) => {
         const clienteNome = `${a.cliente_nome || ''}`.trim() || '-';
         const processo = a.numero_processo || '-';
-        const prazoDate = parseDateTimeInput(a.prazo);
+        const prazoDate = parseDateTimeInput(normalizeDateValue(a.prazo));
         const prazoDiaMes =
           prazoDate && !Number.isNaN(prazoDate.getTime())
             ? prazoDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
@@ -796,7 +2307,8 @@ async function initDashboard() {
     if (audienciasNext) audienciasNext.disabled = audienciasPage >= totalPages;
   };
 
-  renderHoje();
+  updateRangeButtons();
+  await renderAtividadesPeriodo();
   renderAudiencias();
   initPrazoCalculator();
 
@@ -810,8 +2322,327 @@ async function initDashboard() {
     });
   }
 
+  if (quickSearchInput) {
+    quickSearchInput.addEventListener('input', () => {
+      if (quickSearchDebounceTimer) clearTimeout(quickSearchDebounceTimer);
+      quickSearchDebounceTimer = setTimeout(() => {
+        loadDashboardQuickSearch(quickSearchInput.value);
+      }, 250);
+    });
+  }
+
+  if (quickSearchForm && quickSearchInput) {
+    quickSearchForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const results = await loadDashboardQuickSearch(quickSearchInput.value);
+      if (results.length === 1) {
+        openDashboardSearchResult(results[0]);
+        return;
+      }
+      if (!results.length) return;
+      openDashboardSearchResult(results[0]);
+    });
+  }
+
+  if (quickSearchResults) {
+    quickSearchResults.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-dashboard-search-index]');
+      if (!button) return;
+      const index = Number(button.dataset.dashboardSearchIndex);
+      if (!Number.isInteger(index) || index < 0 || index >= quickSearchItems.length) return;
+      openDashboardSearchResult(quickSearchItems[index]);
+    });
+  }
+
+  if (quickCreateBtn && quickCreateMenu) {
+    quickCreateBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = !quickCreateMenu.classList.contains('hidden');
+      setQuickCreateMenuOpen(!isOpen);
+    });
+    quickCreateMenu.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-dashboard-create-target]');
+      if (!btn) return;
+      const target = btn.dataset.dashboardCreateTarget || '';
+      setQuickCreateMenuOpen(false);
+      openDashboardCreateFlow(target);
+    });
+  }
+
+  if (!canManageAtividades) {
+    qsa('[data-dashboard-create-target="atividade"]').forEach((el) => el.classList.add('hidden'));
+    if (createTabAtividadeBtn) createTabAtividadeBtn.classList.add('hidden');
+    createPanels
+      .filter((panel) => (panel.dataset.dashboardCreatePanel || '') === 'atividade')
+      .forEach((panel) => panel.classList.add('hidden'));
+  }
+
+  if (createTabButtons.length) {
+    createTabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.dashboardCreateTab || 'cliente';
+        setCreateTab(tab);
+      });
+    });
+  }
+
+  if (createCloseBtn) {
+    createCloseBtn.addEventListener('click', () => closeDashboardCreateModal());
+  }
+
+  if (createModal) {
+    createModal.addEventListener('click', (event) => {
+      if (event.target === createModal) closeDashboardCreateModal();
+    });
+  }
+
+  if (createProcessoClienteInput) {
+    createProcessoClienteInput.addEventListener('input', () => {
+      createProcessoClienteId = '';
+      if (createProcessoClienteTimer) clearTimeout(createProcessoClienteTimer);
+      createProcessoClienteTimer = setTimeout(() => {
+        searchCreateProcessoClientes(createProcessoClienteInput.value);
+      }, 220);
+    });
+    createProcessoClienteInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (createProcessoClienteSugestoesEl) createProcessoClienteSugestoesEl.classList.add('hidden');
+      }, 120);
+    });
+  }
+
+  if (createProcessoClienteSugestoesEl) {
+    createProcessoClienteSugestoesEl.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      const btn = event.target.closest('[data-dashboard-create-proc-cliente-index]');
+      if (!btn) return;
+      const idx = Number(btn.dataset.dashboardCreateProcClienteIndex);
+      if (!Number.isInteger(idx) || idx < 0 || idx >= createProcessoClienteSuggestions.length) return;
+      const selected = createProcessoClienteSuggestions[idx];
+      createProcessoClienteId = String(selected.id || '');
+      if (createProcessoClienteInput) createProcessoClienteInput.value = selected.nome || '';
+      createProcessoClienteSugestoesEl.classList.add('hidden');
+    });
+  }
+
+  if (createAtividadeClienteInput) {
+    createAtividadeClienteInput.addEventListener('input', () => {
+      createAtividadeClienteId = '';
+      if (createAtividadeClienteTimer) clearTimeout(createAtividadeClienteTimer);
+      createAtividadeClienteTimer = setTimeout(() => {
+        searchCreateAtividadeClientes(createAtividadeClienteInput.value);
+      }, 220);
+    });
+    createAtividadeClienteInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (createAtividadeClienteSugestoesEl) createAtividadeClienteSugestoesEl.classList.add('hidden');
+      }, 120);
+    });
+  }
+
+  if (createAtividadeClienteSugestoesEl) {
+    createAtividadeClienteSugestoesEl.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      const btn = event.target.closest('[data-dashboard-create-atividade-cliente-index]');
+      if (!btn) return;
+      const idx = Number(btn.dataset.dashboardCreateAtividadeClienteIndex);
+      if (!Number.isInteger(idx) || idx < 0 || idx >= createAtividadeClienteSuggestions.length) return;
+      const selected = createAtividadeClienteSuggestions[idx];
+      createAtividadeClienteId = String(selected.id || '');
+      if (createAtividadeClienteInput) createAtividadeClienteInput.value = selected.nome || '';
+      createAtividadeClienteSugestoesEl.classList.add('hidden');
+    });
+  }
+
+  if (createAtividadeProcessoInput) {
+    createAtividadeProcessoInput.addEventListener('input', () => {
+      createAtividadeProcessoId = '';
+      if (createAtividadeProcessoTimer) clearTimeout(createAtividadeProcessoTimer);
+      createAtividadeProcessoTimer = setTimeout(() => {
+        searchCreateAtividadeProcessos(createAtividadeProcessoInput.value);
+      }, 220);
+    });
+    createAtividadeProcessoInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (createAtividadeProcessoSugestoesEl) createAtividadeProcessoSugestoesEl.classList.add('hidden');
+      }, 120);
+    });
+  }
+
+  if (createAtividadeProcessoSugestoesEl) {
+    createAtividadeProcessoSugestoesEl.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      const btn = event.target.closest('[data-dashboard-create-atividade-processo-index]');
+      if (!btn) return;
+      const idx = Number(btn.dataset.dashboardCreateAtividadeProcessoIndex);
+      if (!Number.isInteger(idx) || idx < 0 || idx >= createAtividadeProcessoSuggestions.length) return;
+      const selected = createAtividadeProcessoSuggestions[idx];
+      createAtividadeProcessoId = String(selected.id || '');
+      if (createAtividadeProcessoInput) createAtividadeProcessoInput.value = selected.numero_processo || '';
+      if (selected.cliente_id && createAtividadeClienteInput) {
+        createAtividadeClienteId = String(selected.cliente_id || '');
+        createAtividadeClienteInput.value = selected.cliente_nome || '';
+      }
+      createAtividadeProcessoSugestoesEl.classList.add('hidden');
+    });
+  }
+
+  if (createClienteForm) {
+    createClienteForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMessage(createClienteMsg, '');
+      const nome = String(createClienteNome?.value || '').trim();
+      if (!nome) {
+        showMessage(createClienteMsg, 'Informe o nome do cliente.');
+        return;
+      }
+      const submitBtn = createClienteForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await api.clientes.create({
+          nome,
+          telefone: String(createClienteTelefone?.value || '').trim() || null,
+          cpf: String(createClienteCpf?.value || '').trim() || null,
+          status: String(createClienteStatus?.value || 'lead') || 'lead',
+        });
+        showMessage(createClienteMsg, 'Cliente criado com sucesso.', 'sucesso');
+        createClienteForm.reset();
+        if (createClienteStatus) createClienteStatus.value = 'lead';
+        if (createClienteNome) createClienteNome.focus();
+      } catch (err) {
+        showMessage(createClienteMsg, err.message || 'Não foi possível criar cliente.');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  if (createProcessoForm) {
+    createProcessoForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMessage(createProcessoMsg, '');
+      const numero = String(createProcessoNumero?.value || '').trim();
+      if (!createProcessoClienteId) {
+        showMessage(createProcessoMsg, 'Selecione um cliente válido.');
+        return;
+      }
+      if (!numero) {
+        showMessage(createProcessoMsg, 'Informe o número do processo.');
+        return;
+      }
+      const submitBtn = createProcessoForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await api.processos.create({
+          cliente_id: Number(createProcessoClienteId),
+          numero_processo: numero,
+          status: String(createProcessoStatus?.value || '').trim() || null,
+        });
+        showMessage(createProcessoMsg, 'Processo criado com sucesso.', 'sucesso');
+        createProcessoForm.reset();
+        createProcessoClienteId = '';
+        hideCreateSuggestions();
+        if (createProcessoClienteInput) createProcessoClienteInput.focus();
+      } catch (err) {
+        const existingProcessId = Number(err?.data?.processo_id);
+        if (Number.isFinite(existingProcessId) && existingProcessId > 0) {
+          showMessage(
+            createProcessoMsg,
+            `Esse número já existe no processo #${existingProcessId}.`,
+            'erro'
+          );
+        } else {
+          showMessage(createProcessoMsg, err.message || 'Não foi possível criar processo.');
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  if (createAtividadeForm) {
+    createAtividadeForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      showMessage(createAtividadeMsg, '');
+      if (!canManageAtividades) {
+        showMessage(createAtividadeMsg, 'Você não tem permissão para criar atividade.');
+        return;
+      }
+      const titulo = String(createAtividadeTitulo?.value || '').trim();
+      if (!titulo) {
+        showMessage(createAtividadeMsg, 'Informe o título da atividade.');
+        return;
+      }
+      const processoTexto = String(createAtividadeProcessoInput?.value || '').trim();
+      const clienteTexto = String(createAtividadeClienteInput?.value || '').trim();
+      const submitBtn = createAtividadeForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await api.atividades.create({
+          titulo,
+          descricao: String(createAtividadeDescricao?.value || '').trim() || null,
+          status: String(createAtividadeStatus?.value || 'a_fazer') || 'a_fazer',
+          prioridade: String(createAtividadePrioridade?.value || 'media') || 'media',
+          prazo: String(createAtividadePrazo?.value || '').trim() || null,
+          processo_id: createAtividadeProcessoId ? Number(createAtividadeProcessoId) : null,
+          cliente_id: createAtividadeProcessoId
+            ? null
+            : (createAtividadeClienteId ? Number(createAtividadeClienteId) : null),
+          processo_numero: createAtividadeProcessoId ? null : (processoTexto || null),
+          cliente_nome:
+            createAtividadeProcessoId || createAtividadeClienteId
+              ? null
+              : (clienteTexto || null),
+        });
+        showMessage(createAtividadeMsg, 'Atividade criada com sucesso.', 'sucesso');
+        createAtividadeForm.reset();
+        createAtividadeClienteId = '';
+        createAtividadeProcessoId = '';
+        hideCreateSuggestions();
+        await renderAtividadesPeriodo();
+        if (createAtividadeTitulo) createAtividadeTitulo.focus();
+      } catch (err) {
+        showMessage(createAtividadeMsg, err.message || 'Não foi possível criar atividade.');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if (quickSearchResults && quickSearchForm) {
+      if (!(quickSearchForm.contains(event.target) || quickSearchResults.contains(event.target))) {
+        if (!quickSearchInput || !quickSearchInput.value.trim()) {
+          clearQuickSearchResults();
+          setQuickSearchStatus('');
+        } else {
+          clearQuickSearchResults();
+        }
+      }
+    }
+    if (quickCreateBtn && quickCreateMenu) {
+      if (!quickCreateBtn.contains(event.target) && !quickCreateMenu.contains(event.target)) {
+        setQuickCreateMenuOpen(false);
+      }
+    }
+    if (createModal && !createModal.classList.contains('hidden')) {
+      const insideInputs =
+        (createProcessoClienteSugestoesEl && createProcessoClienteSugestoesEl.contains(event.target)) ||
+        (createAtividadeClienteSugestoesEl && createAtividadeClienteSugestoesEl.contains(event.target)) ||
+        (createAtividadeProcessoSugestoesEl && createAtividadeProcessoSugestoesEl.contains(event.target));
+      if (!insideInputs) hideCreateSuggestions();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (quickCreateMenu && !quickCreateMenu.classList.contains('hidden')) setQuickCreateMenuOpen(false);
+    if (createModal && !createModal.classList.contains('hidden')) closeDashboardCreateModal();
+  });
+
   if (listaEl) {
     listaEl.addEventListener('click', (e) => {
+      if (e.target.closest('[data-atividade-toggle-feito]')) return;
       if (e.target.closest('a')) return;
       const item = e.target.closest('[data-atividade-id]');
       if (!item) return;
@@ -819,12 +2650,51 @@ async function initDashboard() {
       openDashboardAtividadeDetalhe(id);
     });
     listaEl.addEventListener('keydown', (e) => {
+      if (e.target.closest('[data-atividade-toggle-feito]')) return;
       if (e.key !== 'Enter' && e.key !== ' ') return;
       const item = e.target.closest('[data-atividade-id]');
       if (!item) return;
       e.preventDefault();
       const id = item.dataset.atividadeId;
       openDashboardAtividadeDetalhe(id);
+    });
+
+    listaEl.addEventListener('change', async (e) => {
+      const toggle = e.target.closest('[data-atividade-toggle-feito]');
+      if (!toggle) return;
+      const id = String(toggle.dataset.atividadeToggleFeito || '');
+      if (!id) return;
+      const atividade = atividadesPeriodoCache.find((item) => String(item.id) === id);
+      if (!atividade) return;
+      const marcado = Boolean(toggle.checked);
+      toggle.disabled = true;
+      try {
+        await api.atividades.update(id, {
+          ...atividade,
+          processo_numero: atividade.processo_numero || atividade.numero_processo || null,
+          status: marcado ? 'feito' : 'a_fazer',
+          concluida_em: marcado ? new Date().toISOString() : null,
+        });
+        await renderAtividadesPeriodo();
+      } catch (err) {
+        toggle.checked = !marcado;
+        alert(err.message || 'Não foi possível atualizar a atividade.');
+      } finally {
+        toggle.disabled = false;
+      }
+    });
+  }
+
+  if (rangeButtons.length) {
+    rangeButtons.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const nextRange = btn.dataset.dashboardRange || 'today';
+        if (nextRange === dashboardRange || !dashboardRanges[nextRange]) return;
+        dashboardRange = nextRange;
+        updateRangeButtons();
+        infoEl.textContent = 'Carregando...';
+        await renderAtividadesPeriodo();
+      });
     });
   }
 
@@ -1108,6 +2978,16 @@ async function initClientes() {
   const rgInput = qs('#clienteRg');
   const responsaveisList = qs('#clienteResponsaveisList');
   const parceirosList = qs('#clienteParceirosList');
+  const clienteDetailOverlay = qs('#clienteDetailOverlay');
+  const clienteDetailCloseBtn = qs('#clienteDetailCloseBtn');
+  const clienteDetailNomeEl = qs('#clienteDetailNome');
+  const clienteDetailStatusDot = qs('#clienteDetailStatusDot');
+  const clienteDetailTabContent = qs('#clienteDetailTabContent');
+  const clienteDetailAtividades = qs('#clienteDetailAtividades');
+  const clienteDetailTabBtns = qsa('[data-cliente-detail-tab]');
+  const clientePageParams = new URLSearchParams(window.location.search);
+  const clientePrefillNovo = clientePageParams.get('novo') === '1';
+  const clientePrefillOpenId = String(clientePageParams.get('cliente_id') || '').trim();
 
   let clientes = [];
   let page = 1;
@@ -1115,6 +2995,8 @@ async function initClientes() {
   let total = 0;
   let buscaTimeout;
   let sortDir = 'asc';
+  let clienteDetailTab = 'complementares';
+  let clienteDetailPayload = null;
   try {
     const stored = localStorage.getItem('clientes_sort_dir');
     if (stored === 'asc' || stored === 'desc') sortDir = stored;
@@ -1129,6 +3011,33 @@ async function initClientes() {
     sortBtn.title = asc ? 'Ordenar A-Z' : 'Ordenar Z-A';
     sortBtn.setAttribute('aria-label', sortBtn.title);
   }
+
+  const clearNovoClienteQueryParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('novo');
+    const search = params.toString();
+    const nextUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash || ''}`;
+    window.history.replaceState({}, '', nextUrl);
+  };
+
+  const clearOpenClienteQueryParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('cliente_id');
+    const search = params.toString();
+    const nextUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash || ''}`;
+    window.history.replaceState({}, '', nextUrl);
+  };
+
+  const openNovoClienteModal = () => {
+    form.reset();
+    form.dataset.id = '';
+    showMessage(msg, '');
+    if (dataChegadaInput) {
+      dataChegadaInput.value = new Date().toISOString().slice(0, 10);
+    }
+    atualizarIdade(dataNascimentoInput, idadeInfo, idadeHidden);
+    openModal(modal);
+  };
 
   function closeMenus() {
     qsa('[data-menu-panel]').forEach((panel) => panel.classList.add('hidden'));
@@ -1165,7 +3074,7 @@ async function initClientes() {
     qs('#clienteResponsavel').value = cliente.responsavel || '';
     qs('#clienteParceiro').value = cliente.parceiro || '';
     qs('#clienteAcessoGov').value = cliente.acesso_gov || '';
-    qs('#clienteQualificacao').value = cliente.qualificacao || '';
+    qs('#clienteQualificacao').value = getClienteQualificacaoText(cliente) || '';
     qs('#clienteProcessosNotion').value = cliente.processos_notion || '';
     qs('#clienteDataChegada').value = normalizeDateValue(cliente.data_chegada);
     qs('#clienteStatus').value = cliente.status || 'lead';
@@ -1217,7 +3126,7 @@ async function initClientes() {
                 }"
                 title="${c.status === 'ativo' ? 'Cliente' : c.status === 'inativo' ? 'Inativo' : 'Lead'}"
               ></span>
-              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente?id=${c.id}">
+              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./cliente?id=${c.id}" data-open-cliente-detail="${c.id}">
                 ${c.nome}
               </a>
             </div>
@@ -1331,6 +3240,10 @@ async function initClientes() {
     ];
 
     const formatValue = (key, value) => {
+      if (key === 'qualificacao') {
+        const texto = getClienteQualificacaoText(cliente);
+        return texto || '-';
+      }
       if (key === 'processos_relacionados') {
         return `<span data-processos="${cliente.id}" class="text-stone-400 text-xs">Carregando...</span>`;
       }
@@ -1397,6 +3310,328 @@ async function initClientes() {
     }
   }
 
+  function escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function setClienteDetailActiveTab(tab) {
+    clienteDetailTab = tab;
+    clienteDetailTabBtns.forEach((btn) => {
+      const active = btn.dataset.clienteDetailTab === tab;
+      btn.classList.toggle('is-active', active);
+    });
+  }
+
+  function formatDetailValue(key, value) {
+    if (value === null || value === undefined || value === '') {
+      return '<span class="text-stone-400">Não informado</span>';
+    }
+    const copyBtn = (text) =>
+      `<button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-100 hover:text-stone-700" data-copy-text="${encodeURIComponent(
+        String(text || '')
+      )}" title="Copiar" aria-label="Copiar">
+        <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+          <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+        </svg>
+      </button>`;
+    if (key.startsWith('data_') || key.endsWith('_at')) return formatDateBR(value);
+    if (key === 'link_pasta') {
+      const val = String(value);
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        return `<a class="text-blue-600 hover:text-blue-800" href="${escapeHtml(val)}" target="_blank" rel="noreferrer">Abrir pasta</a>`;
+      }
+    }
+    if (key === 'acesso_gov') {
+      return `<div class="inline-flex items-center gap-2"><span>${escapeHtml(value)}</span>${copyBtn(value)}</div>`;
+    }
+    return escapeHtml(value);
+  }
+
+  function renderDetailRows(cliente, rows) {
+    return rows
+      .map(([key, label]) => {
+        const value = formatDetailValue(key, cliente[key]);
+        return `
+          <div class="px-4 py-2.5">
+            <div class="text-[11px] uppercase tracking-wide text-slate-400">${label}</div>
+            <div class="mt-1 text-sm leading-snug text-slate-700 break-words">${value}</div>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  function renderClienteDetailTabContent() {
+    if (!clienteDetailPayload || !clienteDetailTabContent) return;
+    const { cliente, processos } = clienteDetailPayload;
+    const camposComplementares = [
+      ['nacionalidade', 'Nacionalidade'],
+      ['estado_civil', 'Estado civil'],
+      ['profissao', 'Profissão'],
+      ['endereco', 'Endereço'],
+      ['numero_casa', 'Número'],
+      ['cidade', 'Cidade'],
+      ['estado', 'Estado'],
+      ['cep', 'CEP'],
+      ['acesso_gov', 'Acesso GOV'],
+      ['link_pasta', 'Pasta'],
+    ];
+    const camposRelacionamento = [
+      ['cpf_responsavel', 'CPF do responsável'],
+      ['responsavel', 'Responsável'],
+      ['parceiro', 'Parceiro'],
+      ['data_chegada', 'Data de chegada'],
+    ];
+    const camposFinanceiros = [
+      ['agencia', 'Agência'],
+      ['conta', 'Conta'],
+      ['banco', 'Banco'],
+      ['tipo_conta', 'Tipo de conta'],
+      ['dados_bancarios', 'Observações bancárias'],
+    ];
+
+    if (clienteDetailTab === 'qualificacao') {
+      const qual = getClienteQualificacaoText(cliente);
+      const qualRaw = qual || '';
+      const qualClean = qualRaw.trimStart();
+      const qualCopyBtn = `
+        <button type="button" class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-100 hover:text-stone-700" data-copy-text="${encodeURIComponent(
+          qualRaw
+        )}" title="Copiar qualificação" aria-label="Copiar qualificação">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+      `;
+      clienteDetailTabContent.innerHTML = `
+        <div class="cliente-left-card">
+          <div class="cliente-left-card-header">
+            <h3 class="cliente-left-card-title">Qualificação</h3>
+            <div class="flex items-center gap-2">
+              ${qualRaw ? qualCopyBtn : ''}
+              <button type="button" class="cliente-left-card-edit" data-cliente-detail-edit="1">editar</button>
+            </div>
+          </div>
+          <div class="px-4 py-3 text-sm leading-relaxed text-slate-700 break-words">${qualClean ? escapeHtml(qualClean) : '<span class="text-slate-400">Não informada.</span>'}</div>
+        </div>
+      `;
+      return;
+    }
+
+    if (clienteDetailTab === 'processos') {
+      const processosList = Array.isArray(processos) ? processos.filter((p) => p && p.numero_processo) : [];
+      const novoProcessoLink = `./processos?novo=1&cliente_id=${encodeURIComponent(String(cliente.id || ''))}&cliente_nome=${encodeURIComponent(String(cliente.nome || ''))}`;
+      clienteDetailTabContent.innerHTML = `
+        <div class="cliente-left-card">
+          <div class="cliente-left-card-header">
+            <h3 class="cliente-left-card-title">Processos vinculados</h3>
+            <a href="${novoProcessoLink}" class="inline-flex items-center rounded-lg border border-slate-300 px-2.5 py-1 text-xs text-slate-700 hover:bg-slate-100">Novo processo</a>
+          </div>
+          ${
+            processosList.length
+              ? `<div class="px-4 py-1">${processosList
+                  .map(
+                    (p) => `
+                      <div class="py-2.5 border-b border-slate-200/80 last:border-b-0">
+                        <div class="inline-flex items-center gap-1.5 text-sm text-slate-700">
+                          ${renderCopyProcessButton(p.numero_processo)}
+                          <a class="text-blue-600 hover:text-blue-800" href="./processo?id=${p.id}">${escapeHtml(p.numero_processo)}</a>
+                        </div>
+                        <div class="mt-1 text-xs text-slate-500">${escapeHtml(p.status || 'Sem status')}</div>
+                      </div>
+                    `
+                  )
+                  .join('')}</div>`
+              : '<div class="px-4 py-3 text-sm text-slate-400">Nenhum processo vinculado a este cliente.</div>'
+          }
+        </div>
+      `;
+      return;
+    }
+
+    const selectedRows =
+      clienteDetailTab === 'relacionamento'
+        ? camposRelacionamento
+        : clienteDetailTab === 'financeiros'
+          ? camposFinanceiros
+          : camposComplementares;
+
+    const titulo =
+      clienteDetailTab === 'relacionamento'
+        ? 'Relacionamento'
+      : clienteDetailTab === 'financeiros'
+          ? 'Dados financeiros'
+          : 'Dados gerais';
+
+    clienteDetailTabContent.innerHTML = `
+      <div class="cliente-left-card">
+        <div class="cliente-left-card-header">
+          <h3 class="cliente-left-card-title">${titulo}</h3>
+          <button type="button" class="cliente-left-card-edit" data-cliente-detail-edit="1">editar</button>
+        </div>
+        <div>${renderDetailRows(cliente, selectedRows)}</div>
+      </div>
+    `;
+  }
+
+  function renderClienteDetailAtividades() {
+    if (!clienteDetailPayload || !clienteDetailAtividades) return;
+    const { atividades, cliente } = clienteDetailPayload;
+    const atividadeLink = `./atividades?origem=cliente&novo=1&cliente_id=${encodeURIComponent(String(cliente.id || ''))}&cliente_nome=${encodeURIComponent(String(cliente.nome || ''))}`;
+    const cards = atividades.length
+      ? atividades
+          .map((atividade) => {
+            const titulo = escapeHtml(stripHashSuffix(atividade.titulo || '') || 'Atividade');
+            const prazoDate = atividade.prazo ? parseDateTimeInput(atividade.prazo) : null;
+            const prazoHora = String(atividade.prazo_hora || '').trim();
+            const concluida = String(atividade.status || '').toLowerCase() === 'feito';
+            const prazoLabel = atividade.prazo
+              ? `Prazo ${formatDateLongBR(atividade.prazo)}${prazoHora ? `, ${prazoHora.slice(0, 5)}` : ''}`
+              : 'Prazo não definido';
+            const dia = prazoDate ? String(prazoDate.getDate()).padStart(2, '0') : '--';
+            const mes = prazoDate
+              ? prazoDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
+              : '---';
+            const horaRodape = prazoHora
+              ? prazoHora.slice(0, 5)
+              : prazoDate
+                ? `${String(prazoDate.getHours()).padStart(2, '0')}:${String(prazoDate.getMinutes()).padStart(2, '0')}`
+                : '--:--';
+            const description = escapeHtml(
+              atividade.descricao || stripHashSuffix(atividade.titulo || '') || 'Sem descrição'
+            );
+            return `
+              <article class="w-[84%] rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      class="mt-0.5 h-4 w-4 rounded border-stone-300"
+                      data-cliente-atividade-toggle="${atividade.id}"
+                      ${concluida ? 'checked' : ''}
+                      aria-label="Concluir atividade"
+                    />
+                    <div class="min-w-0 text-base leading-none ${concluida ? 'line-through text-stone-400' : ''}">${titulo}</div>
+                  </div>
+                  <span class="text-xs text-stone-400">${atividade.created_at ? formatDateTimeBR(atividade.created_at).slice(11, 16) : ''}</span>
+                </div>
+                <div class="mt-2.5 flex items-start gap-2.5">
+                  <div class="w-16 shrink-0 rounded-xl bg-cyan-50 border border-cyan-100 text-center py-1.5">
+                    <div class="text-2xl font-semibold text-slate-600 leading-none">${dia}</div>
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase">${mes}</div>
+                    <div class="text-[10px] text-cyan-600">${horaRodape}</div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs text-slate-600">${escapeHtml(prazoLabel)}</div>
+                    <div class="mt-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm break-words ${concluida ? 'line-through text-stone-400' : 'text-stone-700'}">${description}</div>
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join('')
+      : '<div class="text-sm text-stone-400">Nenhuma atividade vinculada a este cliente.</div>';
+
+    clienteDetailAtividades.innerHTML = `
+      <div class="mb-3 flex items-center gap-2 text-xs">
+        <span class="inline-flex rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 font-medium text-blue-700">Atividade</span>
+        <span class="inline-flex rounded-lg px-2.5 py-1 text-stone-500">Comentário</span>
+        <a href="${atividadeLink}" class="ml-auto inline-flex items-center rounded-lg border border-stone-300 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100">Nova atividade</a>
+      </div>
+      <div class="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-400 mb-3">Coisas a fazer</div>
+      <div class="space-y-2.5">${cards}</div>
+    `;
+
+    clienteDetailAtividades.querySelectorAll('[data-cliente-atividade-toggle]').forEach((checkbox) => {
+      checkbox.addEventListener('change', async (event) => {
+        const target = event.currentTarget;
+        const atividadeId = String(target.getAttribute('data-cliente-atividade-toggle') || '').trim();
+        if (!atividadeId) return;
+        const atividade = atividades.find((item) => String(item.id) === atividadeId);
+        if (!atividade) return;
+        const feito = target.checked;
+        target.disabled = true;
+        try {
+          await api.atividades.update(atividadeId, {
+            ...atividade,
+            status: feito ? 'feito' : 'a_fazer',
+            processo_numero: atividade.processo_numero || atividade.numero_processo || null,
+          });
+          atividade.status = feito ? 'feito' : 'a_fazer';
+          renderClienteDetailAtividades();
+        } catch (err) {
+          target.checked = !feito;
+        } finally {
+          target.disabled = false;
+        }
+      });
+    });
+  }
+
+  function renderClienteDetailOverlay() {
+    if (!clienteDetailPayload) return;
+    renderClienteDetailTabContent();
+    renderClienteDetailAtividades();
+  }
+
+  function closeClienteDetailOverlay() {
+    if (!clienteDetailOverlay) return;
+    clienteDetailOverlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove('cliente-detail-open');
+    clienteDetailPayload = null;
+  }
+
+  async function openClienteDetailOverlay(clienteId) {
+    if (!clienteDetailOverlay || !clienteDetailTabContent || !clienteDetailAtividades || !clienteDetailNomeEl) {
+      window.location.href = `./cliente?id=${clienteId}`;
+      return;
+    }
+    clienteDetailOverlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    document.body.classList.add('cliente-detail-open');
+    clienteDetailNomeEl.textContent = 'Carregando...';
+    clienteDetailTabContent.innerHTML = '<div class="text-sm text-stone-500">Carregando informações...</div>';
+    clienteDetailAtividades.innerHTML = '<div class="text-sm text-stone-500">Carregando atividades...</div>';
+    setClienteDetailActiveTab('complementares');
+    try {
+      const [cliente, processosResp, atividadesResp] = await Promise.all([
+        api.clientes.get(clienteId),
+        api.processos.list({ page: 1, limit: 200, cliente_id: clienteId, sort: 'numero_processo', dir: 'asc' }),
+        api.atividades.list({ page: 1, limit: 12, cliente_id: clienteId, sort: 'created_at', dir: 'desc' }),
+      ]);
+      clienteDetailPayload = {
+        cliente,
+        processos: Array.isArray(processosResp?.data) ? processosResp.data : [],
+        atividades: Array.isArray(atividadesResp?.data) ? atividadesResp.data : [],
+      };
+      clienteDetailNomeEl.textContent = cliente.nome || 'Cliente';
+      if (clienteDetailStatusDot) {
+        const status = String(cliente.status || '').toLowerCase().trim();
+        clienteDetailStatusDot.classList.remove('bg-stone-300', 'bg-emerald-500', 'bg-amber-400', 'bg-stone-400');
+        if (status === 'ativo') clienteDetailStatusDot.classList.add('bg-emerald-500');
+        else if (status === 'inativo') clienteDetailStatusDot.classList.add('bg-stone-400');
+        else clienteDetailStatusDot.classList.add('bg-amber-400');
+      }
+      renderClienteDetailOverlay();
+    } catch (err) {
+      clienteDetailNomeEl.textContent = 'Cliente';
+      if (clienteDetailStatusDot) {
+        clienteDetailStatusDot.classList.remove('bg-emerald-500', 'bg-amber-400', 'bg-stone-400');
+        clienteDetailStatusDot.classList.add('bg-stone-300');
+      }
+      clienteDetailTabContent.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message || 'Erro ao carregar detalhes do cliente.')}</div>`;
+      clienteDetailAtividades.innerHTML = '';
+    }
+  }
+
   async function load() {
     const response = await api.clientes.list({
       page,
@@ -1422,16 +3657,7 @@ async function initClientes() {
 
   updateSortLabel();
 
-  openBtn.addEventListener('click', () => {
-    form.reset();
-    form.dataset.id = '';
-    showMessage(msg, '');
-    if (dataChegadaInput) {
-      dataChegadaInput.value = new Date().toISOString().slice(0, 10);
-    }
-    atualizarIdade(dataNascimentoInput, idadeInfo, idadeHidden);
-    openModal(modal);
-  });
+  openBtn.addEventListener('click', openNovoClienteModal);
 
   closeBtn.addEventListener('click', () => closeModal(modal));
 
@@ -1440,6 +3666,47 @@ async function initClientes() {
       if (e.target === modal) closeModal(modal);
     });
   }
+  if (clienteDetailCloseBtn) {
+    clienteDetailCloseBtn.addEventListener('click', closeClienteDetailOverlay);
+  }
+  if (clienteDetailOverlay) {
+    clienteDetailOverlay.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('[data-cliente-detail-edit]');
+      if (editBtn) {
+        const clienteAtual = clienteDetailPayload?.cliente || null;
+        if (clienteAtual) {
+          closeClienteDetailOverlay();
+          openEditModal(clienteAtual);
+        }
+        return;
+      }
+      const copyBtn = e.target.closest('[data-copy-text]');
+      if (copyBtn) {
+        const raw = copyBtn.getAttribute('data-copy-text') || '';
+        const text = decodeURIComponent(raw);
+        if (text && navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(text).catch(() => {});
+        }
+        return;
+      }
+      if (e.target.matches('[data-cliente-detail-close]')) {
+        closeClienteDetailOverlay();
+      }
+    });
+  }
+  clienteDetailTabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.clienteDetailTab;
+      if (!tab) return;
+      setClienteDetailActiveTab(tab);
+      renderClienteDetailTabContent();
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && clienteDetailOverlay && !clienteDetailOverlay.classList.contains('hidden')) {
+      closeClienteDetailOverlay();
+    }
+  });
 
   if (dataNascimentoInput) {
     dataNascimentoInput.addEventListener('change', () =>
@@ -1494,6 +3761,14 @@ async function initClientes() {
   });
 
   tableBody.addEventListener('click', (e) => {
+    const detailLink = e.target.closest('[data-open-cliente-detail]');
+    if (detailLink) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      const id = detailLink.getAttribute('data-open-cliente-detail');
+      if (id) openClienteDetailOverlay(id);
+      return;
+    }
     const toggleBtn = e.target.closest('[data-toggle]');
     if (!toggleBtn) return;
     const toggleId = toggleBtn.dataset.toggle;
@@ -1616,6 +3891,9 @@ async function initClientes() {
       data_chegada: qs('#clienteDataChegada').value.trim(),
       status: qs('#clienteStatus').value,
     };
+    if (!payload.qualificacao) {
+      payload.qualificacao = buildClienteQualificacaoAuto(payload);
+    }
 
     try {
       if (form.dataset.id) {
@@ -1632,6 +3910,14 @@ async function initClientes() {
 
   await loadAjustesColaboradores();
   await load();
+  if (clientePrefillNovo) {
+    openNovoClienteModal();
+    clearNovoClienteQueryParams();
+  }
+  if (clientePrefillOpenId) {
+    await openClienteDetailOverlay(clientePrefillOpenId);
+    clearOpenClienteQueryParams();
+  }
 }
 
 async function initProcessos() {
@@ -1639,6 +3925,16 @@ async function initProcessos() {
   bindLogout();
 
   const tableBody = qs('#processosTableBody');
+  const processoDetailOverlay = qs('#processoDetailOverlay');
+  const processoDetailNumero = qs('#processoDetailNumero');
+  const processoDetailSubtitulo = qs('#processoDetailSubtitulo');
+  const processoDetailTabBtns = qsa('[data-processo-detail-tab]');
+  const processoDetailDados = qs('#processoDetailDados');
+  const processoDetailFinanceiro = qs('#processoDetailFinanceiro');
+  const processoDetailAndamentos = qs('#processoDetailAndamentos');
+  const processoDetailAtividades = qs('#processoDetailAtividades');
+  const processoDetailCloseBtn = qs('#processoDetailCloseBtn');
+  const processoDetailEditBtn = qs('#processoDetailEditBtn');
   const modal = qs('#processoModal');
   const documentoModal = qs('#documentoModal');
   const openBtn = qs('#novoProcessoBtn');
@@ -1648,6 +3944,7 @@ async function initProcessos() {
   const msg = qs('#processoMessage');
   const clienteInput = qs('#processoClienteInput');
   const clienteOptions = qs('#processoClienteOptions');
+  const clienteSuggestionsEl = qs('#processoClienteSuggestions');
   const clienteId = qs('#processoClienteId');
   const filtroCliente = qs('#processoFiltroCliente');
   const filtroStatus = qs('#processoFiltroStatus');
@@ -1693,10 +3990,33 @@ async function initProcessos() {
   let loadingClientes = null;
   let clientesModal = [];
   let areasAjustes = [];
+  let clienteSuggestionsVisible = [];
+  let processoDetailPayload = null;
+  let processoDetailActiveTab = 'dados';
+  const hasFinanceAccess = canAccessFinanceiro();
+  const canManageAtividades = canCreateDeleteAtividades();
+  const atividadeTemplates = [
+    'Audiência',
+    'Perícia',
+    'Petição inicial',
+    'Réplica',
+    'Embargos de declaração',
+    'Recurso inominado',
+    'Cumprimento de sentença',
+    'Manifestar ciência',
+    'Aceitar acordo',
+    'Informar cliente',
+    'Responder cliente',
+    'Administrativo BPC',
+    'Prazo',
+    'Melhoria',
+  ];
   let prefillNovoProcesso = {
     ativo: queryParams.get('novo') === '1',
     origem: String(queryParams.get('origem') || '').trim().toLowerCase(),
     numero: String(queryParams.get('numero_processo') || '').trim(),
+    clienteId: String(queryParams.get('cliente_id') || '').trim(),
+    clienteNome: String(queryParams.get('cliente_nome') || '').trim(),
   };
 
   function updateSortLabel() {
@@ -1749,12 +4069,107 @@ async function initProcessos() {
     return score;
   }
 
+  function escapeProcessoDetailHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function setProcessoDetailNumeroLabel(value, withCopy = false) {
+    if (!processoDetailNumero) return;
+    const text = String(value || '').trim() || 'Processo';
+    if (withCopy && canCopyProcessNumber(text)) {
+      processoDetailNumero.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+          ${renderCopyProcessButton(text)}
+          <span>${escapeProcessoDetailHtml(text)}</span>
+        </span>
+      `;
+      return;
+    }
+    processoDetailNumero.textContent = text;
+  }
+
+  async function openProcessoDetailInlineEdit() {
+    const current = processoDetailPayload?.processo;
+    if (!current?.id) return;
+    await loadAllClientes().catch(() => null);
+    await loadAjustesAreas().catch(() => null);
+    closeProcessoDetailOverlay();
+    await openEditProcessoModal(current);
+  }
+
+  async function triggerProcessoDetailInlineEdit() {
+    try {
+      await openProcessoDetailInlineEdit();
+    } catch (err) {
+      alert(err?.message || 'Erro ao abrir edição do processo.');
+    }
+  }
+
+  function closeProcessoDetailOverlay() {
+    if (!processoDetailOverlay) return;
+    processoDetailOverlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    document.body.classList.remove('processo-detail-open');
+    processoDetailPayload = null;
+    setProcessoDetailActiveTab('dados');
+  }
+
   function renderClienteOptions(list) {
     if (!clienteOptions) return;
     clienteOptions.innerHTML = list
       .slice(0, 40)
       .map((c) => `<option value="${c.nome}" data-id="${c.id}"></option>`)
       .join('');
+  }
+
+  function hideClienteSuggestions() {
+    if (!clienteSuggestionsEl) return;
+    clienteSuggestionsEl.classList.add('hidden');
+  }
+
+  function showClienteSuggestions() {
+    if (!clienteSuggestionsEl) return;
+    if (!clienteSuggestionsVisible.length) {
+      hideClienteSuggestions();
+      return;
+    }
+    clienteSuggestionsEl.classList.remove('hidden');
+  }
+
+  function setClienteSelecionado(cliente) {
+    if (!cliente) return;
+    if (clienteInput) clienteInput.value = cliente.nome || '';
+    if (clienteId) clienteId.value = cliente.id || '';
+    hideClienteSuggestions();
+  }
+
+  function renderClienteSuggestions(list) {
+    if (!clienteSuggestionsEl) return;
+    clienteSuggestionsVisible = Array.isArray(list) ? list.slice(0, 8) : [];
+    if (!clienteSuggestionsVisible.length) {
+      clienteSuggestionsEl.innerHTML = '';
+      hideClienteSuggestions();
+      return;
+    }
+    clienteSuggestionsEl.innerHTML = clienteSuggestionsVisible
+      .map(
+        (c, idx) => `
+          <button
+            type="button"
+            data-cliente-suggestion-index="${idx}"
+            class="w-full text-left px-3 py-2 text-sm text-stone-800 hover:bg-stone-50 border-b border-stone-100 last:border-b-0"
+          >
+            ${c.nome}
+          </button>
+        `
+      )
+      .join('');
+    showClienteSuggestions();
   }
 
   function findBestClienteByQuery(query) {
@@ -1804,6 +4219,10 @@ async function initProcessos() {
     }
   }
 
+  async function syncProcessoCidadeByEstado(currentCidade = '') {
+    await hydrateCidadeSelectByEstado(estadoInput?.value, cidadeInput, { currentValue: currentCidade });
+  }
+
   async function loadAllClientes() {
     if (loadingClientes) return loadingClientes;
     loadingClientes = (async () => {
@@ -1825,6 +4244,900 @@ async function initProcessos() {
     return loadingClientes;
   }
 
+  async function openEditProcessoModal(processoInput) {
+    const processo = processoInput?.id ? processoInput : null;
+    if (!processo) return;
+    form.dataset.id = processo.id;
+    numeroInput.value = processo.numero_processo || '';
+    if (areaInput) {
+      const areaValue = processo.area || '';
+      const hasArea = Array.from(areaInput.options || []).some((opt) => opt.value === areaValue);
+      if (areaValue && !hasArea) {
+        const opt = document.createElement('option');
+        opt.value = areaValue;
+        opt.textContent = areaValue;
+        areaInput.appendChild(opt);
+      }
+      areaInput.value = areaValue;
+    }
+    statusInput.value = processo.status || '';
+    if (classeInput) {
+      const classeValue = processo.classe || '';
+      const hasClasse = Array.from(classeInput.options || []).some((opt) => opt.value === classeValue);
+      if (classeValue && !hasClasse) {
+        const opt = document.createElement('option');
+        opt.value = classeValue;
+        opt.textContent = classeValue;
+        classeInput.appendChild(opt);
+      }
+      classeInput.value = classeValue;
+    }
+    orgaoInput.value = processo.orgao || '';
+    varaInput.value = processo.vara || '';
+    grauInput.value = processo.grau || '';
+    estadoInput.value = processo.estado || '';
+    await syncProcessoCidadeByEstado(processo.cidade || '');
+    sistemaInput.value = processo.sistema || '';
+    distribuicaoInput.value = normalizeDateValue(processo.distribuicao || '');
+    const resultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
+    resultadoInput.value = resultadoInfo.resultado || '';
+    if (interpostoRecursoInput) {
+      interpostoRecursoInput.checked = resultadoInfo.recurso === 'Sim';
+    }
+    parteContrariaInput.value = processo.parte_contraria || '';
+    if (abrirContaInput) abrirContaInput.checked = String(processo.abrir_conta || '').toLowerCase() === 'sim';
+    if (contaAbertaInput) contaAbertaInput.checked = String(processo.conta_aberta || '').toLowerCase() === 'sim';
+    toggleContaBeneficio();
+    if (orgaoGrid) {
+      orgaoGrid.querySelectorAll('.orgao-btn').forEach((btn) => {
+        const active = btn.dataset.value === orgaoInput.value;
+        btn.classList.toggle('border-stone-900', active);
+        btn.classList.toggle('bg-stone-50', active);
+      });
+    }
+    if (clienteInput) clienteInput.value = processo.cliente_nome || '';
+    if (clienteId) clienteId.value = processo.cliente_id || '';
+    openModal(modal);
+  }
+
+  function setProcessoDetailActiveTab(tab) {
+    processoDetailActiveTab = ['dados', 'financeiro', 'andamentos'].includes(tab) ? tab : 'dados';
+    if (processoDetailDados) processoDetailDados.classList.toggle('hidden', processoDetailActiveTab !== 'dados');
+    if (processoDetailFinanceiro)
+      processoDetailFinanceiro.classList.toggle('hidden', processoDetailActiveTab !== 'financeiro');
+    if (processoDetailAndamentos)
+      processoDetailAndamentos.classList.toggle('hidden', processoDetailActiveTab !== 'andamentos');
+    processoDetailTabBtns.forEach((btn) => {
+      const isActive = btn.dataset.processoDetailTab === processoDetailActiveTab;
+      btn.classList.toggle('is-active', isActive);
+    });
+  }
+
+  function renderProcessoDetailInfo(processo) {
+    if (!processoDetailDados) return;
+    const uniqueJoin = (values, separator = ' • ') => {
+      const cleaned = values
+        .map((val) => String(val || '').trim())
+        .filter(Boolean)
+        .map((val) => val.replace(/\s+/g, ' '));
+      const deduped = [];
+      cleaned.forEach((val) => {
+        const normalized = val.toLowerCase();
+        if (!deduped.some((item) => item.toLowerCase() === normalized)) deduped.push(val);
+      });
+      return deduped.join(separator);
+    };
+
+    const numero = processo.numero_processo || '-';
+    const assunto = uniqueJoin([processo.area, processo.classe || processo.fase]) || 'Não informado';
+    const tribunal = uniqueJoin(
+      [processo.orgao || processo.juizo, [processo.cidade, processo.estado].filter(Boolean).join(', ')],
+      ' • '
+    ) || 'Não informado';
+    const resultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
+    const resultado =
+      resultadoInfo.resultado ||
+      (String(processo.status || '').trim() ? String(processo.status).trim() : 'Não informado');
+    const poloAtivo = processo.cliente_nome || 'Não informado';
+    const poloPassivo = processo.parte_contraria || 'Não informado';
+    const poloAtivoHtml =
+      processo.cliente_nome && processo.cliente_id
+        ? `<a href="./clientes?cliente_id=${encodeURIComponent(String(processo.cliente_id))}" class="text-blue-700 hover:text-blue-900 underline underline-offset-2">${escapeProcessoDetailHtml(
+            poloAtivo
+          )}</a>`
+        : escapeProcessoDetailHtml(poloAtivo);
+
+    const icon = (name) => {
+      const map = {
+        file: '<path d="M8 3h6l4 4v14H8z"/><path d="M14 3v4h4"/>',
+        assunto: '<circle cx="12" cy="12" r="8"/><path d="M4 12h16"/><path d="M12 4v16"/>',
+        tribunal: '<path d="M4 9h16"/><path d="M6 9v8h12V9"/><path d="M10 5h4"/>',
+        check: '<path d="M5 12l4 4 10-10"/>',
+        users: '<circle cx="9" cy="9" r="3"/><circle cx="16.5" cy="10.5" r="2.5"/><path d="M4.5 18c.8-2.2 2.6-3.5 4.5-3.5 2 0 3.7 1.3 4.5 3.5"/><path d="M14.5 17.5c.5-1.3 1.5-2.2 2.9-2.5"/>',
+      };
+      return `
+        <svg viewBox="0 0 24 24" class="h-5 w-5 text-stone-500" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          ${map[name] || map.file}
+        </svg>
+      `;
+    };
+
+    const row = (name, title, value, extra = '', valueIsHtml = false) => `
+      <div class="py-2.5">
+        <div class="flex items-start gap-2.5">
+          <div class="mt-0.5">${icon(name)}</div>
+          <div class="min-w-0 flex-1">
+            <div class="text-[14px] font-semibold text-stone-900">${escapeProcessoDetailHtml(title)}</div>
+            ${
+              String(value || '').trim()
+                ? valueIsHtml
+                  ? `<div class="mt-1 text-[14px] text-stone-700 break-words">${value}</div>`
+                  : `<div class="mt-1 text-[14px] text-stone-700 break-words">${escapeProcessoDetailHtml(value)}</div>`
+                : ''
+            }
+            ${extra}
+          </div>
+        </div>
+      </div>
+    `;
+
+    processoDetailDados.innerHTML = `
+      <article class="overflow-hidden rounded-3xl border border-stone-200 bg-white">
+        <header class="flex items-center justify-between border-b border-stone-200 px-4 py-3">
+          <h3 class="text-[12px] font-semibold tracking-[0.08em] text-slate-600">DADOS GERAIS</h3>
+          <button
+            type="button"
+            data-processo-detail-edit-inline="1"
+            class="text-[12px] text-slate-400 hover:text-slate-700"
+          >
+            editar
+          </button>
+        </header>
+        <div class="px-4 py-1.5">
+          ${row(
+            'file',
+            'Número do processo',
+            `<span class="inline-flex items-center gap-2">${renderCopyProcessButton(numero)}<span>${escapeProcessoDetailHtml(
+              numero
+            )}</span></span>`,
+            '',
+            true
+          )}
+          ${row('assunto', 'Assunto', assunto)}
+          ${row('tribunal', 'Tribunal', tribunal)}
+          ${row('check', 'Resultado', resultado)}
+          ${row(
+            'users',
+            'Envolvidos',
+            '',
+            `
+              <div class="mt-3 space-y-3">
+                <div>
+                  <div class="text-xs uppercase tracking-wide text-stone-400">Polo ativo</div>
+                  <div class="mt-1 text-[14px] text-stone-900 break-words">${poloAtivoHtml}</div>
+                </div>
+                <div>
+                  <div class="text-xs uppercase tracking-wide text-stone-400">Polo passivo</div>
+                  <div class="mt-1 text-[14px] text-stone-500 break-words">${escapeProcessoDetailHtml(poloPassivo)}</div>
+                </div>
+              </div>
+            `
+          )}
+        </div>
+      </article>
+    `;
+  }
+
+  function renderProcessoDetailFinanceiro(financeiroResp) {
+    if (!processoDetailFinanceiro) return;
+    if (!hasFinanceAccess) {
+      processoDetailFinanceiro.innerHTML =
+        '<div class="rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-500">Sem permissão para visualizar o financeiro.</div>';
+      return;
+    }
+    const itens = Array.isArray(financeiroResp?.data) ? financeiroResp.data : [];
+    let totalProveito = 0;
+    let totalHonorarios = 0;
+    let totalRepasse = 0;
+    itens.forEach((item) => {
+      const base = parseCurrencyValue(item.valor_base);
+      const honor = parseCurrencyValue(item.honorarios_calculados);
+      const rep = parseCurrencyValue(item.repasse_calculado);
+      if (base !== null) totalProveito += base;
+      if (honor !== null) totalHonorarios += honor;
+      if (rep !== null) totalRepasse += rep;
+    });
+    processoDetailFinanceiro.innerHTML = `
+      <div class="mb-3 flex justify-end">
+        <button
+          type="button"
+          data-processo-detail-edit-inline="1"
+          class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs text-emerald-700 hover:bg-emerald-100"
+        >
+          Editar processo
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs uppercase tracking-wide text-slate-400">Proveito total</div>
+          <div class="mt-1 text-sm font-semibold text-slate-900">${formatCurrencyValue(totalProveito)}</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs uppercase tracking-wide text-slate-400">Honorários totais</div>
+          <div class="mt-1 text-sm font-semibold text-slate-900">${formatCurrencyValue(totalHonorarios)}</div>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div class="text-xs uppercase tracking-wide text-slate-400">Repasse total</div>
+          <div class="mt-1 text-sm font-semibold text-slate-900">${formatCurrencyValue(totalRepasse)}</div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        ${
+          itens.length
+            ? itens
+                .map((item) => {
+                  const tipo = item.tipo || 'outros';
+                  const base = formatCurrencyValue(item.valor_base);
+                  const honor = formatCurrencyValue(item.honorarios_calculados);
+                  const rep = formatCurrencyValue(item.repasse_calculado);
+                  const previsao = normalizeMonthValue(item.previsao_pagamento_mes);
+                  return `
+                    <div class="rounded-xl border border-slate-200 p-4">
+                      <div class="text-sm font-semibold text-slate-800">${escapeProcessoDetailHtml(tipo)}</div>
+                      <div class="text-xs text-slate-500 mt-1">${escapeProcessoDetailHtml(item.descricao || '')}</div>
+                      <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div><div class="text-xs uppercase tracking-wide text-slate-400">Proveito</div><div class="text-slate-900">${base}</div></div>
+                        <div><div class="text-xs uppercase tracking-wide text-slate-400">Percentual</div><div class="text-slate-900">${escapeProcessoDetailHtml(item.percentual || '—')}</div></div>
+                        <div><div class="text-xs uppercase tracking-wide text-slate-400">Honorários</div><div class="text-slate-900">${honor}</div></div>
+                        <div><div class="text-xs uppercase tracking-wide text-slate-400">Repasse</div><div class="text-slate-900">${rep}</div></div>
+                      </div>
+                      <div class="mt-3 text-xs text-slate-500">Previsão: ${escapeProcessoDetailHtml(previsao || '—')}</div>
+                    </div>
+                  `;
+                })
+                .join('')
+            : '<div class="rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-500">Nenhum lançamento financeiro.</div>'
+        }
+      </div>
+    `;
+  }
+
+  function renderProcessoDetailAtividades(atividadesResp, processoId) {
+    if (!processoDetailAtividades) return;
+    const atividades = Array.isArray(atividadesResp?.data) ? atividadesResp.data : [];
+    const COMMENT_TOKEN = '[COMENTARIOS_EQUIPE]';
+    const splitDescricaoComentarios = (value) => {
+      const raw = String(value || '');
+      const idx = raw.indexOf(COMMENT_TOKEN);
+      if (idx < 0) return { descricao: raw.trim(), comentarios: [] };
+      const descricao = raw.slice(0, idx).trim();
+      const commentsRaw = raw.slice(idx + COMMENT_TOKEN.length).trim();
+      const comentarios = commentsRaw
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => (line.startsWith('- ') ? line.slice(2).trim() : line))
+        .filter(Boolean);
+      return { descricao, comentarios };
+    };
+    const buildDescricaoComComentarios = (descricaoBase, comentarios) => {
+      const base = String(descricaoBase || '').trim();
+      const comments = Array.isArray(comentarios) ? comentarios.map((c) => String(c || '').trim()).filter(Boolean) : [];
+      if (!comments.length) return base;
+      const commentsText = comments.map((c) => `- ${c}`).join('\n');
+      return `${base}${base ? '\n\n' : ''}${COMMENT_TOKEN}\n${commentsText}`;
+    };
+    const getCurrentUserDisplayName = () =>
+      String(
+        window.__currentUser?.nome_exibicao ||
+          window.__currentUser?.nome ||
+          window.__currentUser?.usuario ||
+          'Equipe'
+      ).trim();
+
+    const cards = atividades.length
+      ? atividades
+          .map((atividade) => {
+            const titulo = escapeProcessoDetailHtml(stripHashSuffix(atividade.titulo || '') || 'Atividade');
+            const prazo = formatDateOptionalTime(atividade.prazo, atividade.prazo_hora);
+            const parts = splitDescricaoComentarios(atividade.descricao || atividade.observacao || '');
+            const descricao = escapeProcessoDetailHtml(parts.descricao || 'Sem descrição.');
+            const comentarios = parts.comentarios;
+            const createdAt = atividade.created_at ? formatDateTimeBR(atividade.created_at).slice(11, 16) : '';
+            return `
+              <article class="rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                <div class="flex items-start gap-3">
+                  <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-500"></div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="truncate text-sm font-medium text-slate-800">${titulo}</div>
+                      <span class="text-xs text-stone-400">${escapeProcessoDetailHtml(createdAt)}</span>
+                    </div>
+                    ${prazo ? `<div class="mt-1 inline-flex items-center rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-600">Prazo ${escapeProcessoDetailHtml(prazo)}</div>` : ''}
+                    <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 break-words">${descricao}</div>
+                    <div class="mt-2 flex items-center justify-between gap-2">
+                      <span class="text-xs text-stone-500">${comentarios.length} comentário(s)</span>
+                      <div class="flex items-center gap-2">
+                        <button
+                          type="button"
+                          data-processo-detail-comment="${atividade.id}"
+                          class="text-xs rounded-md border border-stone-200 px-2 py-1 text-stone-600 hover:bg-stone-50"
+                        >
+                          Comentar
+                        </button>
+                        ${
+                          canManageAtividades
+                            ? `
+                              <div class="relative">
+                                <button
+                                  type="button"
+                                  data-processo-detail-atividade-menu-toggle="${atividade.id}"
+                                  class="h-7 w-7 inline-flex items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-100"
+                                  title="Opções"
+                                  aria-label="Opções"
+                                >
+                                  &#x22EE;
+                                </button>
+                                <div
+                                  data-processo-detail-atividade-menu="${atividade.id}"
+                                  class="hidden absolute right-0 mt-1 w-32 rounded-lg border border-stone-200 bg-white shadow-lg z-20"
+                                >
+                                  <button
+                                    type="button"
+                                    data-processo-detail-edit-atividade="${atividade.id}"
+                                    class="w-full text-left px-3 py-2 text-xs text-stone-700 hover:bg-stone-50"
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    data-processo-detail-remove-atividade="${atividade.id}"
+                                    class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50"
+                                  >
+                                    Excluir
+                                  </button>
+                                </div>
+                              </div>
+                            `
+                            : ''
+                        }
+                      </div>
+                    </div>
+                    ${
+                      comentarios.length
+                        ? `<div class="mt-2 space-y-1">
+                            ${comentarios
+                              .slice(-3)
+                              .map(
+                                (item) =>
+                                  `<div class="rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-600 break-words">${escapeProcessoDetailHtml(
+                                    item
+                                  )}</div>`
+                              )
+                              .join('')}
+                          </div>`
+                        : ''
+                    }
+                  </div>
+                </div>
+              </article>
+            `;
+          })
+          .join('')
+      : '<div class="text-sm text-stone-400">Nenhuma atividade vinculada a este processo.</div>';
+
+    processoDetailAtividades.innerHTML = `
+      <div class="mb-3 flex items-center gap-2 text-xs">
+        <span class="inline-flex rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 font-medium text-blue-700">Atividade</span>
+        <span class="inline-flex rounded-lg px-2.5 py-1 text-stone-500">Comentário</span>
+        ${
+          canManageAtividades
+            ? `
+              <div class="relative ml-auto inline-block">
+                <button
+                  id="processoDetailNovaAtividadeBtn"
+                  type="button"
+                  class="inline-flex items-center rounded-lg border border-stone-300 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100"
+                >
+                  Nova atividade
+                </button>
+                <div
+                  id="processoDetailNovaAtividadeMenu"
+                  class="hidden absolute right-0 mt-2 w-56 bg-white border border-stone-200 rounded-lg shadow-sm z-20"
+                >
+                  ${atividadeTemplates
+                    .map(
+                      (tipo) => `
+                        <button
+                          type="button"
+                          class="w-full text-left px-3 py-2 text-sm text-stone-700 hover:bg-stone-50"
+                          data-processo-detail-template="${tipo}"
+                        >
+                          ${tipo}
+                        </button>
+                      `
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+            : ''
+        }
+      </div>
+      ${
+        canManageAtividades
+          ? `
+            <div id="processoDetailAtividadeFormWrap" class="hidden mb-3 rounded-xl border border-stone-200 bg-white p-3">
+              <div class="flex items-center justify-between mb-3">
+                <h4 id="processoDetailAtividadeFormTitle" class="text-sm font-semibold text-stone-800">Nova atividade</h4>
+                <button
+                  id="processoDetailAtividadeFormCancel"
+                  type="button"
+                  class="text-xs rounded-md border border-stone-200 px-2 py-1 text-stone-600 hover:bg-stone-50"
+                >
+                  Fechar
+                </button>
+              </div>
+              <form id="processoDetailAtividadeForm" class="space-y-2.5">
+                <input type="hidden" id="processoDetailAtividadeId" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <label class="text-xs text-stone-500">Tipo</label>
+                    <select id="processoDetailAtividadeTipo" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm">
+                      <option value="">Selecione</option>
+                      ${atividadeTemplates.map((tipo) => `<option value="${tipo}">${tipo}</option>`).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-stone-500">Título</label>
+                    <input id="processoDetailAtividadeTitulo" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm" required />
+                  </div>
+                </div>
+                <div>
+                  <label class="text-xs text-stone-500">Descrição</label>
+                  <textarea id="processoDetailAtividadeDescricao" rows="2" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                  <div>
+                    <label class="text-xs text-stone-500">Status</label>
+                    <select id="processoDetailAtividadeStatus" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm">
+                      <option value="a_fazer">A fazer</option>
+                      <option value="fazendo">Fazendo</option>
+                      <option value="feito">Feito</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-stone-500">Prioridade</label>
+                    <select id="processoDetailAtividadePrioridade" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm">
+                      <option value="baixa">Baixa</option>
+                      <option value="media" selected>Média</option>
+                      <option value="alta">Alta</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-stone-500">Prazo</label>
+                    <input id="processoDetailAtividadePrazo" type="date" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm" />
+                  </div>
+                  <div>
+                    <label class="text-xs text-stone-500">Hora</label>
+                    <input id="processoDetailAtividadePrazoHora" type="time" class="mt-1 w-full border rounded-lg px-2 py-1.5 text-sm" />
+                  </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-1">
+                  <button
+                    type="submit"
+                    id="processoDetailAtividadeSalvar"
+                    class="rounded-md bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700"
+                  >
+                    Salvar atividade
+                  </button>
+                </div>
+              </form>
+            </div>
+          `
+          : ''
+      }
+      <div class="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-400 mb-3">Coisas a fazer</div>
+      <div class="space-y-2.5">${cards}</div>
+    `;
+
+    const refreshAtividades = async () => {
+      const next = await api.atividades.list({ page: 1, limit: 12, processo_id: processoId, sort: 'created_at', dir: 'desc' });
+      if (processoDetailPayload) processoDetailPayload.atividades = next;
+      renderProcessoDetailAtividades(next, processoId);
+    };
+
+    const novaBtn = qs('#processoDetailNovaAtividadeBtn');
+    const novaMenu = qs('#processoDetailNovaAtividadeMenu');
+    const formWrap = qs('#processoDetailAtividadeFormWrap');
+    const form = qs('#processoDetailAtividadeForm');
+    const formTitle = qs('#processoDetailAtividadeFormTitle');
+    const formCancel = qs('#processoDetailAtividadeFormCancel');
+    const atividadeIdInput = qs('#processoDetailAtividadeId');
+    const tipoInput = qs('#processoDetailAtividadeTipo');
+    const tituloInput = qs('#processoDetailAtividadeTitulo');
+    const descricaoInput = qs('#processoDetailAtividadeDescricao');
+    const statusInput = qs('#processoDetailAtividadeStatus');
+    const prioridadeInput = qs('#processoDetailAtividadePrioridade');
+    const prazoInput = qs('#processoDetailAtividadePrazo');
+    const prazoHoraInput = qs('#processoDetailAtividadePrazoHora');
+
+    const openAtividadeForm = (atividade = null, template = '') => {
+      if (!formWrap || !form) return;
+      formWrap.classList.remove('hidden');
+      if (atividade) {
+        const parts = splitDescricaoComentarios(atividade.descricao || atividade.observacao || '');
+        if (formTitle) formTitle.textContent = 'Editar atividade';
+        if (atividadeIdInput) atividadeIdInput.value = String(atividade.id || '');
+        if (tipoInput) {
+          const tipoFound = atividadeTemplates.find((item) =>
+            String(atividade.titulo || '').toLowerCase().includes(item.toLowerCase())
+          );
+          tipoInput.value = tipoFound || '';
+        }
+        if (tituloInput) tituloInput.value = String(atividade.titulo || '').trim();
+        if (descricaoInput) descricaoInput.value = parts.descricao || '';
+        if (statusInput) statusInput.value = atividade.status || 'a_fazer';
+        if (prioridadeInput) prioridadeInput.value = atividade.prioridade || 'media';
+        if (prazoInput) prazoInput.value = normalizeDateValue(atividade.prazo || '');
+        if (prazoHoraInput) prazoHoraInput.value = (atividade.prazo_hora || '').slice(0, 5);
+      } else {
+        if (formTitle) formTitle.textContent = 'Nova atividade';
+        if (atividadeIdInput) atividadeIdInput.value = '';
+        if (tipoInput) tipoInput.value = template || '';
+        if (tituloInput) tituloInput.value = template || '';
+        if (descricaoInput) descricaoInput.value = '';
+        if (statusInput) statusInput.value = 'a_fazer';
+        if (prioridadeInput) prioridadeInput.value = 'media';
+        if (prazoInput) prazoInput.value = '';
+        if (prazoHoraInput) prazoHoraInput.value = '';
+      }
+      tituloInput?.focus();
+    };
+
+    const closeAtividadeForm = () => {
+      if (!formWrap) return;
+      formWrap.classList.add('hidden');
+    };
+
+    if (canManageAtividades && novaBtn && novaMenu) {
+      novaBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        novaMenu.classList.toggle('hidden');
+      });
+      novaMenu.addEventListener('click', (e) => e.stopPropagation());
+      novaMenu.querySelectorAll('[data-processo-detail-template]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const template = String(btn.getAttribute('data-processo-detail-template') || 'Atividade').trim();
+          novaMenu.classList.add('hidden');
+          openAtividadeForm(null, template);
+        });
+      });
+    }
+
+    if (formCancel) {
+      formCancel.addEventListener('click', () => closeAtividadeForm());
+    }
+
+    if (tipoInput && tituloInput) {
+      tipoInput.addEventListener('change', () => {
+        if (!tituloInput.value.trim()) tituloInput.value = tipoInput.value || '';
+      });
+    }
+
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const atividadeId = String(atividadeIdInput?.value || '').trim();
+        const titulo = String(tituloInput?.value || '').trim();
+        if (!titulo) {
+          alert('Informe o título da atividade.');
+          return;
+        }
+        const descricaoBase = String(descricaoInput?.value || '').trim();
+        const prazo = String(prazoInput?.value || '').trim() || null;
+        const prazoHora = String(prazoHoraInput?.value || '').trim() || null;
+        try {
+          if (atividadeId) {
+            const atividadeAtual = atividades.find((item) => String(item.id) === atividadeId);
+            if (!atividadeAtual) {
+              alert('Atividade não encontrada para edição.');
+              return;
+            }
+            const parts = splitDescricaoComentarios(atividadeAtual.descricao || atividadeAtual.observacao || '');
+            await api.atividades.update(atividadeId, {
+              ...atividadeAtual,
+              titulo,
+              descricao: buildDescricaoComComentarios(descricaoBase, parts.comentarios),
+              status: statusInput?.value || 'a_fazer',
+              prioridade: prioridadeInput?.value || 'media',
+              prazo,
+              prazo_hora: prazo ? prazoHora : null,
+              processo_numero: atividadeAtual.processo_numero || atividadeAtual.numero_processo || null,
+            });
+          } else {
+            await api.atividades.create({
+              processo_id: Number(processoId),
+              titulo,
+              descricao: descricaoBase,
+              status: statusInput?.value || 'a_fazer',
+              prioridade: prioridadeInput?.value || 'media',
+              prazo,
+              prazo_hora: prazo ? prazoHora : null,
+            });
+          }
+          closeAtividadeForm();
+          await refreshAtividades();
+        } catch (err) {
+          alert(err?.message || 'Não foi possível salvar atividade.');
+        }
+      });
+    }
+
+    if (processoDetailAtividades.__outsideAtividadeMenuHandler) {
+      document.removeEventListener('click', processoDetailAtividades.__outsideAtividadeMenuHandler);
+      processoDetailAtividades.__outsideAtividadeMenuHandler = null;
+    }
+
+    const closeAtividadeActionMenus = () => {
+      processoDetailAtividades
+        .querySelectorAll('[data-processo-detail-atividade-menu]')
+        .forEach((menuEl) => menuEl.classList.add('hidden'));
+    };
+
+    processoDetailAtividades.querySelectorAll('[data-processo-detail-atividade-menu-toggle]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const atividadeId = String(btn.getAttribute('data-processo-detail-atividade-menu-toggle') || '').trim();
+        if (!atividadeId) return;
+        const menuEl = processoDetailAtividades.querySelector(
+          `[data-processo-detail-atividade-menu="${atividadeId}"]`
+        );
+        if (!menuEl) return;
+        const willOpen = menuEl.classList.contains('hidden');
+        closeAtividadeActionMenus();
+        if (willOpen) menuEl.classList.remove('hidden');
+      });
+    });
+
+    if (canManageAtividades) {
+      const outsideHandler = (event) => {
+        if (
+          event.target.closest('[data-processo-detail-atividade-menu-toggle]') ||
+          event.target.closest('[data-processo-detail-atividade-menu]')
+        ) {
+          return;
+        }
+        closeAtividadeActionMenus();
+      };
+      processoDetailAtividades.__outsideAtividadeMenuHandler = outsideHandler;
+      document.addEventListener('click', outsideHandler);
+    }
+
+    processoDetailAtividades.querySelectorAll('[data-processo-detail-edit-atividade]').forEach((btn) => {
+      btn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const atividadeId = String(btn.getAttribute('data-processo-detail-edit-atividade') || '').trim();
+        if (!atividadeId) return;
+        const atividade = atividades.find((item) => String(item.id) === atividadeId);
+        if (!atividade) return;
+        closeAtividadeActionMenus();
+        openAtividadeForm(atividade);
+      });
+    });
+
+    processoDetailAtividades.querySelectorAll('[data-processo-detail-remove-atividade]').forEach((btn) => {
+      btn.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        const atividadeId = String(btn.getAttribute('data-processo-detail-remove-atividade') || '').trim();
+        if (!atividadeId) return;
+        closeAtividadeActionMenus();
+        if (!window.confirm('Deseja excluir esta atividade?')) return;
+        try {
+          await api.atividades.remove(atividadeId);
+          await refreshAtividades();
+        } catch (err) {
+          alert(err?.message || 'Não foi possível excluir a atividade.');
+        }
+      });
+    });
+
+    processoDetailAtividades.querySelectorAll('[data-processo-detail-comment]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const atividadeId = String(btn.getAttribute('data-processo-detail-comment') || '').trim();
+        if (!atividadeId) return;
+        const atividade = atividades.find((item) => String(item.id) === atividadeId);
+        if (!atividade) return;
+        const comentario = window.prompt('Comentário para a atividade:');
+        const comentarioClean = String(comentario || '').trim();
+        if (!comentarioClean) return;
+        const parts = splitDescricaoComentarios(atividade.descricao || atividade.observacao || '');
+        const stamp = new Date().toLocaleString('pt-BR');
+        const autor = getCurrentUserDisplayName();
+        const nextComentarios = [...parts.comentarios, `[${stamp}] ${autor}: ${comentarioClean}`];
+        btn.disabled = true;
+        try {
+          await api.atividades.update(atividadeId, {
+            ...atividade,
+            descricao: buildDescricaoComComentarios(parts.descricao, nextComentarios),
+            processo_numero: atividade.processo_numero || atividade.numero_processo || null,
+          });
+          await refreshAtividades();
+        } catch (err) {
+          alert(err?.message || 'Não foi possível salvar comentário.');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  function renderProcessoDetailAndamentos(andamentosResp, logsResp) {
+    if (!processoDetailAndamentos || !processoDetailPayload?.processo) return;
+    const processoId = processoDetailPayload.processo.id;
+    const movimentos = Array.isArray(andamentosResp?.movimentos) ? andamentosResp.movimentos : [];
+    const logs = Array.isArray(logsResp?.data) ? logsResp.data : [];
+    const lastLog = logs[0];
+    const atualizadoEm = andamentosResp?.data?.created_at ? formatDateTimeBR(andamentosResp.data.created_at) : '';
+    const ultimaMov = andamentosResp?.data?.data_ultima_movimentacao
+      ? formatDateTimeBR(andamentosResp.data.data_ultima_movimentacao)
+      : '';
+
+    const itens = movimentos.slice(0, 10).map((mov) => {
+      const dataMov =
+        formatDateTimeBR(mov?.dataHora || mov?.data || mov?.data_movimentacao || mov?.dataMovimento) || '—';
+      const titulo = mov?.nome || mov?.descricao || mov?.movimento || mov?.codigo || 'Movimentação';
+      const complemento = mov?.complemento || mov?.texto || '';
+      return `
+        <div class="py-3">
+          <div class="text-xs uppercase tracking-wide text-slate-400">${escapeProcessoDetailHtml(dataMov)}</div>
+          <div class="text-sm text-slate-900 mt-1">${escapeProcessoDetailHtml(titulo)}</div>
+          ${complemento ? `<div class="text-sm text-slate-500 mt-1">${escapeProcessoDetailHtml(complemento)}</div>` : ''}
+        </div>
+      `;
+    });
+
+    let bodyHtml = itens.length
+      ? `<div class="divide-y divide-slate-200/70">${itens.join('')}</div>`
+      : '<div class="text-sm text-slate-500">Sem andamentos disponíveis no momento.</div>';
+    if (!itens.length && lastLog?.status === 'not_found') {
+      bodyHtml = '<div class="text-sm text-slate-500">Processo não localizado no DataJud.</div>';
+    }
+
+    const logsHtml = logs.length
+      ? `
+        <div class="text-sm font-semibold text-slate-700 mb-2">Logs de sincronização</div>
+        <div class="rounded-xl border border-slate-200 px-4 py-2 divide-y divide-slate-200/70">
+          ${logs
+            .slice(0, 12)
+            .map((log) => {
+              const when = formatDateTimeBR(log.created_at) || '—';
+              const status = log.status || 'info';
+              const msg = log.mensagem || '';
+              return `
+                <div class="py-2">
+                  <div class="text-xs uppercase tracking-wide text-slate-400">${escapeProcessoDetailHtml(when)}</div>
+                  <div class="text-sm text-slate-900">${escapeProcessoDetailHtml(status)}</div>
+                  ${msg ? `<div class="text-sm text-slate-500 mt-1">${escapeProcessoDetailHtml(msg)}</div>` : ''}
+                </div>
+              `;
+            })
+            .join('')}
+        </div>
+      `
+      : '<div class="rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-500">Nenhum log de sincronização.</div>';
+
+    processoDetailAndamentos.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm font-semibold text-slate-700">Andamentos</h2>
+        <div class="flex items-center gap-3 text-xs">
+          <button id="processoDetailEditAndamentosBtn" type="button" data-processo-detail-edit-inline="1" class="text-emerald-700 hover:text-emerald-800">Editar processo</button>
+          <button id="processoDetailAndamentosSeen" class="text-slate-500 hover:text-slate-900">Marcar como lido</button>
+          <button id="processoDetailAndamentosSync" class="text-slate-500 hover:text-slate-900">Atualizar</button>
+        </div>
+      </div>
+      <div class="rounded-xl border border-slate-200 px-4 py-2">
+        ${bodyHtml}
+        <div class="mt-4 text-xs text-slate-400">
+          ${ultimaMov ? `Última movimentação: ${escapeProcessoDetailHtml(ultimaMov)}` : ''}
+          ${ultimaMov && atualizadoEm ? ' • ' : ''}
+          ${atualizadoEm ? `Atualizado em: ${escapeProcessoDetailHtml(atualizadoEm)}` : ''}
+        </div>
+      </div>
+      <div class="mt-4">${logsHtml}</div>
+    `;
+
+    const syncBtn = qs('#processoDetailAndamentosSync');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async () => {
+        syncBtn.textContent = 'Atualizando...';
+        syncBtn.disabled = true;
+        try {
+          const updated = await api.processos.syncAndamentos(processoId);
+          const logsNext = await api.processos.andamentosLogs(processoId, { limit: 20 });
+          processoDetailPayload.andamentos = updated;
+          processoDetailPayload.logs = logsNext;
+          renderProcessoDetailAndamentos(updated, logsNext);
+          updateProcessosBadge();
+        } catch (err) {
+          processoDetailAndamentos.innerHTML =
+            '<div class="text-sm text-slate-500">Não foi possível atualizar os andamentos.</div>';
+        }
+      });
+    }
+
+    const seenBtn = qs('#processoDetailAndamentosSeen');
+    if (seenBtn) {
+      seenBtn.addEventListener('click', async () => {
+        seenBtn.textContent = 'Marcando...';
+        seenBtn.disabled = true;
+        try {
+          await api.processos.markAndamentosSeen(processoId);
+          updateProcessosBadge();
+          const inMemory = processos.find((item) => String(item.id) === String(processoId));
+          if (inMemory) inMemory.tem_novo_andamento = false;
+          renderTable();
+        } catch (_) {
+          // ignore
+        } finally {
+          seenBtn.textContent = 'Marcar como lido';
+          seenBtn.disabled = false;
+        }
+      });
+    }
+  }
+
+  async function openProcessoDetailOverlay(processoId) {
+    if (!processoDetailOverlay || !processoDetailDados || !processoDetailAndamentos || !processoDetailNumero) {
+      window.location.href = `./processo?id=${processoId}`;
+      return;
+    }
+
+    processoDetailOverlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+    document.body.classList.add('processo-detail-open');
+    setProcessoDetailNumeroLabel('Carregando...');
+    if (processoDetailSubtitulo) processoDetailSubtitulo.textContent = '';
+    processoDetailDados.innerHTML = '<div class="text-sm text-slate-500">Carregando informações...</div>';
+    if (processoDetailFinanceiro) processoDetailFinanceiro.innerHTML = '<div class="text-sm text-slate-500">Carregando financeiro...</div>';
+    processoDetailAndamentos.innerHTML = '<div class="text-sm text-slate-500">Carregando andamentos...</div>';
+    if (processoDetailAtividades) processoDetailAtividades.innerHTML = '<div class="text-sm text-slate-500">Carregando atividades...</div>';
+    setProcessoDetailActiveTab('dados');
+
+    try {
+      const [processo, andamentos, logs, financeiro, atividades] = await Promise.all([
+        api.processos.get(processoId),
+        api.processos.andamentos(processoId).catch(() => null),
+        api.processos.andamentosLogs(processoId, { limit: 20 }).catch(() => null),
+        hasFinanceAccess ? api.financeiro.listByProcesso(processoId).catch(() => null) : Promise.resolve(null),
+        api.atividades
+          .list({ page: 1, limit: 12, processo_id: processoId, sort: 'created_at', dir: 'desc' })
+          .catch(() => null),
+      ]);
+
+      processoDetailPayload = { processo, andamentos, logs, financeiro, atividades };
+      setProcessoDetailNumeroLabel(processo.numero_processo || `Processo #${processoId}`, true);
+      if (processoDetailSubtitulo) {
+        const clienteLabel = processo.cliente_nome ? `Cliente: ${processo.cliente_nome}` : 'Processo';
+        processoDetailSubtitulo.textContent = clienteLabel;
+      }
+      renderProcessoDetailInfo(processo);
+      renderProcessoDetailFinanceiro(financeiro);
+      renderProcessoDetailAndamentos(andamentos, logs);
+      renderProcessoDetailAtividades(atividades, processoId);
+    } catch (err) {
+      setProcessoDetailNumeroLabel('Processo');
+      processoDetailDados.innerHTML = `<div class="text-sm text-red-600">${escapeProcessoDetailHtml(
+        err?.message || 'Erro ao carregar detalhes do processo.'
+      )}</div>`;
+      if (processoDetailFinanceiro) processoDetailFinanceiro.innerHTML = '';
+      processoDetailAndamentos.innerHTML = '';
+      if (processoDetailAtividades) processoDetailAtividades.innerHTML = '';
+    }
+  }
+
   function renderTable() {
     tableBody.innerHTML = processos
       .map(
@@ -1833,7 +5146,7 @@ async function initProcessos() {
           <td class="py-3">
             <div class="inline-flex items-center gap-1">
               ${renderCopyProcessButton(p.numero_processo)}
-              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo?id=${p.id}">
+              <a class="text-stone-900 hover:text-stone-700 font-medium" href="./processo?id=${p.id}" data-open-processo-detail="${p.id}">
                 ${p.numero_processo}
               </a>
             </div>
@@ -1843,7 +5156,13 @@ async function initProcessos() {
                 : ''
             }
           </td>
-          <td class="py-3">${p.cliente_nome}</td>
+	          <td class="py-3">
+	            ${
+	              p.cliente_id
+	                ? `<a class="text-stone-900 hover:text-stone-700 hover:underline" href="./clientes?cliente_id=${p.cliente_id}">${p.cliente_nome || '-'}</a>`
+	                : `${p.cliente_nome || '-'}`
+	            }
+	          </td>
           <td class="py-3">
             <div class="inline-flex items-center gap-2">
               <span
@@ -1906,18 +5225,40 @@ async function initProcessos() {
     form.dataset.id = '';
     showMessage(msg, '');
     renderClienteOptions(clientesModal);
+    renderClienteSuggestions([]);
     if (clienteId) clienteId.value = '';
     if (orgaoInput) orgaoInput.value = '';
     if (abrirContaInput) abrirContaInput.checked = false;
     if (contaAbertaInput) contaAbertaInput.checked = false;
     if (interpostoRecursoInput) interpostoRecursoInput.checked = false;
     toggleContaBeneficio();
+    await syncProcessoCidadeByEstado('');
     if (orgaoGrid) {
       orgaoGrid.querySelectorAll('.orgao-btn').forEach((btn) => {
         btn.classList.remove('border-stone-900', 'bg-stone-50');
       });
     }
     if (prefill?.numero && numeroInput) numeroInput.value = prefill.numero;
+    const prefillClienteId = String(prefill?.clienteId || '').trim();
+    const prefillClienteNome = String(prefill?.clienteNome || '').trim();
+    if ((prefillClienteId || prefillClienteNome) && clienteInput && clienteId) {
+      let match = null;
+      if (prefillClienteId) {
+        match = (clientesModal || []).find((c) => String(c.id) === prefillClienteId) || null;
+      }
+      if (!match && prefillClienteNome) {
+        const nomeNormalizado = normalizeText(prefillClienteNome);
+        match =
+          (clientesModal || []).find((c) => normalizeText(c.nome || '') === nomeNormalizado) || null;
+      }
+      if (match) {
+        clienteInput.value = match.nome || '';
+        clienteId.value = String(match.id || '');
+      } else {
+        clienteInput.value = prefillClienteNome;
+        clienteId.value = prefillClienteId;
+      }
+    }
     if (prefill?.origem === 'djen' && statusInput && !statusInput.value) statusInput.value = 'Ativo';
     openModal(modal);
   };
@@ -1927,6 +5268,8 @@ async function initProcessos() {
     params.delete('novo');
     params.delete('origem');
     params.delete('numero_processo');
+    params.delete('cliente_id');
+    params.delete('cliente_nome');
     const search = params.toString();
     const nextUrl = `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash || ''}`;
     window.history.replaceState({}, '', nextUrl);
@@ -1941,7 +5284,7 @@ async function initProcessos() {
       btn.id = 'novoProcessoBtn';
       btn.textContent = 'Novo processo';
       btn.type = 'button';
-      btn.className = 'bg-[#0C1B33] text-white px-4 py-2 rounded-lg hover:bg-[#0A162A]';
+      btn.className = 'bg-emerald-600 text-white px-5 py-2 rounded-full hover:bg-emerald-700';
       header.appendChild(btn);
     }
     btn.classList.remove('hidden');
@@ -1959,6 +5302,39 @@ async function initProcessos() {
 
   closeBtn.addEventListener('click', () => closeModal(modal));
   closeDocumentoBtn.addEventListener('click', () => closeModal(documentoModal));
+  if (processoDetailCloseBtn) {
+    processoDetailCloseBtn.addEventListener('click', closeProcessoDetailOverlay);
+  }
+  if (processoDetailOverlay) {
+    processoDetailOverlay.addEventListener('click', (e) => {
+      const inlineEditBtn = e.target.closest('[data-processo-detail-edit-inline]');
+      if (inlineEditBtn) {
+        e.preventDefault();
+        triggerProcessoDetailInlineEdit();
+        return;
+      }
+      if (e.target.matches('[data-processo-detail-close]')) {
+        closeProcessoDetailOverlay();
+      }
+    });
+  }
+  if (processoDetailEditBtn) {
+    processoDetailEditBtn.addEventListener('click', () => {
+      triggerProcessoDetailInlineEdit();
+    });
+  }
+  processoDetailTabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.processoDetailTab;
+      if (!tab) return;
+      setProcessoDetailActiveTab(tab);
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && processoDetailOverlay && !processoDetailOverlay.classList.contains('hidden')) {
+      closeProcessoDetailOverlay();
+    }
+  });
 
   busca.addEventListener('input', () => {
     clearTimeout(buscaTimeout);
@@ -2012,7 +5388,16 @@ async function initProcessos() {
     }
   });
 
-  tableBody.addEventListener('click', (e) => {
+  tableBody.addEventListener('click', async (e) => {
+    const detailLink = e.target.closest('[data-open-processo-detail]');
+    if (detailLink) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      const id = detailLink.getAttribute('data-open-processo-detail');
+      if (id) await openProcessoDetailOverlay(id);
+      return;
+    }
+
     const editId = e.target.dataset.edit;
     const removeId = e.target.dataset.remove;
     const docsId = e.target.dataset.docs;
@@ -2020,57 +5405,7 @@ async function initProcessos() {
     if (editId) {
       const processo = processos.find((p) => String(p.id) === editId);
       if (!processo) return;
-      form.dataset.id = processo.id;
-      numeroInput.value = processo.numero_processo || '';
-      if (areaInput) {
-        const areaValue = processo.area || '';
-        const hasArea = Array.from(areaInput.options || []).some((opt) => opt.value === areaValue);
-        if (areaValue && !hasArea) {
-          const opt = document.createElement('option');
-          opt.value = areaValue;
-          opt.textContent = areaValue;
-          areaInput.appendChild(opt);
-        }
-        areaInput.value = areaValue;
-      }
-      statusInput.value = processo.status || '';
-      if (classeInput) {
-        const classeValue = processo.classe || '';
-        const hasClasse = Array.from(classeInput.options || []).some((opt) => opt.value === classeValue);
-        if (classeValue && !hasClasse) {
-          const opt = document.createElement('option');
-          opt.value = classeValue;
-          opt.textContent = classeValue;
-          classeInput.appendChild(opt);
-        }
-        classeInput.value = classeValue;
-      }
-      orgaoInput.value = processo.orgao || '';
-      varaInput.value = processo.vara || '';
-      grauInput.value = processo.grau || '';
-      cidadeInput.value = processo.cidade || '';
-      estadoInput.value = processo.estado || '';
-      sistemaInput.value = processo.sistema || '';
-      distribuicaoInput.value = normalizeDateValue(processo.distribuicao || '');
-      const resultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
-      resultadoInput.value = resultadoInfo.resultado || '';
-      if (interpostoRecursoInput) {
-        interpostoRecursoInput.checked = resultadoInfo.recurso === 'Sim';
-      }
-      parteContrariaInput.value = processo.parte_contraria || '';
-      if (abrirContaInput) abrirContaInput.checked = String(processo.abrir_conta || '').toLowerCase() === 'sim';
-      if (contaAbertaInput) contaAbertaInput.checked = String(processo.conta_aberta || '').toLowerCase() === 'sim';
-      toggleContaBeneficio();
-      if (orgaoGrid) {
-        orgaoGrid.querySelectorAll('.orgao-btn').forEach((btn) => {
-          const active = btn.dataset.value === orgaoInput.value;
-          btn.classList.toggle('border-stone-900', active);
-          btn.classList.toggle('bg-stone-50', active);
-        });
-      }
-      if (clienteInput) clienteInput.value = processo.cliente_nome || '';
-      if (clienteId) clienteId.value = processo.cliente_id || '';
-      openModal(modal);
+      await openEditProcessoModal(processo);
     }
 
     if (removeId) {
@@ -2146,6 +5481,9 @@ async function initProcessos() {
 
   areaInput?.addEventListener('change', toggleContaBeneficio);
   areaInput?.addEventListener('input', toggleContaBeneficio);
+  estadoInput?.addEventListener('change', () => {
+    syncProcessoCidadeByEstado('').catch(() => null);
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -2219,6 +5557,7 @@ async function initProcessos() {
       const source = clientesModal.length ? clientesModal : clientes;
       if (!query) {
         renderClienteOptions(source);
+        renderClienteSuggestions([]);
         clienteId.value = '';
         return;
       }
@@ -2228,6 +5567,7 @@ async function initProcessos() {
         .sort((a, b) => (b.score - a.score) || (a.idx - b.idx))
         .map((it) => it.c);
       renderClienteOptions(ranked);
+      renderClienteSuggestions(ranked);
       const exact = ranked.find((c) => normalizeText(c.nome) === normalizeText(query));
       if (exact) {
         clienteId.value = exact.id;
@@ -2236,12 +5576,41 @@ async function initProcessos() {
       const best = ranked[0];
       clienteId.value = best ? best.id : '';
     });
+
+    clienteInput.addEventListener('focus', () => {
+      const query = clienteInput.value.trim();
+      if (!query) return;
+      const source = clientesModal.length ? clientesModal : clientes;
+      const ranked = source
+        .map((c, idx) => ({ c, idx, score: similarityScore(query, c.nome) }))
+        .filter((it) => it.score >= 180)
+        .sort((a, b) => (b.score - a.score) || (a.idx - b.idx))
+        .map((it) => it.c);
+      renderClienteSuggestions(ranked);
+    });
+
+    clienteInput.addEventListener('blur', () => {
+      setTimeout(() => hideClienteSuggestions(), 120);
+    });
+  }
+
+  if (clienteSuggestionsEl) {
+    clienteSuggestionsEl.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const btn = e.target.closest('[data-cliente-suggestion-index]');
+      if (!btn) return;
+      const idx = Number(btn.getAttribute('data-cliente-suggestion-index'));
+      if (!Number.isFinite(idx)) return;
+      const selected = clienteSuggestionsVisible[idx];
+      if (!selected) return;
+      setClienteSelecionado(selected);
+    });
   }
 
   await loadAjustesAreas();
   await load();
 
-  if (prefillNovoProcesso.ativo && prefillNovoProcesso.numero) {
+  if (prefillNovoProcesso.ativo) {
     await openProcessoModal({
       numero: prefillNovoProcesso.numero,
       origem: prefillNovoProcesso.origem,
@@ -2254,6 +5623,10 @@ async function initProcessos() {
 async function initFinanceiro() {
   await guardAuth();
   bindLogout();
+  if (!canAccessFinanceiro()) {
+    window.location.href = './dashboard';
+    return;
+  }
 
   const tableBody = qs('#financeiroTableBody');
   if (!tableBody) return;
@@ -2603,6 +5976,7 @@ async function initFinanceiro() {
 async function initAtividades() {
   await guardAuth();
   bindLogout();
+  const canManageAtividades = canCreateDeleteAtividades();
 
   const columns = {
     a_fazer: qs('#colAFazer'),
@@ -2629,6 +6003,9 @@ async function initAtividades() {
   const openBtn = qs('#novaAtividadeBtn');
   const closeBtn = qs('#fecharAtividadeModal');
   const form = qs('#atividadeForm');
+  const formSubmitBtn = form
+    ? form.querySelector('button[type="submit"], button:not([type]), input[type="submit"]')
+    : null;
   const msg = qs('#atividadeMessage');
   const processoInput = qs('#atividadeProcessoCampo');
   const processoSugestoes = qs('#atividadeProcessoSugestoes');
@@ -2682,6 +6059,13 @@ async function initAtividades() {
   const calcInicioEl = qs('#atividadeCalcInicio');
   const calcResultadoEl = qs('#atividadeCalcResultado');
   const calcAplicarBtn = qs('#atividadeCalcAplicar');
+  const atividadeTopTabButtons = qsa('[data-atividade-top-tab]');
+  const atividadeTopPanels = qsa('[data-atividade-top-panel]');
+  const atividadeViewButtons = qsa('[data-atividade-view]');
+  const atividadeViewPanels = qsa('[data-atividade-view-panel]');
+  const atividadeListaVisualizacao = qs('#atividadeListaVisualizacao');
+  const atividadePrazoLista = qs('#atividadePrazoLista');
+  const atividadePaginacaoWrap = qs('#atividadePaginacaoWrap');
 
   let atividades = [];
   let processos = [];
@@ -2691,6 +6075,8 @@ async function initAtividades() {
   let buscaTimeout;
   let sortDir = 'desc';
   let statusFiltro = 'a_fazer';
+  let atividadeTopTab = 'filtros';
+  let atividadeView = 'lista';
   let statusTotals = null;
   const statusTotalsCache = new Map();
   let calendarDate = new Date();
@@ -2717,6 +6103,20 @@ async function initAtividades() {
   let clientesLoaded = false;
   let clientesLoadingPromise = null;
   let calcUltimaData = null;
+  let atividadeFormSubmitting = false;
+  const atividadePageParams = new URLSearchParams(window.location.search);
+  const atividadePrefillCliente = {
+    ativo:
+      atividadePageParams.get('novo') === '1' &&
+      String(atividadePageParams.get('origem') || '').trim().toLowerCase() === 'cliente',
+    clienteId: String(atividadePageParams.get('cliente_id') || '').trim(),
+    clienteNome: String(atividadePageParams.get('cliente_nome') || '').trim(),
+  };
+  const atividadePrefillNovoGenerico =
+    atividadePageParams.get('novo') === '1' &&
+    String(atividadePageParams.get('origem') || '')
+      .trim()
+      .toLowerCase() !== 'cliente';
 
   const tipos = [
     'Audiência',
@@ -2990,7 +6390,11 @@ async function initAtividades() {
                 >
                   <button type="button" data-semdata-assign-date="${a.id}" class="w-full text-left px-3 py-2 text-xs text-stone-700 hover:bg-stone-50">Atribuir data</button>
                   <button type="button" data-semdata-edit="${a.id}" class="w-full text-left px-3 py-2 text-xs text-stone-700 hover:bg-stone-50">Editar</button>
-                  <button type="button" data-semdata-remove="${a.id}" class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50">Excluir</button>
+                  ${
+                    canManageAtividades
+                      ? `<button type="button" data-semdata-remove="${a.id}" class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50">Excluir</button>`
+                      : ''
+                  }
                 </div>
                 <input
                   type="date"
@@ -3608,6 +7012,56 @@ async function initAtividades() {
     if (clienteSugestoes) clienteSugestoes.classList.add('hidden');
   }
 
+  async function openNovaAtividadeModal(prefill = {}) {
+    form.reset();
+    form.dataset.id = '';
+    atividadeFormSubmitting = false;
+    showMessage(msg, '');
+    if (formSubmitBtn) {
+      formSubmitBtn.disabled = false;
+      formSubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+
+    await Promise.all([ensureProcessosLoaded().catch(() => {}), ensureClientesLoaded().catch(() => {})]);
+    renderProcessosSelect();
+
+    const tipoPrefill = String(prefill.tipo || '').trim();
+    if (tipoSelect) tipoSelect.value = tipoPrefill;
+    const tituloEl = qs('#atividadeTitulo');
+    if (tituloEl) {
+      tituloEl.value = buildTituloFromTipo(tipoPrefill, String(prefill.titulo || '').trim());
+    }
+
+    if (processoInput) processoInput.value = '';
+    if (clienteInput) clienteInput.value = '';
+    processoSelecionadoId = null;
+    clienteSelecionadoId = null;
+    setClienteFieldReadOnly(false, false);
+
+    const prefillClienteId = prefill.clienteId ? String(prefill.clienteId) : '';
+    const prefillClienteNome = String(prefill.clienteNome || '').trim();
+    if (prefillClienteId || prefillClienteNome) {
+      let match = null;
+      if (prefillClienteId) match = clientesById.get(prefillClienteId) || null;
+      if (!match && prefillClienteNome) {
+        match = clientesByNome.get(normalizeTipoText(prefillClienteNome)) || null;
+      }
+      if (match) {
+        clienteSelecionadoId = String(match.id);
+        if (clienteInput) clienteInput.value = match.nome || prefillClienteNome;
+      } else {
+        clienteSelecionadoId = prefillClienteId || null;
+        if (clienteInput) clienteInput.value = prefillClienteNome;
+      }
+    }
+
+    resetPrazoHora();
+    resetAtividadePrazoCalculator();
+    if (processoSugestoes) processoSugestoes.classList.add('hidden');
+    if (clienteSugestoes) clienteSugestoes.classList.add('hidden');
+    openModal(modal);
+  }
+
   function renderClienteSugestoes(query = '') {
     if (!clienteSugestoes) return;
     const q = normalizeTipoText(query);
@@ -3660,6 +7114,104 @@ async function initAtividades() {
       }
       col.classList.toggle('hidden', col.dataset.statusColumn !== statusFiltro);
     });
+  }
+
+  function applyTopTabsUI() {
+    atividadeTopTabButtons.forEach((btn) => {
+      const isActive = btn.dataset.atividadeTopTab === atividadeTopTab;
+      btn.classList.toggle('is-active', isActive);
+    });
+    atividadeTopPanels.forEach((panel) => {
+      const panelKey = panel.dataset.atividadeTopPanel;
+      panel.classList.toggle('hidden', panelKey !== atividadeTopTab);
+    });
+  }
+
+  function applyViewTabsUI() {
+    atividadeViewButtons.forEach((btn) => {
+      const isActive = btn.dataset.atividadeView === atividadeView;
+      btn.classList.toggle('is-active', isActive);
+    });
+    atividadeViewPanels.forEach((panel) => {
+      const panelKey = panel.dataset.atividadeViewPanel;
+      panel.classList.toggle('hidden', panelKey !== atividadeView);
+    });
+    if (atividadePaginacaoWrap) {
+      atividadePaginacaoWrap.classList.toggle('hidden', !['lista', 'prazo'].includes(atividadeView));
+    }
+  }
+
+  function renderAtividadesListaViews(items = []) {
+    if (!atividadeListaVisualizacao && !atividadePrazoLista) return;
+    const statusLabel = {
+      a_fazer: 'A fazer',
+      fazendo: 'Fazendo',
+      feito: 'Feito',
+      cancelado: 'Cancelado',
+    };
+    const statusDot = {
+      a_fazer: 'bg-amber-400',
+      fazendo: 'bg-blue-400',
+      feito: 'bg-emerald-400',
+      cancelado: 'bg-stone-400',
+    };
+
+    const renderRows = (target, source, emptyText) => {
+      if (!target) return;
+      if (!source.length) {
+        target.innerHTML = `<div class="py-4 text-sm text-stone-400">${emptyText}</div>`;
+        return;
+      }
+      target.innerHTML = source
+        .map((a) => {
+          const rawTitle = String(a.titulo || '').trim();
+          const tipo = getTipoFromAtividade(a) || getTipoFromTitulo(rawTitle) || 'Atividade';
+          const title = stripHashSuffix(rawTitle || tipo);
+          const processo = a.numero_processo || '-';
+          const cliente = a.cliente_nome || 'Sem cliente';
+          const prazo = formatDateOptionalTime(a.prazo, a.prazo_hora);
+          const label = statusLabel[a.status] || 'A fazer';
+          const dot = statusDot[a.status] || statusDot.a_fazer;
+          return `
+            <div class="py-3 flex items-start justify-between gap-3 hover:bg-stone-50 rounded-lg px-2" data-atividade-list-open="${a.id}" role="button" tabindex="0">
+              <div class="min-w-0">
+                <div class="text-sm font-medium text-stone-900 truncate">${title}</div>
+                <div class="text-xs text-stone-500 mt-1 inline-flex items-center gap-1">
+                  ${renderCopyProcessButton(processo)}
+                  <span>${cliente} • ${processo}</span>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="text-xs text-stone-500">${prazo === '-' ? 'Sem data' : prazo}</div>
+                <div class="mt-1 inline-flex items-center gap-2 text-[11px] uppercase tracking-wide text-stone-500">
+                  <span class="inline-flex h-2 w-2 rounded-full ${dot}"></span>
+                  <span>${label}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    };
+
+    const listaItems = [...items];
+    renderRows(atividadeListaVisualizacao, listaItems, 'Nenhuma atividade para esta visualização.');
+
+    const prazoItems = [...items].sort((a, b) => {
+      const keyA = toDateKey(a.prazo);
+      const keyB = toDateKey(b.prazo);
+      if (!keyA && !keyB) return String(a.titulo || '').localeCompare(String(b.titulo || ''));
+      if (!keyA) return 1;
+      if (!keyB) return -1;
+      if (keyA !== keyB) return keyA.localeCompare(keyB);
+      const horaA = String(a.prazo_hora || '');
+      const horaB = String(b.prazo_hora || '');
+      if (horaA && horaB && horaA !== horaB) return horaA.localeCompare(horaB);
+      if (horaA && !horaB) return -1;
+      if (!horaA && horaB) return 1;
+      return String(a.titulo || '').localeCompare(String(b.titulo || ''));
+    });
+    renderRows(atividadePrazoLista, prazoItems, 'Nenhuma atividade com prazo na página atual.');
   }
 
   async function fetchStatusTotals() {
@@ -3797,7 +7349,7 @@ async function initAtividades() {
           </select>
           <div class="text-right">
             <button class="text-xs text-blue-600 mr-2" data-edit="${a.id}">Editar</button>
-            <button class="text-xs text-red-600" data-remove="${a.id}">Excluir</button>
+            ${canManageAtividades ? `<button class="text-xs text-red-600" data-remove="${a.id}">Excluir</button>` : ''}
           </div>
         </div>
       `;
@@ -3819,6 +7371,7 @@ async function initAtividades() {
     if (resumoFazendo) resumoFazendo.textContent = counts.fazendo;
     if (resumoFeito) resumoFeito.textContent = counts.feito;
     if (resumoCancelado) resumoCancelado.textContent = counts.cancelado;
+    renderAtividadesListaViews(atividadesFiltradas);
   }
 
   async function load() {
@@ -3886,27 +7439,14 @@ async function initAtividades() {
 
   updateSortLabel();
 
-  openBtn.addEventListener('click', () => {
-    form.reset();
-    form.dataset.id = '';
-    showMessage(msg, '');
-    ensureProcessosLoaded().catch(() => {});
-    renderProcessosSelect();
-    ensureClientesLoaded().catch(() => {});
-    if (tipoSelect) tipoSelect.value = '';
-    if (processoInput) {
-      processoInput.value = '';
-    }
-    if (clienteInput) clienteInput.value = '';
-    processoSelecionadoId = null;
-    clienteSelecionadoId = null;
-    setClienteFieldReadOnly(false, false);
-    resetPrazoHora();
-    resetAtividadePrazoCalculator();
-    if (processoSugestoes) processoSugestoes.classList.add('hidden');
-    if (clienteSugestoes) clienteSugestoes.classList.add('hidden');
-    openModal(modal);
-  });
+  if (openBtn) {
+    openBtn.classList.toggle('hidden', !canManageAtividades);
+    openBtn.addEventListener('click', () => {
+      openNovaAtividadeModal().catch((err) => {
+        showMessage(msg, err?.message || 'Erro ao abrir formulário.');
+      });
+    });
+  }
 
   closeBtn.addEventListener('click', () => closeModal(modal));
 
@@ -3932,7 +7472,9 @@ async function initAtividades() {
   }
 
   if (detalheExcluir) {
+    detalheExcluir.classList.toggle('hidden', !canManageAtividades);
     detalheExcluir.addEventListener('click', async () => {
+      if (!canManageAtividades) return;
       if (!detalheAtividadeId) return;
       if (!confirm('Deseja excluir esta atividade?')) return;
       try {
@@ -4203,6 +7745,24 @@ async function initAtividades() {
     });
   }
 
+  if (atividadeTopTabButtons.length) {
+    atividadeTopTabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        atividadeTopTab = btn.dataset.atividadeTopTab || 'filtros';
+        applyTopTabsUI();
+      });
+    });
+  }
+
+  if (atividadeViewButtons.length) {
+    atividadeViewButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        atividadeView = btn.dataset.atividadeView || 'lista';
+        applyViewTabsUI();
+      });
+    });
+  }
+
   limitSelect.addEventListener('change', () => {
     limit = Number(limitSelect.value) || 10;
     page = 1;
@@ -4381,6 +7941,8 @@ async function initAtividades() {
     calendarWeekdaysOnly = calendarWeekdaysToggle.checked;
   }
   applyCalendarViewUI();
+  applyTopTabsUI();
+  applyViewTabsUI();
 
   prevBtn.addEventListener('click', () => {
     if (page > 1) {
@@ -4395,6 +7957,46 @@ async function initAtividades() {
       load();
     }
   });
+
+  if (atividadeListaVisualizacao) {
+    atividadeListaVisualizacao.addEventListener('click', (e) => {
+      if (e.target.closest('[data-copy-process-number]')) return;
+      const item = e.target.closest('[data-atividade-list-open]');
+      if (!item) return;
+      const id = item.getAttribute('data-atividade-list-open');
+      const atividade = findAtividadeById(id);
+      if (atividade) openAtividadeDetalhe(atividade);
+    });
+    atividadeListaVisualizacao.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const item = e.target.closest('[data-atividade-list-open]');
+      if (!item) return;
+      e.preventDefault();
+      const id = item.getAttribute('data-atividade-list-open');
+      const atividade = findAtividadeById(id);
+      if (atividade) openAtividadeDetalhe(atividade);
+    });
+  }
+
+  if (atividadePrazoLista) {
+    atividadePrazoLista.addEventListener('click', (e) => {
+      if (e.target.closest('[data-copy-process-number]')) return;
+      const item = e.target.closest('[data-atividade-list-open]');
+      if (!item) return;
+      const id = item.getAttribute('data-atividade-list-open');
+      const atividade = findAtividadeById(id);
+      if (atividade) openAtividadeDetalhe(atividade);
+    });
+    atividadePrazoLista.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const item = e.target.closest('[data-atividade-list-open]');
+      if (!item) return;
+      e.preventDefault();
+      const id = item.getAttribute('data-atividade-list-open');
+      const atividade = findAtividadeById(id);
+      if (atividade) openAtividadeDetalhe(atividade);
+    });
+  }
 
   if (hasKanban) {
     columnList.forEach((col) => {
@@ -4433,12 +8035,14 @@ async function initAtividades() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (atividadeFormSubmitting) return;
     showMessage(msg, '');
 
     const processoValorRaw = (processoInput?.value || '').trim();
     const processoNumero =
       processoValorRaw && processoValorRaw !== '-' ? processoValorRaw : null;
     const processoIdValue = processoSelecionadoId ? Number(processoSelecionadoId) : null;
+    const clienteIdValue = clienteSelecionadoId ? Number(clienteSelecionadoId) : null;
     const clienteNomeValue = (clienteInput?.value || '').trim() || null;
 
     const prazoValue = qs('#atividadePrazo').value || null;
@@ -4447,6 +8051,7 @@ async function initAtividades() {
 
     const payload = {
       processo_id: processoIdValue,
+      cliente_id: clienteIdValue,
       processo_numero: processoIdValue ? null : processoNumero,
       cliente_nome: processoIdValue ? null : clienteNomeValue,
       titulo: buildTituloFromTipo(tipoSelect?.value || '', qs('#atividadeTitulo').value.trim()),
@@ -4456,6 +8061,12 @@ async function initAtividades() {
       prazo: prazoValue,
       prazo_hora: prazoHoraValue,
     };
+
+    atividadeFormSubmitting = true;
+    if (formSubmitBtn) {
+      formSubmitBtn.disabled = true;
+      formSubmitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    }
 
     try {
       if (form.dataset.id) {
@@ -4467,6 +8078,12 @@ async function initAtividades() {
       await load();
     } catch (err) {
       showMessage(msg, err.message);
+    } finally {
+      atividadeFormSubmitting = false;
+      if (formSubmitBtn) {
+        formSubmitBtn.disabled = false;
+        formSubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }
     }
   });
 
@@ -4480,29 +8097,36 @@ async function initAtividades() {
 
   document.querySelectorAll('[data-template]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      form.reset();
-      form.dataset.id = '';
-      showMessage(msg, '');
-      ensureProcessosLoaded().catch(() => {});
-      renderProcessosSelect();
-      ensureClientesLoaded().catch(() => {});
-      if (tipoSelect) tipoSelect.value = btn.dataset.template || '';
-      const tituloEl = qs('#atividadeTitulo');
-      if (tituloEl) tituloEl.value = buildTituloFromTipo(btn.dataset.template || '', '');
-      if (processoInput) processoInput.value = '';
-      if (clienteInput) clienteInput.value = '';
-      processoSelecionadoId = null;
-      clienteSelecionadoId = null;
-      setClienteFieldReadOnly(false, false);
-      resetPrazoHora();
-      resetAtividadePrazoCalculator();
-      if (processoSugestoes) processoSugestoes.classList.add('hidden');
-      if (clienteSugestoes) clienteSugestoes.classList.add('hidden');
-      openModal(modal);
+      openNovaAtividadeModal({ tipo: btn.dataset.template || '' }).catch((err) => {
+        showMessage(msg, err?.message || 'Erro ao abrir formulário.');
+      });
     });
   });
 
   await load();
+
+  if (atividadePrefillCliente.ativo && (atividadePrefillCliente.clienteId || atividadePrefillCliente.clienteNome)) {
+    await openNovaAtividadeModal({
+      clienteId: atividadePrefillCliente.clienteId,
+      clienteNome: atividadePrefillCliente.clienteNome,
+    });
+    ['novo', 'origem', 'cliente_id', 'cliente_nome'].forEach((key) => atividadePageParams.delete(key));
+    const nextSearch = atividadePageParams.toString();
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`
+    );
+  } else if (atividadePrefillNovoGenerico && canManageAtividades) {
+    await openNovaAtividadeModal();
+    ['novo', 'origem'].forEach((key) => atividadePageParams.delete(key));
+    const nextSearch = atividadePageParams.toString();
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}`
+    );
+  }
 }
 
 async function initPublicacoesDjen() {
@@ -5111,6 +8735,7 @@ async function initClienteDetail() {
   const propsEl = qs('#clienteProps');
   const erroEl = qs('#clienteErro');
   const editBtn = qs('#editarClienteBtn');
+  const atividadesBtn = qs('#clienteAtividadesBtn');
   const editModal = qs('#clienteEditModal');
   const editForm = qs('#clienteEditForm');
   const editMsg = qs('#clienteEditMessage');
@@ -5142,6 +8767,13 @@ async function initClienteDetail() {
       sort: 'numero_processo',
       dir: 'asc',
     });
+    const atividadesResp = await api.atividades.list({
+      page: 1,
+      limit: 5,
+      cliente_id: id,
+      sort: 'created_at',
+      dir: 'desc',
+    });
     const processosLinhas = (processosResp.data || [])
       .filter((p) => p.numero_processo)
       .map(
@@ -5150,32 +8782,46 @@ async function initClienteDetail() {
       );
     const processosHtml = processosLinhas.length ? `<div class="space-y-1">${processosLinhas.join('')}</div>` : '';
     nomeEl.textContent = cliente.nome || 'Cliente';
+    if (atividadesBtn) {
+      const paramsAtividade = new URLSearchParams({
+        origem: 'cliente',
+        novo: '1',
+        cliente_id: String(cliente.id || id),
+        cliente_nome: String(cliente.nome || ''),
+      });
+      atividadesBtn.setAttribute('href', `./atividades?${paramsAtividade.toString()}`);
+      atividadesBtn.setAttribute('title', 'Nova atividade para este cliente');
+    }
 
-    const camposGerais = [
+    const camposPrincipais = [
       ['data_chegada', 'Data de chegada'],
       ['telefone', 'Telefone'],
+      ['email', 'E-mail'],
+      ['cpf', 'CPF'],
+      ['rg', 'RG'],
+      ['data_nascimento', 'Data de nascimento'],
+      ['idade', 'Idade'],
+      ['filiacao', 'Filiação'],
+      ['link_pasta', 'Link da pasta'],
+    ];
+
+    const camposDetalhes = [
       ['cpf_responsavel', 'CPF do responsável'],
       ['nacionalidade', 'Nacionalidade'],
       ['estado_civil', 'Estado civil'],
       ['profissao', 'Profissão'],
-      ['data_nascimento', 'Data de nascimento'],
-      ['idade', 'Idade'],
-      ['filiacao', 'Filiação'],
-      ['rg', 'RG'],
-      ['cpf', 'CPF'],
-      ['email', 'E-mail'],
       ['endereco', 'Endereço'],
       ['numero_casa', 'Número'],
       ['cidade', 'Cidade'],
       ['estado', 'Estado'],
       ['cep', 'CEP'],
       ['acesso_gov', 'Acesso GOV'],
-      ['parceiro', 'Parceiro'],
-      ['responsavel', 'Responsável'],
-      ['link_pasta', 'Link da pasta'],
-      ['status', 'Status'],
       ['created_at', 'Criado em'],
-      ['processos_relacionados', 'Processo(s)'],
+    ];
+
+    const camposRelacionamento = [
+      ['responsavel', 'Responsável'],
+      ['parceiro', 'Parceiro'],
     ];
 
     const camposFinanceiros = [
@@ -5216,6 +8862,19 @@ async function initClienteDetail() {
         })
         .join('');
 
+    const renderRowsCard = (rows) =>
+      rows
+        .map(([key, label]) => {
+          const value = formatValue(key, cliente[key]);
+          return `
+            <div class="py-3">
+              <div class="text-xs uppercase tracking-wide text-stone-400">${label}</div>
+              <div class="mt-1 text-sm text-stone-700 break-words">${value}</div>
+            </div>
+          `;
+        })
+        .join('');
+
     const renderRowsCompact = (rows) =>
       rows
         .map(([key, label]) => {
@@ -5228,25 +8887,219 @@ async function initClienteDetail() {
           `;
         })
         .join('');
+    const statusRaw = String(cliente.status || '').toLowerCase().trim();
+    const hasProcessoAtivo = (processosResp.data || []).some((p) =>
+      /ativo|andamento|em\s*andamento/i.test(String(p.status || ''))
+    );
+    const statusVisual =
+      hasProcessoAtivo || statusRaw === 'ativo'
+        ? { label: 'Cliente', sublabel: 'Com processo ativo', dot: 'bg-emerald-500' }
+        : statusRaw === 'inativo'
+          ? { label: 'Inativo', sublabel: 'Sem movimentação ativa', dot: 'bg-stone-400' }
+          : { label: 'Lead', sublabel: 'Prospect/atendimento inicial', dot: 'bg-amber-400' };
+
+    const processosCount = (processosResp.data || []).length;
+    const processosAtivos = (processosResp.data || []).filter((p) =>
+      /ativo|andamento|em\s*andamento/i.test(String(p.status || ''))
+    ).length;
+    const atividadesCliente = Array.isArray(atividadesResp?.data) ? atividadesResp.data : [];
+    const atividadeStatusLabel = {
+      a_fazer: 'A fazer',
+      fazendo: 'Fazendo',
+      feito: 'Feito',
+      cancelado: 'Cancelado',
+    };
+    const atividadeStatusDot = {
+      a_fazer: 'bg-amber-400',
+      fazendo: 'bg-blue-400',
+      feito: 'bg-emerald-400',
+      cancelado: 'bg-stone-400',
+    };
+    const qualificacaoValue = getClienteQualificacaoText(cliente);
+    const processosCardBody = processosHtml || '<span class="text-stone-400">Nenhum processo vinculado.</span>';
+    const atividadesClienteHtml = atividadesCliente.length
+      ? `<div class="space-y-2.5">${atividadesCliente
+          .map((atividade, idx) => {
+            const esc = (value) =>
+              String(value || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+            const titulo = esc(stripHashSuffix(atividade.titulo || '') || 'Atividade');
+            const processoNumero = esc(atividade.numero_processo || atividade.processo_numero || '');
+            const status = String(atividade.status || 'a_fazer');
+            const atividadeLink = `./atividades?origem=cliente&novo=1&cliente_id=${encodeURIComponent(String(cliente.id || id))}&cliente_nome=${encodeURIComponent(String(cliente.nome || ''))}`;
+            const prazoDate = atividade.prazo ? parseDateTimeInput(atividade.prazo) : null;
+            const prazoHora = String(atividade.prazo_hora || '').trim();
+            const prazoLabel = atividade.prazo
+              ? `Prazo ${formatDateLongBR(atividade.prazo)}${prazoHora ? `, ${prazoHora.slice(0, 5)}` : ''}`
+              : 'Prazo não definido';
+            const dia = prazoDate ? String(prazoDate.getDate()).padStart(2, '0') : '--';
+            const mes = prazoDate
+              ? prazoDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()
+              : '---';
+            const horaRodape = prazoHora
+              ? prazoHora.slice(0, 5)
+              : prazoDate
+                ? `${String(prazoDate.getHours()).padStart(2, '0')}:${String(prazoDate.getMinutes()).padStart(2, '0')}`
+                : '--:--';
+            const description = esc(atividade.descricao || stripHashSuffix(atividade.titulo || '') || 'Sem descrição');
+            const cardHtml = `
+              <article class="rounded-xl border border-stone-200 bg-[#f6f3fa] px-3 py-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="inline-flex h-3.5 w-3.5 rounded border border-stone-400 bg-white"></span>
+                    <div class="text-base leading-none"> ${titulo} </div>
+                    <span class="text-xs text-stone-400 whitespace-nowrap">${atividade.created_at ? formatDateTimeBR(atividade.created_at).slice(11, 16) : ''}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="inline-flex h-2.5 w-2.5 rounded-sm ${status === 'feito' ? 'bg-emerald-400' : 'bg-violet-400'}"></span>
+                    <span class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-stone-200 text-[10px] text-stone-600">👤</span>
+                  </div>
+                </div>
+
+                <div class="mt-2.5 flex items-start gap-2.5">
+                  <div class="w-16 shrink-0 rounded-xl bg-cyan-50 border border-cyan-100 text-center py-1.5">
+                    <div class="text-2xl font-semibold text-slate-600 leading-none">${dia}</div>
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase">${mes}</div>
+                    <div class="text-[10px] text-cyan-600">${horaRodape}</div>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="inline-flex items-center rounded-lg bg-[#ede6f7] px-2.5 py-1.5 text-xs text-stone-600">
+                      ${esc(prazoLabel)}
+                    </div>
+                    ${
+                      processoNumero
+                        ? `<div class="mt-1.5 text-[11px] text-stone-500">${processoNumero}</div>`
+                        : ''
+                    }
+                    <div class="mt-1.5 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 break-words">${description}</div>
+                  </div>
+                </div>
+
+                <div class="mt-3 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5">
+                    <a href="${atividadeLink}" class="inline-flex items-center justify-center rounded-full bg-sky-500 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white hover:bg-sky-600">
+                      Concluído
+                    </a>
+                    <a href="${atividadeLink}" class="inline-flex items-center justify-center rounded-full border border-stone-400 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-stone-600 hover:bg-stone-100">
+                      Editar
+                    </a>
+                  </div>
+                  <div class="text-[10px] text-stone-500">${atividadeStatusLabel[status] || 'A fazer'}</div>
+                </div>
+              </article>
+            `;
+            if (idx === 0 && atividadesCliente.length > 1) {
+              return `${cardHtml}<div class="flex items-center justify-center py-0.5"><span class="inline-flex rounded-full bg-sky-500 px-3 py-0.5 text-[11px] font-semibold text-white">Hoje</span></div>`;
+            }
+            return cardHtml;
+          })
+          .join('')}</div>`
+      : '<div class="text-sm text-stone-400">Nenhuma atividade vinculada a este cliente.</div>';
 
     propsEl.innerHTML = `
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-start">
-        <section class="lg:col-span-2 bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <div class="text-sm font-semibold text-stone-900">Dados do Cliente</div>
-              <div class="text-xs text-stone-500 mt-1">Informacoes pessoais, contato e status.</div>
-            </div>
-          </div>
-          <div class="text-sm">${renderRows(camposGerais)}</div>
+      <div class="space-y-6">
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Dados essenciais</h2>
+            <p class="text-sm text-stone-600 mt-1">Informações principais do cliente.</p>
+          </header>
+          <div class="px-6 py-4 text-sm">${renderRows(camposPrincipais)}</div>
         </section>
 
-        <section class="self-start bg-white border border-stone-200 rounded-2xl pt-6 px-6 pb-4 shadow-sm">
-          <div class="mb-4">
-            <div class="text-sm font-semibold text-stone-900">Dados Financeiros</div>
-            <div class="text-xs text-stone-500 mt-1">Banco e dados para repasse.</div>
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Dados complementares</h2>
+            <p class="text-sm text-stone-600 mt-1">Documentação, endereço e cadastro.</p>
+          </header>
+          <div class="px-6 py-4 text-sm">${renderRows(camposDetalhes)}</div>
+        </section>
+
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Qualificação</h2>
+            <p class="text-sm text-stone-600 mt-1">Texto completo para peças e atendimento.</p>
+          </header>
+          <div class="px-6 py-4">
+            <div class="text-sm text-stone-700 whitespace-pre-wrap break-words">${
+              qualificacaoValue || '<span class="text-stone-400">Não informada.</span>'
+            }</div>
           </div>
-          <div class="text-sm">${renderRowsCompact(camposFinanceiros)}</div>
+        </section>
+
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Processos vinculados</h2>
+            <p class="text-sm text-stone-600 mt-1">Relação de processos associados ao cliente.</p>
+          </header>
+          <div class="px-6 py-4 text-sm">${processosCardBody}</div>
+        </section>
+      </div>
+
+      <div class="space-y-6">
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Resumo do cliente</h2>
+            <p class="text-sm text-stone-600 mt-1">Status e indicadores rápidos.</p>
+          </header>
+          <div class="px-6 py-4 divide-y divide-stone-100">
+            <div class="py-3">
+              <div class="text-xs uppercase tracking-wide text-stone-400">Situação</div>
+              <div class="mt-1 inline-flex items-center gap-2 text-sm text-stone-700">
+                <span class="inline-flex h-2.5 w-2.5 rounded-full ${statusVisual.dot}"></span>
+                <span class="font-medium">${statusVisual.label}</span>
+              </div>
+              <div class="mt-1 text-xs text-stone-500">${statusVisual.sublabel}</div>
+            </div>
+            <div class="py-3">
+              <div class="text-xs uppercase tracking-wide text-stone-400">Processos</div>
+              <div class="mt-1 text-sm text-stone-700">${processosCount} cadastrado(s)</div>
+              <div class="mt-1 text-xs text-stone-500">${processosAtivos} ativo(s)</div>
+            </div>
+            <div class="py-3">
+              <div class="text-xs uppercase tracking-wide text-stone-400">Nome</div>
+              <div class="mt-1 text-sm text-stone-700 break-words">${cliente.nome || '-'}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-3.5 border-b border-stone-200/80">
+            <div class="flex items-center gap-1.5 text-xs mb-2.5">
+              <span class="inline-flex rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 font-medium text-blue-700">Atividade</span>
+              <span class="inline-flex rounded-lg px-2.5 py-1 text-stone-500">Comentário</span>
+              <a
+                href="./atividades?origem=cliente&novo=1&cliente_id=${encodeURIComponent(String(cliente.id || id))}&cliente_nome=${encodeURIComponent(String(cliente.nome || ''))}"
+                class="ml-auto inline-flex items-center rounded-lg border border-stone-300 px-2.5 py-1 text-xs text-stone-700 hover:bg-stone-100"
+              >
+                Nova atividade
+              </a>
+            </div>
+            <div class="rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-400">Coisas a fazer</div>
+          </header>
+          <div class="px-6 py-4 bg-stone-50/70">
+            <div class="mb-3 text-xs text-stone-500">${atividadesResp?.total || atividadesCliente.length} atividade(s) vinculada(s)</div>
+            ${atividadesClienteHtml}
+          </div>
+        </section>
+
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Relacionamentos</h2>
+            <p class="text-sm text-stone-600 mt-1">Responsáveis e parceiros do atendimento.</p>
+          </header>
+          <div class="px-6 py-4 divide-y divide-stone-100">${renderRowsCard(camposRelacionamento)}</div>
+        </section>
+
+        <section class="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+          <header class="px-6 py-5 border-b border-stone-200/80">
+            <h2 class="text-lg font-semibold text-stone-900">Dados financeiros</h2>
+            <p class="text-sm text-stone-600 mt-1">Banco e informações para repasse.</p>
+          </header>
+          <div class="px-6 py-4 text-sm">${renderRowsCompact(camposFinanceiros)}</div>
         </section>
       </div>
     `;
@@ -5311,7 +9164,7 @@ async function initClienteDetail() {
       qs('#clienteEditDadosBancarios').value = cliente.dados_bancarios || '';
       qs('#clienteEditLinkPasta').value = cliente.link_pasta || '';
       qs('#clienteEditProcessosNotion').value = cliente.processos_notion || '';
-      qs('#clienteEditQualificacao').value = cliente.qualificacao || '';
+      qs('#clienteEditQualificacao').value = getClienteQualificacaoText(cliente) || '';
       qs('#clienteEditStatus').value = cliente.status || 'lead';
 
       if (editDataNascimento && editDataNascimento.value) {
@@ -5365,6 +9218,9 @@ async function initClienteDetail() {
           qualificacao: qs('#clienteEditQualificacao').value.trim(),
           status: qs('#clienteEditStatus').value,
         };
+        if (!payload.qualificacao) {
+          payload.qualificacao = buildClienteQualificacaoAuto(payload);
+        }
         try {
           const atualizado = await api.clientes.update(id, payload);
           nomeEl.textContent = atualizado.nome || 'Cliente';
@@ -5384,6 +9240,8 @@ async function initClienteDetail() {
 async function initProcessoDetail() {
   await guardAuth();
   bindLogout();
+  const hasFinanceAccess = canAccessFinanceiro();
+  const canManageAtividades = canCreateDeleteAtividades();
 
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
@@ -5595,6 +9453,10 @@ async function initProcessoDetail() {
     }
   };
 
+  const syncEditCidadeByEstado = async (currentCidade = '') => {
+    await hydrateCidadeSelectByEstado(editEstado?.value, editCidade, { currentValue: currentCidade });
+  };
+
   try {
     await loadAreasForProcessoEdit();
     let processo = await api.processos.get(id);
@@ -5791,46 +9653,48 @@ async function initProcessoDetail() {
       try {
         const atividades = await api.atividades.list({ processo_id: id, page: 1, limit: 50 });
         const items = (atividades.data || []).slice(0, 10);
-        const dropdownHtml = `
-          <div class="relative inline-block mt-4">
-            <button id="processoAtividadeNova" class="text-xs text-stone-500 hover:text-stone-900">
-              Nova atividade ▾
-            </button>
-            <div
-              id="processoAtividadeMenu"
-              class="hidden absolute right-0 mt-2 w-56 bg-white border border-stone-200 rounded-lg shadow-sm z-10"
-            >
-              ${[
-                'Audiência',
-                'Perícia',
-                'Petição inicial',
-                'Réplica',
-                'Embargos de declaração',
-                'Recurso inominado',
-                'Cumprimento de sentença',
-                'Manifestar ciência',
-                'Aceitar acordo',
-                'Informar cliente',
-                'Responder cliente',
-                'Administrativo BPC',
-                'Prazo',
-                'Melhoria',
-              ]
-                .map(
-                  (tipo) => `
-                    <button
-                      type="button"
-                      class="w-full text-left px-3 py-2 text-sm text-stone-700 hover:bg-stone-50"
-                      data-atividade-template="${tipo}"
-                    >
-                      ${tipo}
-                    </button>
-                  `
-                )
-                .join('')}
-            </div>
-          </div>
-        `;
+        const dropdownHtml = canManageAtividades
+          ? `
+              <div class="relative inline-block mt-4">
+                <button id="processoAtividadeNova" class="text-xs text-stone-500 hover:text-stone-900">
+                  Nova atividade ▾
+                </button>
+                <div
+                  id="processoAtividadeMenu"
+                  class="hidden absolute right-0 mt-2 w-56 bg-white border border-stone-200 rounded-lg shadow-sm z-10"
+                >
+                  ${[
+                    'Audiência',
+                    'Perícia',
+                    'Petição inicial',
+                    'Réplica',
+                    'Embargos de declaração',
+                    'Recurso inominado',
+                    'Cumprimento de sentença',
+                    'Manifestar ciência',
+                    'Aceitar acordo',
+                    'Informar cliente',
+                    'Responder cliente',
+                    'Administrativo BPC',
+                    'Prazo',
+                    'Melhoria',
+                  ]
+                    .map(
+                      (tipo) => `
+                        <button
+                          type="button"
+                          class="w-full text-left px-3 py-2 text-sm text-stone-700 hover:bg-stone-50"
+                          data-atividade-template="${tipo}"
+                        >
+                          ${tipo}
+                        </button>
+                      `
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+          : '';
 
         if (!items.length) {
           atividadesCard.innerHTML = `
@@ -5864,7 +9728,41 @@ async function initProcessoDetail() {
                     <div class="text-sm text-stone-900">${titulo}</div>
                     <div class="text-xs text-stone-500 mt-1 flex items-center gap-2">
                       <span class="inline-flex h-2 w-2 rounded-full ${prioridadeColor}" title="Prioridade"></span>
-                      ${prazo ? `<span>Data: ${prazo}</span>` : ''}
+                      ${prazo ? `<span>Data: ${prazo}</span>` : '<span>Caixa de entrada</span>'}
+                    </div>
+                  </div>
+                  <div class="relative">
+                    <button
+                      type="button"
+                      class="h-7 w-7 inline-flex items-center justify-center rounded-md border border-stone-200 text-stone-500 hover:bg-stone-100"
+                      data-processo-atividade-menu-toggle="${a.id}"
+                      title="Opções"
+                      aria-label="Opções"
+                    >
+                      &#x22EE;
+                    </button>
+                    <div
+                      data-processo-atividade-menu="${a.id}"
+                      class="hidden absolute right-0 mt-1 w-32 rounded-lg border border-stone-200 bg-white shadow-lg z-20"
+                    >
+                      <button
+                        type="button"
+                        data-processo-atividade-edit="${a.id}"
+                        class="w-full text-left px-3 py-2 text-xs text-stone-700 hover:bg-stone-50"
+                      >
+                        Editar
+                      </button>
+                      ${
+                        canManageAtividades
+                          ? `<button
+                               type="button"
+                               data-processo-atividade-remove="${a.id}"
+                               class="w-full text-left px-3 py-2 text-xs text-red-600 hover:bg-red-50"
+                             >
+                               Excluir
+                             </button>`
+                          : ''
+                      }
                     </div>
                   </div>
                 </div>
@@ -5898,11 +9796,65 @@ async function initProcessoDetail() {
               }
             });
           });
+
+          const closeProcessoAtividadeMenus = () => {
+            atividadesCard
+              .querySelectorAll('[data-processo-atividade-menu]')
+              .forEach((menuEl) => menuEl.classList.add('hidden'));
+          };
+
+          atividadesCard.querySelectorAll('[data-processo-atividade-menu-toggle]').forEach((btn) => {
+            btn.addEventListener('click', (event) => {
+              event.stopPropagation();
+              const atividadeId = String(btn.getAttribute('data-processo-atividade-menu-toggle') || '');
+              if (!atividadeId) return;
+              const menuEl = atividadesCard.querySelector(
+                `[data-processo-atividade-menu="${atividadeId}"]`
+              );
+              if (!menuEl) return;
+              const willOpen = menuEl.classList.contains('hidden');
+              closeProcessoAtividadeMenus();
+              if (willOpen) menuEl.classList.remove('hidden');
+            });
+          });
+
+          atividadesCard.querySelectorAll('[data-processo-atividade-edit]').forEach((btn) => {
+            btn.addEventListener('click', (event) => {
+              event.stopPropagation();
+              const atividadeId = String(btn.getAttribute('data-processo-atividade-edit') || '');
+              if (!atividadeId) return;
+              const atividade = items.find((item) => String(item.id) === atividadeId);
+              if (!atividade) return;
+              closeProcessoAtividadeMenus();
+              openQuickAtividadeModal({
+                processo,
+                atividade,
+              });
+            });
+          });
+
+          atividadesCard.querySelectorAll('[data-processo-atividade-remove]').forEach((btn) => {
+            btn.addEventListener('click', async (event) => {
+              event.stopPropagation();
+              const atividadeId = String(btn.getAttribute('data-processo-atividade-remove') || '');
+              if (!atividadeId) return;
+              closeProcessoAtividadeMenus();
+              if (!window.confirm('Excluir esta atividade?')) return;
+              try {
+                await api.atividades.remove(atividadeId);
+                window.location.reload();
+              } catch (err) {
+                window.alert(err?.message || 'Não foi possível excluir a atividade.');
+              }
+            });
+          });
+
+          document.addEventListener('click', closeProcessoAtividadeMenus);
         }
 
         const novaBtn = qs('#processoAtividadeNova');
         const menu = qs('#processoAtividadeMenu');
-        if (novaBtn && menu) {
+        if (canManageAtividades && novaBtn && menu) {
           const toggleMenu = () => {
             menu.classList.toggle('hidden');
           };
@@ -6117,7 +10069,11 @@ async function initProcessoDetail() {
       }
     };
 
-    if (financeiroEl) {
+    if (!hasFinanceAccess && financeiroEl) {
+      financeiroEl.classList.add('hidden');
+    }
+
+    if (hasFinanceAccess && financeiroEl) {
       try {
         const resp = await api.financeiro.listByProcesso(id);
         financeiroItems = resp?.data || [];
@@ -6128,7 +10084,7 @@ async function initProcessoDetail() {
       }
     }
 
-    if (financeiroEl) {
+    if (hasFinanceAccess && financeiroEl) {
       financeiroEl.addEventListener('click', (event) => {
         const editId = event.target.dataset.finEdit;
         const removeId = event.target.dataset.finRemove;
@@ -6315,8 +10271,8 @@ async function initProcessoDetail() {
         editOrgao.value = processo.orgao || '';
         editVara.value = processo.vara || '';
         editGrau.value = processo.grau || '';
-        editCidade.value = processo.cidade || '';
         editEstado.value = processo.estado || '';
+        await syncEditCidadeByEstado(processo.cidade || '');
         editSistema.value = processo.sistema || '';
         editDistribuicao.value = processo.distribuicao || '';
         const editResultadoInfo = normalizeResultadoAndRecurso(processo.resultado, processo.recurso_inominado);
@@ -6429,6 +10385,12 @@ async function initProcessoDetail() {
     const quickClose = qs('#atividadeQuickClose');
     const quickCancel = qs('#atividadeQuickCancel');
     const quickForm = qs('#atividadeQuickForm');
+    const quickSubmitBtn = quickForm
+      ? quickForm.querySelector('button[type="submit"], button:not([type]), input[type="submit"]')
+      : null;
+    const quickModalTitle = qs('#atividadeQuickModalTitle');
+    const quickSubmitLabel = qs('#atividadeQuickSubmitLabel');
+    const quickAtividadeId = qs('#atividadeQuickId');
     const quickMessage = qs('#atividadeQuickMessage');
     const quickProcessoId = qs('#atividadeQuickProcessoId');
     const quickNumero = qs('#atividadeQuickNumero');
@@ -6447,20 +10409,59 @@ async function initProcessoDetail() {
       return normalized.startsWith('audiencia') || normalized.startsWith('pericia');
     };
 
-    const openQuickAtividadeModal = ({ processo, titulo }) => {
+    let quickFormSubmitting = false;
+    let quickEditingAtividade = null;
+
+    const closeQuickAtividadeModal = () => {
+      if (!quickModal) return;
+      quickModal.classList.add('hidden');
+      quickModal.classList.remove('flex');
+    };
+
+    const openQuickAtividadeModal = ({ processo, titulo, atividade = null }) => {
       if (!quickModal) return;
       quickMessage.textContent = '';
+      quickFormSubmitting = false;
+      quickEditingAtividade = atividade || null;
+      if (quickSubmitBtn) {
+        quickSubmitBtn.disabled = false;
+        quickSubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+      }
+      if (quickModalTitle) {
+        quickModalTitle.textContent = quickEditingAtividade ? 'Editar atividade' : 'Nova atividade';
+      }
+      if (quickSubmitLabel) {
+        quickSubmitLabel.textContent = quickEditingAtividade ? 'Salvar alterações' : 'Salvar atividade';
+      }
+      if (quickAtividadeId) {
+        quickAtividadeId.value = quickEditingAtividade?.id ? String(quickEditingAtividade.id) : '';
+      }
       quickProcessoId.value = processo.id || '';
       quickNumero.value = processo.numero_processo || '';
       quickCliente.value = processo.cliente_nome || '';
-      const clienteNome = processo.cliente_nome || '';
-      const baseTitulo = titulo || '';
-      quickTitulo.value = quickRequiresHour(baseTitulo) && clienteNome ? `${baseTitulo} ${clienteNome}` : baseTitulo;
-      if (quickDescricao) quickDescricao.value = '';
-      quickPrazo.value = '';
+
+      if (quickEditingAtividade) {
+        quickTitulo.value = cleanText(quickEditingAtividade.titulo) || 'Atividade';
+        if (quickDescricao) quickDescricao.value = quickEditingAtividade.descricao || '';
+        quickPrazo.value = normalizeDateValue(quickEditingAtividade.prazo);
+        if (quickHora) {
+          quickHora.value = quickEditingAtividade.prazo_hora
+            ? String(quickEditingAtividade.prazo_hora).slice(0, 5)
+            : '';
+        }
+      } else {
+        const clienteNome = processo.cliente_nome || '';
+        const baseTitulo = titulo || '';
+        quickTitulo.value =
+          quickRequiresHour(baseTitulo) && clienteNome ? `${baseTitulo} ${clienteNome}` : baseTitulo;
+        if (quickDescricao) quickDescricao.value = '';
+        quickPrazo.value = '';
+        if (quickHora) quickHora.value = '';
+      }
+
       const precisaHora = quickRequiresHour(quickTitulo.value);
       if (quickHoraWrap) quickHoraWrap.classList.toggle('hidden', !precisaHora);
-      if (quickHora) quickHora.value = '';
+      if (!precisaHora && quickHora) quickHora.value = '';
       quickModal.classList.remove('hidden');
       quickModal.classList.add('flex');
     };
@@ -6475,21 +10476,20 @@ async function initProcessoDetail() {
 
     if (quickClose && quickModal) {
       quickClose.addEventListener('click', () => {
-        quickModal.classList.add('hidden');
-        quickModal.classList.remove('flex');
+        closeQuickAtividadeModal();
       });
     }
 
     if (quickCancel && quickModal) {
       quickCancel.addEventListener('click', () => {
-        quickModal.classList.add('hidden');
-        quickModal.classList.remove('flex');
+        closeQuickAtividadeModal();
       });
     }
 
     if (quickForm) {
       quickForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (quickFormSubmitting) return;
         quickMessage.textContent = '';
         const titulo = quickTitulo.value.trim();
         const precisaHora = quickRequiresHour(titulo);
@@ -6497,30 +10497,43 @@ async function initProcessoDetail() {
           showMessage(quickMessage, 'Informe o nome da atividade.');
           return;
         }
-        if (!quickPrazo.value) {
-          showMessage(quickMessage, 'Informe a data da atividade.');
-          return;
-        }
-        if (precisaHora && !quickHora.value) {
+        if (precisaHora && quickPrazo.value && !quickHora.value) {
           showMessage(quickMessage, 'Informe a hora da atividade.');
           return;
         }
         const descricaoTexto = quickDescricao ? quickDescricao.value.trim() : '';
         const payload = {
-          processo_id: Number(quickProcessoId.value),
+          processo_id: Number(quickProcessoId.value) || null,
           titulo,
           prazo: quickPrazo.value || null,
-          prazo_hora: precisaHora && quickHora.value ? quickHora.value : null,
+          prazo_hora: quickPrazo.value && precisaHora && quickHora.value ? quickHora.value : null,
           descricao: descricaoTexto || null,
-          status: 'a_fazer',
+          status: quickEditingAtividade?.status || 'a_fazer',
+          prioridade: quickEditingAtividade?.prioridade || 'media',
         };
+        quickFormSubmitting = true;
+        if (quickSubmitBtn) {
+          quickSubmitBtn.disabled = true;
+          quickSubmitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
         try {
-          await api.atividades.create(payload);
-          quickModal.classList.add('hidden');
-          quickModal.classList.remove('flex');
+          const editId =
+            Number(quickAtividadeId?.value || quickEditingAtividade?.id || 0) || null;
+          if (editId) {
+            await api.atividades.update(editId, payload);
+          } else {
+            await api.atividades.create(payload);
+          }
+          closeQuickAtividadeModal();
           window.location.reload();
         } catch (err) {
           showMessage(quickMessage, err.message);
+        } finally {
+          quickFormSubmitting = false;
+          if (quickSubmitBtn) {
+            quickSubmitBtn.disabled = false;
+            quickSubmitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
         }
       });
     }
@@ -6567,6 +10580,11 @@ async function initProcessoDetail() {
     if (editArea) {
       editArea.addEventListener('change', toggleEditContaBeneficio);
       editArea.addEventListener('input', toggleEditContaBeneficio);
+    }
+    if (editEstado) {
+      editEstado.addEventListener('change', () => {
+        syncEditCidadeByEstado('').catch(() => null);
+      });
     }
 
     if (editForm) {
@@ -6647,9 +10665,21 @@ async function initAjustes() {
   const configForm = qs('#ajustesConfigForm');
   const configNome = qs('#ajustesNomeExibicao');
   const configUf = qs('#ajustesUfDjen');
+  const configTema = qs('#ajustesTema');
 
   const colaboradorForm = qs('#ajustesColaboradorForm');
   const colaboradoresBody = qs('#ajustesColaboradoresBody');
+  const colaboradorSenhaModal = qs('#colaboradorSenhaModal');
+  const colaboradorSenhaForm = qs('#colaboradorSenhaForm');
+  const colaboradorSenhaUsuarioInfo = qs('#colaboradorSenhaUsuarioInfo');
+  const colaboradorSenhaInput = qs('#colaboradorSenhaNova');
+  const colaboradorSenhaConfirmacaoInput = qs('#colaboradorSenhaConfirmacao');
+  const colaboradorSenhaMessage = qs('#colaboradorSenhaMessage');
+  const fecharColaboradorSenhaModalBtn = qs('#fecharColaboradorSenhaModal');
+  const cancelarColaboradorSenhaModalBtn = qs('#cancelarColaboradorSenhaModal');
+  const salvarColaboradorSenhaModalBtn = qs('#salvarColaboradorSenhaModal');
+  const colaboradorSenhaNovaToggleBtn = qs('#colaboradorSenhaNovaToggle');
+  const colaboradorSenhaConfirmacaoToggleBtn = qs('#colaboradorSenhaConfirmacaoToggle');
 
   const areaForm = qs('#ajustesAreaForm');
   const areaList = qs('#ajustesAreasList');
@@ -6674,6 +10704,11 @@ async function initAjustes() {
   const importacaoLimparSelecaoBtn = qs('#ajustesImportacaoLimparSelecao');
   const importacaoCadastrarTodosBtn = qs('#ajustesImportacaoCadastrarTodos');
   const importacaoAcoes = qs('#ajustesImportacaoAcoes');
+  const importacaoCsvForm = qs('#ajustesImportacaoCsvForm');
+  const importacaoCsvArquivo = qs('#ajustesImportacaoCsvArquivo');
+  const importacaoCsvMessage = qs('#ajustesImportacaoCsvMessage');
+  const importacaoCsvResumo = qs('#ajustesImportacaoCsvResumo');
+  const importacaoCsvDownloadTemplate = qs('#ajustesImportacaoCsvDownloadTemplate');
 
   const escapeHtml = (value) =>
     String(value || '')
@@ -6693,8 +10728,49 @@ async function initAjustes() {
     importacaoProcessos: [],
     importacaoResumo: null,
   };
+  let colaboradorSenhaTargetId = null;
 
   const notify = (text, type = 'sucesso') => showMessage(msgEl, text, type);
+  const normalizeAjustesPapel = (papel) => normalizeUserRole(papel);
+
+  const resetPasswordToggle = (inputEl, buttonEl) => {
+    if (!inputEl || !buttonEl) return;
+    inputEl.type = 'password';
+    buttonEl.textContent = 'Mostrar';
+  };
+
+  const togglePasswordVisibility = (inputEl, buttonEl) => {
+    if (!inputEl || !buttonEl) return;
+    const isPassword = inputEl.type === 'password';
+    inputEl.type = isPassword ? 'text' : 'password';
+    buttonEl.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+  };
+
+  const closeColaboradorSenhaModal = () => {
+    colaboradorSenhaTargetId = null;
+    colaboradorSenhaForm?.reset();
+    showMessage(colaboradorSenhaMessage, '');
+    resetPasswordToggle(colaboradorSenhaInput, colaboradorSenhaNovaToggleBtn);
+    resetPasswordToggle(colaboradorSenhaConfirmacaoInput, colaboradorSenhaConfirmacaoToggleBtn);
+    closeModal(colaboradorSenhaModal);
+  };
+
+  const openColaboradorSenhaModal = (colaborador) => {
+    if (!colaboradorSenhaModal || !colaborador) return;
+    colaboradorSenhaTargetId = Number(colaborador.id);
+    colaboradorSenhaForm?.reset();
+    showMessage(colaboradorSenhaMessage, '');
+    resetPasswordToggle(colaboradorSenhaInput, colaboradorSenhaNovaToggleBtn);
+    resetPasswordToggle(colaboradorSenhaConfirmacaoInput, colaboradorSenhaConfirmacaoToggleBtn);
+    if (colaboradorSenhaUsuarioInfo) {
+      const identificador = colaborador.email || colaborador.usuario || '';
+      colaboradorSenhaUsuarioInfo.textContent = identificador
+        ? `Defina a nova senha para ${colaborador.nome} (${identificador}).`
+        : `Defina a nova senha para ${colaborador.nome}.`;
+    }
+    openModal(colaboradorSenhaModal);
+    colaboradorSenhaInput?.focus();
+  };
 
   const normalizeText = (value) => String(value || '').trim();
   const normalizeDigits = (value) => String(value || '').replace(/\D/g, '');
@@ -6727,9 +10803,11 @@ async function initAjustes() {
     );
 
   const renderConfig = () => {
-    if (!state.config) return;
-    if (configNome) configNome.value = state.config.nome_exibicao || '';
-    if (configUf) configUf.value = (state.config.djen_uf_padrao || 'BA').toUpperCase();
+    if (configNome) configNome.value = state.config?.nome_exibicao || '';
+    if (configUf) configUf.value = (state.config?.djen_uf_padrao || 'BA').toUpperCase();
+    const temaAtual = normalizeThemeValue(state.config?.tema || getStoredThemeValue());
+    if (configTema) configTema.value = temaAtual;
+    applyTheme(temaAtual);
   };
 
   const renderColaboradores = () => {
@@ -6745,13 +10823,14 @@ async function initAjustes() {
             </td>
             <td class="py-2 pr-3">
               <select data-colab-papel="${colab.id}" class="border rounded-lg px-2 py-1 text-xs">
-                <option value="owner" ${colab.papel === 'owner' ? 'selected' : ''}>Owner</option>
-                <option value="admin" ${colab.papel === 'admin' ? 'selected' : ''}>Admin</option>
-                <option value="colaborador" ${colab.papel === 'colaborador' ? 'selected' : ''}>Colaborador</option>
+                <option value="administrador" ${normalizeAjustesPapel(colab.papel) === 'administrador' ? 'selected' : ''}>Administrador</option>
+                <option value="advogado" ${normalizeAjustesPapel(colab.papel) === 'advogado' ? 'selected' : ''}>Advogado</option>
+                <option value="estagiario" ${normalizeAjustesPapel(colab.papel) === 'estagiario' ? 'selected' : ''}>Estagiário</option>
               </select>
             </td>
             <td class="py-2 text-right">
               <div class="inline-flex gap-2">
+                <button data-colab-password="${colab.id}" class="text-xs px-2 py-1 border rounded-md hover:bg-stone-50">Senha</button>
                 <button data-colab-save="${colab.id}" class="text-xs px-2 py-1 border rounded-md hover:bg-stone-50">Salvar</button>
                 <button data-colab-remove="${colab.id}" class="text-xs px-2 py-1 border border-red-200 text-red-600 rounded-md hover:bg-red-50">Remover</button>
               </div>
@@ -7005,6 +11084,28 @@ async function initAjustes() {
     renderImportacaoResumo();
   };
 
+  const renderImportacaoCsvResumo = (resumo) => {
+    if (!importacaoCsvResumo) return;
+    if (!resumo) {
+      importacaoCsvResumo.textContent = '';
+      return;
+    }
+    const linhas = Number(resumo.linhas_total || 0);
+    const clientesCriados = Number(resumo.clientes_criados || 0);
+    const clientesEncontrados = Number(resumo.clientes_encontrados || 0);
+    const processosCriados = Number(resumo.processos_criados || 0);
+    const processosIgnorados = Number(resumo.processos_ignorados || 0);
+    const invalidos = Number(resumo.invalidos || 0);
+    const erros = Number(resumo.erros || 0);
+    importacaoCsvResumo.textContent =
+      `${linhas} linha(s) lida(s) • ` +
+      `${clientesCriados} cliente(s) novo(s) • ` +
+      `${clientesEncontrados} cliente(s) já existente(s) • ` +
+      `${processosCriados} processo(s) criado(s) • ` +
+      `${processosIgnorados} processo(s) ignorado(s) • ` +
+      `${invalidos} inválido(s) • ${erros} erro(s)`;
+  };
+
   const normalizeImportacaoRows = (rows) =>
     (rows || []).map((item) => ({
       ...item,
@@ -7112,16 +11213,23 @@ async function initAjustes() {
 
   configForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const temaSelecionado = normalizeThemeValue(configTema?.value || getStoredThemeValue());
     try {
       await api.ajustes.updateConfig({
         nome_exibicao: configNome?.value?.trim() || '',
         djen_uf_padrao: configUf?.value?.trim() || 'BA',
+        tema: temaSelecionado,
       });
+      applyTheme(temaSelecionado);
       await load();
       notify('Configuração atualizada.', 'sucesso');
     } catch (err) {
       notify(err.message || 'Erro ao salvar configuração.', 'erro');
     }
+  });
+
+  configTema?.addEventListener('change', () => {
+    applyTheme(configTema.value);
   });
 
   colaboradorForm?.addEventListener('submit', async (event) => {
@@ -7132,7 +11240,7 @@ async function initAjustes() {
         email: qs('#ajustesColabEmail')?.value?.trim() || '',
         usuario: qs('#ajustesColabUsuario')?.value?.trim() || '',
         senha: qs('#ajustesColabSenha')?.value || '',
-        papel: qs('#ajustesColabPapel')?.value || 'colaborador',
+        papel: qs('#ajustesColabPapel')?.value || 'advogado',
       });
       colaboradorForm.reset();
       await load();
@@ -7142,14 +11250,76 @@ async function initAjustes() {
     }
   });
 
+  colaboradorSenhaNovaToggleBtn?.addEventListener('click', () =>
+    togglePasswordVisibility(colaboradorSenhaInput, colaboradorSenhaNovaToggleBtn)
+  );
+  colaboradorSenhaConfirmacaoToggleBtn?.addEventListener('click', () =>
+    togglePasswordVisibility(colaboradorSenhaConfirmacaoInput, colaboradorSenhaConfirmacaoToggleBtn)
+  );
+
+  fecharColaboradorSenhaModalBtn?.addEventListener('click', closeColaboradorSenhaModal);
+  cancelarColaboradorSenhaModalBtn?.addEventListener('click', closeColaboradorSenhaModal);
+  colaboradorSenhaModal?.addEventListener('click', (event) => {
+    if (event.target === colaboradorSenhaModal) {
+      closeColaboradorSenhaModal();
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && colaboradorSenhaModal && !colaboradorSenhaModal.classList.contains('hidden')) {
+      closeColaboradorSenhaModal();
+    }
+  });
+
+  colaboradorSenhaForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!Number.isInteger(colaboradorSenhaTargetId) || colaboradorSenhaTargetId <= 0) {
+      showMessage(colaboradorSenhaMessage, 'Colaborador inválido.');
+      return;
+    }
+
+    const novaSenha = String(colaboradorSenhaInput?.value || '');
+    const confirmacaoSenha = String(colaboradorSenhaConfirmacaoInput?.value || '');
+    if (!novaSenha || novaSenha.length < 6) {
+      showMessage(colaboradorSenhaMessage, 'A senha deve ter no mínimo 6 caracteres.');
+      return;
+    }
+    if (novaSenha !== confirmacaoSenha) {
+      showMessage(colaboradorSenhaMessage, 'As senhas não conferem.');
+      return;
+    }
+
+    try {
+      if (salvarColaboradorSenhaModalBtn) salvarColaboradorSenhaModalBtn.disabled = true;
+      showMessage(colaboradorSenhaMessage, '');
+      await api.ajustes.updateColaborador(colaboradorSenhaTargetId, { senha: novaSenha });
+      closeColaboradorSenhaModal();
+      notify('Senha atualizada com sucesso.', 'sucesso');
+    } catch (err) {
+      showMessage(colaboradorSenhaMessage, err.message || 'Erro ao atualizar senha.');
+    } finally {
+      if (salvarColaboradorSenhaModalBtn) salvarColaboradorSenhaModalBtn.disabled = false;
+    }
+  });
+
   colaboradoresBody?.addEventListener('click', async (event) => {
     const saveId = event.target.getAttribute('data-colab-save');
     const removeId = event.target.getAttribute('data-colab-remove');
+    const passwordId = event.target.getAttribute('data-colab-password');
+
+    if (passwordId) {
+      const colaborador = (state.colaboradores || []).find((item) => String(item.id) === String(passwordId));
+      if (!colaborador) {
+        notify('Colaborador não encontrado.', 'erro');
+        return;
+      }
+      openColaboradorSenhaModal(colaborador);
+      return;
+    }
 
     if (saveId) {
       const papelInput = colaboradoresBody.querySelector(`[data-colab-papel="${saveId}"]`);
       try {
-        await api.ajustes.updateColaborador(saveId, { papel: papelInput?.value || 'colaborador' });
+        await api.ajustes.updateColaborador(saveId, { papel: papelInput?.value || 'advogado' });
         await load();
         notify('Perfil do colaborador atualizado.', 'sucesso');
       } catch (err) {
@@ -7319,6 +11489,45 @@ async function initAjustes() {
     }
   });
 
+  importacaoCsvForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const file = importacaoCsvArquivo?.files?.[0] || null;
+    if (!file) {
+      showMessage(importacaoCsvMessage, 'Selecione um arquivo CSV para importar.', 'erro');
+      renderImportacaoCsvResumo(null);
+      return;
+    }
+
+    showMessage(importacaoCsvMessage, 'Importando CSV...', 'sucesso');
+    renderImportacaoCsvResumo(null);
+    try {
+      const result = await api.ajustes.importarClientesProcessosCsv(file);
+      const resumo = result?.resumo || {};
+      const processosCriados = Number(resumo.processos_criados || 0);
+      const erros = Number(resumo.erros || 0);
+      const invalidos = Number(resumo.invalidos || 0);
+      showMessage(
+        importacaoCsvMessage,
+        `Importação concluída: ${processosCriados} processo(s) criado(s), ${invalidos} inválido(s), ${erros} erro(s).`,
+        erros ? 'erro' : 'sucesso'
+      );
+      renderImportacaoCsvResumo(resumo);
+      importacaoCsvForm.reset();
+    } catch (err) {
+      showMessage(importacaoCsvMessage, err.message || 'Erro ao importar CSV.', 'erro');
+      renderImportacaoCsvResumo(null);
+    }
+  });
+
+  importacaoCsvDownloadTemplate?.addEventListener('click', async () => {
+    try {
+      await api.ajustes.downloadTemplateImportacaoCsv();
+      showMessage(importacaoCsvMessage, 'Download do modelo iniciado.', 'sucesso');
+    } catch (err) {
+      showMessage(importacaoCsvMessage, err.message || 'Erro ao baixar template CSV.', 'erro');
+    }
+  });
+
   importacaoSelecionarTodosBtn?.addEventListener('click', () => {
     state.importacaoProcessos = (state.importacaoProcessos || []).map((item) => {
       if (item.processo_encontrado || item.importado_agora) return item;
@@ -7424,8 +11633,10 @@ async function initAjustes() {
 }
 
 async function init() {
+  initTheme();
   captureTokenFromUrl();
   initProcessNumberCopy();
+  ensureModalBodyScrollLockObserver();
   const page = document.body.dataset.page;
   if (page === 'login') return initLogin();
   if (page === 'dashboard') return initDashboard();

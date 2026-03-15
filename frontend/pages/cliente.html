@@ -25,7 +25,7 @@
     <div class="min-h-screen flex">
       <aside class="w-64 bg-white border-r border-stone-200 p-6">
         <div class="flex items-center justify-center">
-          <img src="../assets/brand/logo-trim.png" alt="Aurealex" class="h-20 w-auto" />
+          <img src="../assets/brand/logo-trim-transparent.png" alt="Aurealex" class="crm-sidebar-logo h-20 w-auto" />
         </div>
         <nav class="mt-8 space-y-3 text-sm">
           <a class="block text-stone-500 hover:text-stone-900" href="./dashboard">Dashboard</a>
@@ -41,24 +41,38 @@
 
       </aside>
 
-      <main class="flex-1 p-10">
-        <header class="flex items-center justify-between mb-6">
-          <div>
-            <a class="text-sm text-stone-500" href="./clientes">&larr; Voltar para clientes</a>
-            <h1 id="clienteNome" class="text-2xl font-semibold mt-2">Cliente</h1>
-            <p class="text-stone-500 mt-1">Detalhes completos do cliente.</p>
-          </div>
-          <button
-            id="editarClienteBtn"
-            class="border border-stone-200 rounded-lg px-3 py-2 text-sm text-stone-600 hover:text-stone-900"
-          >
-            Editar
-          </button>
-        </header>
+      <main class="flex-1 p-8">
+        <div class="mx-auto w-full max-w-6xl">
+          <header class="crm-page-header flex items-center justify-between mb-6">
+            <div>
+              <a class="text-sm text-stone-500" href="./clientes">&larr; Voltar para clientes</a>
+              <h1 id="clienteNome" class="text-2xl font-semibold mt-2">Cliente</h1>
+              <p class="text-stone-500 mt-1">Detalhes completos do cliente.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <a
+                id="clienteAtividadesBtn"
+                href="./atividades"
+                class="border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100"
+              >
+                Atividades
+              </a>
+              <button
+                id="editarClienteBtn"
+                class="border border-stone-300 text-stone-700 px-4 py-2 rounded-lg hover:bg-stone-100"
+              >
+                Editar cliente
+              </button>
+            </div>
+          </header>
 
-        <p id="clienteErro" class="text-sm text-red-600 mb-4"></p>
+          <p id="clienteErro" class="text-sm text-red-600 mb-4"></p>
 
-        <section id="clienteProps"></section>
+          <section
+            id="clienteProps"
+            class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,0.8fr)] gap-8"
+          ></section>
+        </div>
 
         <div id="clienteEditModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center p-6">
           <div class="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm w-full max-w-4xl max-h-[85vh] overflow-y-auto">
@@ -142,7 +156,7 @@
 
               <div class="md:col-span-2">
                 <label class="text-sm text-stone-600">E-mail</label>
-                <input id="clienteEditEmail" type="email" class="mt-1 w-full border rounded-lg px-3 py-2" />
+                <input id="clienteEditEmail" class="mt-1 w-full border rounded-lg px-3 py-2" />
               </div>
               <div class="md:col-span-2">
                 <label class="text-sm text-stone-600">Telefone</label>
@@ -294,7 +308,7 @@
       </main>
     </div>
 
-    <script src="../assets/api.v2.js?v=20260212-6"></script>
-    <script src="../assets/app.v2.js?v=20260212-7"></script>
+    <script src="../assets/api.v2.js?v=20260311-chat1"></script>
+    <script src="../assets/app.v2.js?v=20260312-roles1"></script>
   </body>
 </html>
