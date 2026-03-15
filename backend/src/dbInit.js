@@ -20,6 +20,12 @@ async function ensureEscritorios() {
       UNIQUE (escritorio_id, usuario_id)
     );`
   );
+  await db.query('ALTER TABLE membros_escritorio DROP CONSTRAINT IF EXISTS membros_escritorio_papel_check;');
+  await db.query(
+    `ALTER TABLE membros_escritorio
+     ADD CONSTRAINT membros_escritorio_papel_check
+     CHECK (papel IN ('owner', 'admin', 'colaborador', 'administrador', 'advogado', 'estagiario'));`
+  );
 
   await db.query(
     `ALTER TABLE clientes
@@ -37,10 +43,16 @@ async function ensureEscritorios() {
     `ALTER TABLE financeiro_lancamentos
       ADD COLUMN IF NOT EXISTS escritorio_id INTEGER REFERENCES escritorios(id) ON DELETE CASCADE;`
   );
+  await db.query('ALTER TABLE processos DROP CONSTRAINT IF EXISTS processos_numero_processo_key;');
+  await db.query('DROP INDEX IF EXISTS processes_numero_processo_key;');
+  await db.query('DROP INDEX IF EXISTS idx_processos_numero_processo_unique;');
 
   await db.query('CREATE INDEX IF NOT EXISTS idx_membros_escritorio_usuario_id ON membros_escritorio(usuario_id);');
   await db.query('CREATE INDEX IF NOT EXISTS idx_clientes_escritorio_id ON clientes(escritorio_id);');
   await db.query('CREATE INDEX IF NOT EXISTS idx_processos_escritorio_id ON processos(escritorio_id);');
+  await db.query(
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_processos_escritorio_numero_unique ON processos(escritorio_id, numero_processo);'
+  );
   await db.query('CREATE INDEX IF NOT EXISTS idx_atividades_escritorio_id ON atividades(escritorio_id);');
   await db.query(
     'CREATE INDEX IF NOT EXISTS idx_financeiro_lancamentos_escritorio_id ON financeiro_lancamentos(escritorio_id);'
@@ -211,9 +223,27 @@ async function ensureAjustes() {
       escritorio_id INTEGER PRIMARY KEY REFERENCES escritorios(id) ON DELETE CASCADE,
       nome_exibicao TEXT,
       djen_uf_padrao CHAR(2) DEFAULT 'BA',
+      tema TEXT NOT NULL DEFAULT 'classic',
       created_at TIMESTAMP NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMP NOT NULL DEFAULT NOW()
     );`
+  );
+  await db.query(
+    `ALTER TABLE escritorio_config
+     ADD COLUMN IF NOT EXISTS tema TEXT;`
+  );
+  await db.query(
+    `ALTER TABLE escritorio_config
+     ALTER COLUMN tema SET DEFAULT 'classic';`
+  );
+  await db.query(
+    `UPDATE escritorio_config
+     SET tema = 'classic'
+     WHERE tema IS NULL OR tema = '';`
+  );
+  await db.query(
+    `ALTER TABLE escritorio_config
+     ALTER COLUMN tema SET NOT NULL;`
   );
 
   await db.query(
@@ -267,6 +297,89 @@ async function ensureCadastroVerificacoes() {
   );
 }
 
+async function ensureChat() {
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_conversas (
+      id SERIAL PRIMARY KEY,
+      escritorio_id INTEGER NOT NULL REFERENCES escritorios(id) ON DELETE CASCADE,
+      tipo TEXT NOT NULL CHECK (tipo IN ('direta', 'grupo')),
+      titulo TEXT,
+      criada_por_usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );`
+  );
+
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_participantes (
+      id SERIAL PRIMARY KEY,
+      conversa_id INTEGER NOT NULL REFERENCES chat_conversas(id) ON DELETE CASCADE,
+      usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+      ultimo_lido_em TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE (conversa_id, usuario_id)
+    );`
+  );
+
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_mensagens (
+      id SERIAL PRIMARY KEY,
+      conversa_id INTEGER NOT NULL REFERENCES chat_conversas(id) ON DELETE CASCADE,
+      autor_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+      texto TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_at TIMESTAMPTZ
+    );`
+  );
+
+  await db.query(
+    `CREATE TABLE IF NOT EXISTS chat_anexos (
+      id SERIAL PRIMARY KEY,
+      mensagem_id INTEGER NOT NULL REFERENCES chat_mensagens(id) ON DELETE CASCADE,
+      nome_original VARCHAR(255) NOT NULL,
+      caminho VARCHAR(255) NOT NULL,
+      tamanho INTEGER NOT NULL,
+      mime_type VARCHAR(120) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );`
+  );
+
+  await db.query(
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_chat_conversa_geral_por_escritorio
+     ON chat_conversas (escritorio_id)
+     WHERE tipo = 'grupo' AND titulo = 'Geral';`
+  );
+  await db.query(
+    'CREATE INDEX IF NOT EXISTS idx_chat_conversas_escritorio_updated ON chat_conversas(escritorio_id, updated_at DESC);'
+  );
+  await db.query(
+    'CREATE INDEX IF NOT EXISTS idx_chat_participantes_usuario ON chat_participantes(usuario_id, conversa_id);'
+  );
+  await db.query(
+    'CREATE INDEX IF NOT EXISTS idx_chat_mensagens_conversa_created ON chat_mensagens(conversa_id, created_at DESC);'
+  );
+  await db.query(
+    'CREATE INDEX IF NOT EXISTS idx_chat_anexos_mensagem ON chat_anexos(mensagem_id);'
+  );
+
+  await db.query(
+    `INSERT INTO chat_conversas (escritorio_id, tipo, titulo)
+     SELECT e.id, 'grupo', 'Geral'
+     FROM escritorios e
+     ON CONFLICT DO NOTHING;`
+  );
+
+  await db.query(
+    `INSERT INTO chat_participantes (conversa_id, usuario_id)
+     SELECT c.id, me.usuario_id
+     FROM chat_conversas c
+     JOIN membros_escritorio me ON me.escritorio_id = c.escritorio_id
+     WHERE c.tipo = 'grupo' AND c.titulo = 'Geral'
+     ON CONFLICT (conversa_id, usuario_id) DO NOTHING;`
+  );
+}
+
 async function ensureSequences() {
   const serialTables = [
     ['usuarios', 'id'],
@@ -285,6 +398,10 @@ async function ensureSequences() {
     ['escritorio_oabs_djen', 'id'],
     ['escritorio_procedimentos', 'id'],
     ['cadastro_verificacoes', 'id'],
+    ['chat_conversas', 'id'],
+    ['chat_participantes', 'id'],
+    ['chat_mensagens', 'id'],
+    ['chat_anexos', 'id'],
   ];
 
   for (const [table, column] of serialTables) {
@@ -303,8 +420,82 @@ async function initDatabase() {
   await ensureEscritorios();
   await ensureAjustes();
   await ensureCadastroVerificacoes();
+  await ensureChat();
+
+  await db.query(
+    `UPDATE clientes
+     SET qualificacao = trim(
+       regexp_replace(
+         concat_ws(
+           ', ',
+           concat_ws(
+             ', ',
+             nullif(trim(nome), ''),
+             nullif(trim(nacionalidade), ''),
+             nullif(trim(estado_civil), ''),
+             nullif(trim(profissao), '')
+           ),
+           CASE
+             WHEN data_nascimento IS NOT NULL THEN 'nascido(a) em ' || to_char(data_nascimento, 'DD/MM/YYYY')
+           END,
+           CASE
+             WHEN nullif(trim(filiacao), '') IS NOT NULL THEN 'filho(a) de ' || trim(filiacao)
+           END,
+           CASE
+             WHEN nullif(trim(rg), '') IS NOT NULL THEN 'portador(a) do RG ' || trim(rg)
+           END,
+           CASE
+             WHEN nullif(trim(cpf), '') IS NOT NULL THEN 'CPF ' || trim(cpf)
+           END,
+           CASE
+             WHEN (
+               nullif(trim(endereco), '') IS NOT NULL
+               OR nullif(trim(numero_casa), '') IS NOT NULL
+               OR nullif(trim(cidade), '') IS NOT NULL
+               OR nullif(trim(estado), '') IS NOT NULL
+               OR nullif(trim(cep), '') IS NOT NULL
+             ) THEN
+               'residente e domiciliado(a) em '
+               || concat_ws(
+                 ', ',
+                 concat_ws(', ', nullif(trim(endereco), ''), nullif(trim(numero_casa), '')),
+                 concat_ws(' - ', nullif(trim(cidade), ''), nullif(trim(estado), '')),
+                 CASE WHEN nullif(trim(cep), '') IS NOT NULL THEN 'CEP ' || trim(cep) END
+               )
+           END
+         ),
+         '\\s+,',
+         ',',
+         'g'
+       )
+     )
+     WHERE (
+       qualificacao IS NULL
+       OR trim(qualificacao) = ''
+       OR qualificacao ~* '(^|,)\\s*,'
+       OR qualificacao ~* 'nascido\\s*\\(a\\)\\s*em\\s*,'
+       OR qualificacao ~* 'filho\\s*\\(a\\)\\s*de\\s*,'
+       OR qualificacao ~* 'sob o n[ºo]\\s*,'
+       OR qualificacao ~* 'cpf\\s*,'
+       OR qualificacao ~* 'residente e domiciliado\\s*\\(a\\)\\s*em\\s*,\\s*,'
+     )
+       AND coalesce(trim(nome), '') <> '';`
+  );
 
   await db.query('ALTER TABLE atividades ALTER COLUMN processo_id DROP NOT NULL;');
+  await db.query(
+    `ALTER TABLE atividades
+      ADD COLUMN IF NOT EXISTS cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL;`
+  );
+  await db.query(
+    `UPDATE atividades a
+     SET cliente_id = p.cliente_id
+     FROM processos p
+     WHERE a.cliente_id IS NULL
+       AND a.processo_id = p.id
+       AND p.escritorio_id = a.escritorio_id;`
+  );
+  await db.query('CREATE INDEX IF NOT EXISTS idx_atividades_cliente_id ON atividades(cliente_id);');
   await db.query(
     `ALTER TABLE processos
       ADD COLUMN IF NOT EXISTS ultima_movimentacao_em TIMESTAMPTZ,

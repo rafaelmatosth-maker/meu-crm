@@ -20,6 +20,11 @@ async function listar(req, res) {
       baseWhere.push(`a.processo_id = $${baseParams.length}`);
     }
 
+    if (req.query.cliente_id) {
+      baseParams.push(req.query.cliente_id);
+      baseWhere.push(`a.cliente_id = $${baseParams.length}`);
+    }
+
     if (!req.query.processo_id && req.query.sem_processo === 'true') {
       baseWhere.push('a.processo_id IS NULL');
     }
@@ -109,10 +114,10 @@ async function listar(req, res) {
       `SELECT a.*,
               COALESCE(p.numero_processo, a.processo_numero) AS numero_processo,
               COALESCE(c.nome, a.cliente_nome) AS cliente_nome,
-              c.id AS cliente_id
+              COALESCE(c.id, a.cliente_id, p.cliente_id) AS cliente_id
        FROM atividades a
        LEFT JOIN processos p ON p.id = a.processo_id AND p.escritorio_id = a.escritorio_id
-       LEFT JOIN clientes c ON c.id = p.cliente_id AND c.escritorio_id = a.escritorio_id
+       LEFT JOIN clientes c ON c.id = COALESCE(a.cliente_id, p.cliente_id) AND c.escritorio_id = a.escritorio_id
        ${whereSql}
        ${orderSql}
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -132,10 +137,10 @@ async function obter(req, res) {
       `SELECT a.*,
               COALESCE(p.numero_processo, a.processo_numero) AS numero_processo,
               COALESCE(c.nome, a.cliente_nome) AS cliente_nome,
-              c.id AS cliente_id
+              COALESCE(c.id, a.cliente_id, p.cliente_id) AS cliente_id
        FROM atividades a
        LEFT JOIN processos p ON p.id = a.processo_id AND p.escritorio_id = a.escritorio_id
-       LEFT JOIN clientes c ON c.id = p.cliente_id AND c.escritorio_id = a.escritorio_id
+       LEFT JOIN clientes c ON c.id = COALESCE(a.cliente_id, p.cliente_id) AND c.escritorio_id = a.escritorio_id
        WHERE a.id = $1 AND a.escritorio_id = $2`,
       [req.params.id, escritorioId]
     );
@@ -156,6 +161,7 @@ async function criar(req, res) {
 
   const {
     processo_id,
+    cliente_id,
     processo_numero,
     cliente_nome: cliente_nome_body,
     responsavel_id,
@@ -173,9 +179,10 @@ async function criar(req, res) {
   try {
     let numero_processo = null;
     let cliente_nome = null;
+    let cliente_id_resolvido = null;
     if (processo_id) {
       const processoResult = await db.query(
-        `SELECT p.numero_processo, c.nome AS cliente_nome
+        `SELECT p.numero_processo, p.cliente_id, c.nome AS cliente_nome
          FROM processos p
          JOIN clientes c ON c.id = p.cliente_id
          WHERE p.id = $1 AND p.escritorio_id = $2 AND c.escritorio_id = $2`,
@@ -186,6 +193,17 @@ async function criar(req, res) {
       }
       numero_processo = processoResult.rows[0].numero_processo;
       cliente_nome = processoResult.rows[0].cliente_nome;
+      cliente_id_resolvido = processoResult.rows[0].cliente_id;
+    } else if (cliente_id) {
+      const clienteResult = await db.query(
+        `SELECT id, nome FROM clientes WHERE id = $1 AND escritorio_id = $2`,
+        [cliente_id, escritorioId]
+      );
+      if (!clienteResult.rows.length) {
+        return res.status(400).json({ erro: 'Cliente inválido.' });
+      }
+      cliente_id_resolvido = clienteResult.rows[0].id;
+      cliente_nome = clienteResult.rows[0].nome;
     } else if (processo_numero) {
       numero_processo = String(processo_numero).trim() || null;
       cliente_nome = cliente_nome_body ? String(cliente_nome_body).trim() || null : null;
@@ -195,11 +213,12 @@ async function criar(req, res) {
 
     const result = await db.query(
       `INSERT INTO atividades
-        (processo_id, responsavel_id, titulo, descricao, status, prioridade, prazo, prazo_hora, concluida_em, cliente_nome, processo_numero, escritorio_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        (processo_id, cliente_id, responsavel_id, titulo, descricao, status, prioridade, prazo, prazo_hora, concluida_em, cliente_nome, processo_numero, escritorio_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
       [
         processo_id || null,
+        cliente_id_resolvido || null,
         responsavel_id || null,
         titulo,
         descricao || null,
@@ -216,7 +235,7 @@ async function criar(req, res) {
     return res.status(201).json(result.rows[0]);
   } catch (err) {
     if (err.code === '23503') {
-      return res.status(400).json({ erro: 'Processo ou responsável inválido.' });
+      return res.status(400).json({ erro: 'Processo, cliente ou responsável inválido.' });
     }
     return res.status(500).json({
       erro: err.message || 'Erro ao criar atividade.',
@@ -229,6 +248,7 @@ async function criar(req, res) {
 async function atualizar(req, res) {
   const {
     processo_id,
+    cliente_id,
     processo_numero,
     cliente_nome: cliente_nome_body,
     responsavel_id,
@@ -250,9 +270,10 @@ async function atualizar(req, res) {
   try {
     let numero_processo = null;
     let cliente_nome = null;
+    let cliente_id_resolvido = null;
     if (processo_id) {
       const processoResult = await db.query(
-        `SELECT p.numero_processo, c.nome AS cliente_nome
+        `SELECT p.numero_processo, p.cliente_id, c.nome AS cliente_nome
          FROM processos p
          JOIN clientes c ON c.id = p.cliente_id
          WHERE p.id = $1 AND p.escritorio_id = $2 AND c.escritorio_id = $2`,
@@ -263,6 +284,17 @@ async function atualizar(req, res) {
       }
       numero_processo = processoResult.rows[0].numero_processo;
       cliente_nome = processoResult.rows[0].cliente_nome;
+      cliente_id_resolvido = processoResult.rows[0].cliente_id;
+    } else if (cliente_id) {
+      const clienteResult = await db.query(
+        `SELECT id, nome FROM clientes WHERE id = $1 AND escritorio_id = $2`,
+        [cliente_id, escritorioId]
+      );
+      if (!clienteResult.rows.length) {
+        return res.status(400).json({ erro: 'Cliente inválido.' });
+      }
+      cliente_id_resolvido = clienteResult.rows[0].id;
+      cliente_nome = clienteResult.rows[0].nome;
     } else if (processo_numero) {
       numero_processo = String(processo_numero).trim() || null;
       cliente_nome = cliente_nome_body ? String(cliente_nome_body).trim() || null : null;
@@ -273,20 +305,22 @@ async function atualizar(req, res) {
     const result = await db.query(
       `UPDATE atividades
        SET processo_id = $1,
-           responsavel_id = $2,
-           titulo = $3,
-           descricao = $4,
-           status = $5,
-           prioridade = $6,
-           prazo = $7,
-           prazo_hora = $8,
-           concluida_em = $9,
-           processo_numero = $10,
-           cliente_nome = $11
-       WHERE id = $12 AND escritorio_id = $13
+           cliente_id = $2,
+           responsavel_id = $3,
+           titulo = $4,
+           descricao = $5,
+           status = $6,
+           prioridade = $7,
+           prazo = $8,
+           prazo_hora = $9,
+           concluida_em = $10,
+           processo_numero = $11,
+           cliente_nome = $12
+       WHERE id = $13 AND escritorio_id = $14
        RETURNING *`,
       [
         processo_id || null,
+        cliente_id_resolvido || null,
         responsavel_id || null,
         titulo,
         descricao || null,
@@ -307,7 +341,7 @@ async function atualizar(req, res) {
     return res.json(result.rows[0]);
   } catch (err) {
     if (err.code === '23503') {
-      return res.status(400).json({ erro: 'Processo ou responsável inválido.' });
+      return res.status(400).json({ erro: 'Processo, cliente ou responsável inválido.' });
     }
     return res.status(500).json({ erro: 'Erro ao atualizar atividade.' });
   }

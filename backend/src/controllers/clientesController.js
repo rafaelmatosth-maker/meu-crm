@@ -5,6 +5,136 @@ function getEscritorioId(req) {
   return Number(req.escritorio && req.escritorio.id);
 }
 
+function formatDateLongBR(value) {
+  if (!value) return '';
+  const raw = String(value).trim();
+  if (!raw) return '';
+  let date = null;
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) {
+    date = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+  } else {
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) date = parsed;
+  }
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+function buildQualificacaoAuto(data = {}) {
+  const nome = String(data.nome || '').trim();
+  if (!nome) return '';
+
+  const qualificadores = [
+    String(data.nacionalidade || '').trim(),
+    String(data.estado_civil || '').trim(),
+    String(data.profissao || '').trim(),
+  ].filter(Boolean);
+
+  const partes = [qualificadores.length ? `${nome}, ${qualificadores.join(', ')}` : nome];
+
+  const dataNascimento = formatDateLongBR(data.data_nascimento);
+  if (dataNascimento) partes.push(`nascido(a) em ${dataNascimento}`);
+
+  const filiacao = String(data.filiacao || '').trim();
+  if (filiacao) partes.push(`filho(a) de ${filiacao}`);
+
+  const rg = String(data.rg || '').trim();
+  if (rg) partes.push(`portador(a) do RG ${rg}`);
+
+  const cpf = String(data.cpf || '').trim();
+  if (cpf) partes.push(`CPF ${cpf}`);
+
+  const enderecoLinha = [String(data.endereco || '').trim(), String(data.numero_casa || '').trim()]
+    .filter(Boolean)
+    .join(', ');
+  const cidadeUf = [String(data.cidade || '').trim(), String(data.estado || '').trim()]
+    .filter(Boolean)
+    .join(' - ');
+  const cep = String(data.cep || '').trim();
+  const enderecoCompleto = [enderecoLinha, cidadeUf, cep ? `CEP ${cep}` : '']
+    .filter(Boolean)
+    .join(', ');
+  if (enderecoCompleto) partes.push(`residente e domiciliado(a) em ${enderecoCompleto}`);
+
+  return partes.filter(Boolean).join(', ');
+}
+
+function isQualificacaoPlaceholder(value = '') {
+  const raw = String(value || '').trim();
+  if (!raw) return true;
+  const normalized = raw.toLowerCase();
+  if (/(^|,)\s*,/.test(raw)) return true;
+  if (/nascido\s*\(a\)\s*em\s*,/i.test(normalized)) return true;
+  if (/filho\s*\(a\)\s*de\s*,/i.test(normalized)) return true;
+  if (/sob o n[ºo]\s*,/i.test(normalized)) return true;
+  if (/cpf\s*,/i.test(normalized)) return true;
+  if (/residente e domiciliado\s*\(a\)\s*em\s*,\s*,/i.test(normalized)) return true;
+  return false;
+}
+
+function normalizeCompareText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function normalizeDigits(value = '') {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function shouldPreferAutoQualificacao(data = {}, manual = '', auto = '') {
+  const manualText = String(manual || '').trim();
+  const autoText = String(auto || '').trim();
+  if (!autoText) return false;
+  if (!manualText || isQualificacaoPlaceholder(manualText)) return true;
+
+  const normalizedManual = normalizeCompareText(manualText);
+  let missingSignals = 0;
+
+  const cpfDigits = normalizeDigits(data.cpf);
+  if (cpfDigits && !normalizeDigits(manualText).includes(cpfDigits)) missingSignals += 1;
+
+  const rgDigits = normalizeDigits(data.rg);
+  if (rgDigits && !normalizeDigits(manualText).includes(rgDigits)) missingSignals += 1;
+
+  const filiacao = normalizeCompareText(data.filiacao);
+  if (filiacao && !normalizedManual.includes(filiacao)) missingSignals += 1;
+
+  const endereco = normalizeCompareText(data.endereco);
+  if (endereco && !normalizedManual.includes(endereco)) missingSignals += 1;
+
+  const cidade = normalizeCompareText(data.cidade);
+  if (cidade && !normalizedManual.includes(cidade)) missingSignals += 1;
+
+  const cepDigits = normalizeDigits(data.cep);
+  if (cepDigits && !normalizeDigits(manualText).includes(cepDigits)) missingSignals += 1;
+
+  const dataNascimento = String(data.data_nascimento || '').trim();
+  if (dataNascimento) {
+    const yearMatch = dataNascimento.match(/(\d{4})/);
+    if (yearMatch && !manualText.includes(yearMatch[1])) missingSignals += 1;
+  }
+
+  return missingSignals >= 2 || manualText.length < autoText.length * 0.7;
+}
+
+function applyQualificacaoFallback(cliente = {}) {
+  if (!cliente) return cliente;
+  const atual = String(cliente.qualificacao || '').trim();
+  const auto = buildQualificacaoAuto(cliente);
+  if (atual && !shouldPreferAutoQualificacao(cliente, atual, auto)) return cliente;
+  return {
+    ...cliente,
+    qualificacao: auto || null,
+  };
+}
+
 async function listar(req, res) {
   try {
     const escritorioId = getEscritorioId(req);
@@ -47,7 +177,8 @@ async function listar(req, res) {
       params
     );
 
-    return res.json({ data: result.rows, page, limit, total });
+    const data = result.rows.map(applyQualificacaoFallback);
+    return res.json({ data, page, limit, total });
   } catch (err) {
     return res.status(500).json({ erro: 'Erro ao listar clientes.' });
   }
@@ -63,7 +194,7 @@ async function obter(req, res) {
     if (!result.rows.length) {
       return res.status(404).json({ erro: 'Cliente não encontrado.' });
     }
-    return res.json(result.rows[0]);
+    return res.json(applyQualificacaoFallback(result.rows[0]));
   } catch (err) {
     return res.status(500).json({ erro: 'Erro ao obter cliente.' });
   }
@@ -110,6 +241,12 @@ async function criar(req, res) {
 
   const escritorioId = getEscritorioId(req);
   const statusFinal = status || 'lead';
+  const qualificacaoRaw = String(qualificacao || '').trim();
+  const qualificacaoAuto = buildQualificacaoAuto(req.body);
+  const qualificacaoFinal =
+    qualificacaoRaw && !shouldPreferAutoQualificacao(req.body, qualificacaoRaw, qualificacaoAuto)
+      ? qualificacaoRaw
+      : qualificacaoAuto || null;
   if (statusFinal && !['lead', 'ativo', 'inativo'].includes(statusFinal)) {
     return res.status(400).json({ erro: 'Status inválido.' });
   }
@@ -186,13 +323,13 @@ async function criar(req, res) {
         parceiro || null,
         processos_notion || null,
         profissao || null,
-        qualificacao || null,
+        qualificacaoFinal,
         rg || null,
         responsavel || null,
         escritorioId,
       ]
     );
-    return res.status(201).json(result.rows[0]);
+    return res.status(201).json(applyQualificacaoFallback(result.rows[0]));
   } catch (err) {
     if (err.code === '23505') {
       return res.status(400).json({ erro: 'CPF ou e-mail já cadastrado.' });
@@ -202,6 +339,27 @@ async function criar(req, res) {
 }
 
 async function atualizar(req, res) {
+  const escritorioId = getEscritorioId(req);
+
+  if (
+    Object.prototype.hasOwnProperty.call(req.body, 'qualificacao') &&
+    shouldPreferAutoQualificacao(req.body, req.body.qualificacao, buildQualificacaoAuto(req.body))
+  ) {
+    try {
+      const atual = await db.query(
+        'SELECT * FROM clientes WHERE id = $1 AND escritorio_id = $2',
+        [req.params.id, escritorioId]
+      );
+      if (!atual.rows.length) {
+        return res.status(404).json({ erro: 'Cliente não encontrado.' });
+      }
+      const merged = { ...atual.rows[0], ...req.body };
+      req.body.qualificacao = buildQualificacaoAuto(merged) || null;
+    } catch (err) {
+      return res.status(500).json({ erro: 'Erro ao preparar atualização do cliente.' });
+    }
+  }
+
   const allowed = {
     nome: 'nome',
     cpf: 'cpf',
@@ -268,7 +426,6 @@ async function atualizar(req, res) {
     return res.status(400).json({ erro: 'Campo obrigatório: nome' });
   }
 
-  const escritorioId = getEscritorioId(req);
   values.push(req.params.id, escritorioId);
 
   try {
@@ -282,7 +439,7 @@ async function atualizar(req, res) {
     if (!result.rows.length) {
       return res.status(404).json({ erro: 'Cliente não encontrado.' });
     }
-    return res.json(result.rows[0]);
+    return res.json(applyQualificacaoFallback(result.rows[0]));
   } catch (err) {
     if (err.code === '23505') {
       return res.status(400).json({ erro: 'CPF ou e-mail já cadastrado.' });

@@ -4,6 +4,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const path = require('path');
+const fs = require('fs');
 
 const authRoutes = require('./routes/authRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
@@ -15,6 +16,7 @@ const financeiroRoutes = require('./routes/financeiroRoutes');
 const publicacoesDjenRoutes = require('./routes/publicacoesDjenRoutes');
 const escritoriosRoutes = require('./routes/escritoriosRoutes');
 const ajustesRoutes = require('./routes/ajustesRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const { initDatabase } = require('./dbInit');
 const { syncAllProcessos } = require('./services/processoAndamentosService');
 
@@ -41,6 +43,31 @@ const sendPage = (filename) => (req, res, next) => {
   if (isApiRequest(req)) return next();
   noCache(res);
   return res.sendFile(path.join(frontendPath, 'pages', filename));
+};
+
+const contentTypeByExt = (filename) => {
+  const ext = path.extname(filename).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.svg') return 'image/svg+xml';
+  if (ext === '.ico') return 'image/x-icon';
+  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg';
+  if (ext === '.webp') return 'image/webp';
+  return 'application/octet-stream';
+};
+
+const sendBrandAsset = (filename) => (req, res) => {
+  const fullPath = path.join(frontendPath, 'assets', 'brand', filename);
+  fs.readFile(fullPath, (err, data) => {
+    if (err) {
+      const status = err.code === 'ENOENT' ? 404 : 500;
+      res.status(status).json({ erro: 'Erro ao carregar recurso estático.' });
+      return;
+    }
+    noCache(res);
+    res.setHeader('Content-Type', contentTypeByExt(filename));
+    res.setHeader('Content-Length', String(data.length));
+    res.end(data);
+  });
 };
 
 const redirectHtml = (fromPath, toPath) => {
@@ -118,25 +145,19 @@ app.use('/financeiro-lancamentos', financeiroRoutes);
 app.use('/publicacoes-djen', publicacoesDjenRoutes);
 app.use('/escritorios', escritoriosRoutes);
 app.use('/ajustes', ajustesRoutes);
+app.use('/chat', chatRoutes);
 
 // Some browsers will still probe /favicon.ico (and friends) regardless of <link rel="icon">.
 // Serve the branded assets from the same place and disable caching to avoid "stuck" favicons.
-app.get('/favicon.ico', (req, res) => {
-  noCache(res);
-  res.sendFile(path.join(frontendPath, 'assets', 'brand', 'favicon.ico'));
+app.get('/assets/brand/:file', (req, res, next) => {
+  const file = String(req.params.file || '');
+  if (!/^[a-zA-Z0-9._-]+$/.test(file)) return next();
+  return sendBrandAsset(file)(req, res);
 });
-app.get('/favicon-16.png', (req, res) => {
-  noCache(res);
-  res.sendFile(path.join(frontendPath, 'assets', 'brand', 'favicon-16.png'));
-});
-app.get('/favicon-32.png', (req, res) => {
-  noCache(res);
-  res.sendFile(path.join(frontendPath, 'assets', 'brand', 'favicon-32.png'));
-});
-app.get('/apple-touch-icon.png', (req, res) => {
-  noCache(res);
-  res.sendFile(path.join(frontendPath, 'assets', 'brand', 'apple-touch-icon.png'));
-});
+app.get('/favicon.ico', sendBrandAsset('favicon.ico'));
+app.get('/favicon-16.png', sendBrandAsset('favicon-16.png'));
+app.get('/favicon-32.png', sendBrandAsset('favicon-32.png'));
+app.get('/apple-touch-icon.png', sendBrandAsset('apple-touch-icon.png'));
 
 app.use(
   '/assets',
@@ -164,6 +185,7 @@ app.use((req, res) => {
 });
 
 const port = Number(process.env.PORT || 3000);
+const dbInitTimeoutMs = Number(process.env.DB_INIT_TIMEOUT_MS || 15000);
 
 function scheduleDailySync() {
   const enabled = process.env.DATAJUD_DAILY_SYNC !== 'false';
@@ -190,9 +212,16 @@ function scheduleDailySync() {
   }, delay);
 }
 
+async function initDatabaseWithTimeout() {
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error(`Timeout de inicialização do banco (${dbInitTimeoutMs}ms)`)), dbInitTimeoutMs);
+  });
+  return Promise.race([initDatabase(), timeoutPromise]);
+}
+
 (async () => {
   try {
-    await initDatabase();
+    await initDatabaseWithTimeout();
   } catch (err) {
     console.error('Falha ao inicializar banco:', err.message);
   }

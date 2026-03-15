@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS escritorio_config (
   escritorio_id INTEGER PRIMARY KEY REFERENCES escritorios(id) ON DELETE CASCADE,
   nome_exibicao TEXT,
   djen_uf_padrao CHAR(2) DEFAULT 'BA',
+  tema TEXT NOT NULL DEFAULT 'classic',
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );

@@ -1,7 +1,6 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const AppleStrategy = require('passport-apple');
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/auth');
 const { attachEscritorioContext } = require('../middleware/escritorio');
@@ -46,7 +45,7 @@ if (hasGoogleOauth) {
   );
 }
 
-const hasAppleOauth =
+let hasAppleOauth =
   process.env.OAUTH_APPLE_CLIENT_ID &&
   process.env.OAUTH_APPLE_TEAM_ID &&
   process.env.OAUTH_APPLE_KEY_ID &&
@@ -54,41 +53,47 @@ const hasAppleOauth =
   process.env.OAUTH_APPLE_CALLBACK_URL;
 
 if (hasAppleOauth) {
-  passport.use(
-    new AppleStrategy(
-      {
-        clientID: process.env.OAUTH_APPLE_CLIENT_ID,
-        teamID: process.env.OAUTH_APPLE_TEAM_ID,
-        keyID: process.env.OAUTH_APPLE_KEY_ID,
-        callbackURL: process.env.OAUTH_APPLE_CALLBACK_URL,
-        privateKeyString: process.env.OAUTH_APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        passReqToCallback: false,
-      },
-      async (_accessToken, _refreshToken, idToken, profile, done) => {
-        try {
-          const email = String(profile?.email || idToken?.email || '').toLowerCase();
-          const nome = profile?.name
-            ? `${profile.name.firstName || ''} ${profile.name.lastName || ''}`.trim()
-            : email.split('@')[0] || 'Usuário Apple';
+  try {
+    const AppleStrategy = require('passport-apple');
+    passport.use(
+      new AppleStrategy(
+        {
+          clientID: process.env.OAUTH_APPLE_CLIENT_ID,
+          teamID: process.env.OAUTH_APPLE_TEAM_ID,
+          keyID: process.env.OAUTH_APPLE_KEY_ID,
+          callbackURL: process.env.OAUTH_APPLE_CALLBACK_URL,
+          privateKeyString: process.env.OAUTH_APPLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          passReqToCallback: false,
+        },
+        async (_accessToken, _refreshToken, idToken, profile, done) => {
+          try {
+            const email = String(profile?.email || idToken?.email || '').toLowerCase();
+            const nome = profile?.name
+              ? `${profile.name.firstName || ''} ${profile.name.lastName || ''}`.trim()
+              : email.split('@')[0] || 'Usuário Apple';
 
-          if (!email) {
-            return done(new Error('Apple não retornou e-mail.'));
+            if (!email) {
+              return done(new Error('Apple não retornou e-mail.'));
+            }
+
+            const authResult = await loginOrCreateFromOAuth({
+              provider: 'apple',
+              providerId: idToken?.sub,
+              email,
+              nome,
+              escritorioNome: `Escritorio de ${nome}`,
+            });
+            return done(null, authResult);
+          } catch (err) {
+            return done(err);
           }
-
-          const authResult = await loginOrCreateFromOAuth({
-            provider: 'apple',
-            providerId: idToken?.sub,
-            email,
-            nome,
-            escritorioNome: `Escritorio de ${nome}`,
-          });
-          return done(null, authResult);
-        } catch (err) {
-          return done(err);
         }
-      }
-    )
-  );
+      )
+    );
+  } catch (err) {
+    hasAppleOauth = false;
+    console.warn('OAuth Apple desativado neste ambiente:', err.message);
+  }
 }
 
 function finalizeOauth(req, res) {

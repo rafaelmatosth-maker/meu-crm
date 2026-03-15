@@ -1,0 +1,780 @@
+status,cliente_id,cliente_escritorio_id,cliente_nome,cliente_link_pasta_old,drive_folder_id,drive_folder_name,drive_folder_url,match_type,message
+unmatched,1,1,Rodrigo Santos Gobira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,2,1,Jorge Rodrigues Cypriano,,1ikOIs4SvuZAFYz1b1aXJ0FAqkIl83-O7,Jorge Rodrigues Cypriano,https://drive.google.com/drive/folders/1ikOIs4SvuZAFYz1b1aXJ0FAqkIl83-O7,exact,Atualizado no banco.
+update,3,1,Aristoteles Fernandes de Lima Filho,,1r8Gq71H2C5zJdixkxRSAb1-8DNBveJKS,Aristoteles Fernandes de Lima Filho ,https://drive.google.com/drive/folders/1r8Gq71H2C5zJdixkxRSAb1-8DNBveJKS,exact,Atualizado no banco.
+update,4,1,Sara Silva Spinola,,1fuZm3H8QTJfDGVD5LKjUw4B7skgHMz2t,Sara Silva Spinola,https://drive.google.com/drive/folders/1fuZm3H8QTJfDGVD5LKjUw4B7skgHMz2t,exact,Atualizado no banco.
+unmatched,5,1,Matheus Porto Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,6,1,Aline de Sousa Gusmão de Moura,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,7,1,Paulo Roberto Soares Ferreira,,1q7nWLQZAGB0w_RXQI8FPkRm3JBt_6RHd,Paulo Roberto Soares Ferreira,https://drive.google.com/drive/folders/1q7nWLQZAGB0w_RXQI8FPkRm3JBt_6RHd,exact,Atualizado no banco.
+unmatched,8,1,Cleusa Rosa Freire,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,9,1,Thais Silva Rocha,,1eXmfV9GYWCrb9IRqmd8NMy2JR9HLbP5m,Thais Silva Rocha,https://drive.google.com/drive/folders/1eXmfV9GYWCrb9IRqmd8NMy2JR9HLbP5m,exact,Atualizado no banco.
+update,10,1,Antonio Alves dos Santos Junior,,1wzQwL2Wu_gu4PPd2UQ0Vw7Fv-Sxmvb2_,Antonio Alves dos Santos Junior ,https://drive.google.com/drive/folders/1wzQwL2Wu_gu4PPd2UQ0Vw7Fv-Sxmvb2_,exact,Atualizado no banco.
+update,11,1,Lariane Menezes da Cruz,,1MYYuXNJXU4hk82VgAntaxFB-9aFbvt-e,Lariane Menezes da Cruz,https://drive.google.com/drive/folders/1MYYuXNJXU4hk82VgAntaxFB-9aFbvt-e,exact,Atualizado no banco.
+unmatched,12,1,Manoel Mendes de Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,13,1,Ronen Januario dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,14,1,Queitiane Oliveira Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,15,1,Francisdene Franca De Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,16,1,Gilson De Jesus Silva,,1pl7AUoUXECMhqT7SaK4EYH6qk3ppzaoz,Gilson de Jesus Silva ,https://drive.google.com/drive/folders/1pl7AUoUXECMhqT7SaK4EYH6qk3ppzaoz,exact,Atualizado no banco.
+update,17,1,Lucilene Dias Freitas,,1s7IGWm8OZplQILCSFvUe3e8gpvI5F4kB,Lucilene Dias Freitas ,https://drive.google.com/drive/folders/1s7IGWm8OZplQILCSFvUe3e8gpvI5F4kB,exact,Atualizado no banco.
+update,18,1,Noelia Prates Lima,,1beHMRouWKLGD7QC3OdSyNbH3_ieIhBVR,Noelia Prates Lima,https://drive.google.com/drive/folders/1beHMRouWKLGD7QC3OdSyNbH3_ieIhBVR,exact,Atualizado no banco.
+update,19,1,Maria Gilda Martins,,1d5jfmC1qZXYXpHsrPO96ts1Wfqkk_uSt,Maria Gilda Martins,https://drive.google.com/drive/folders/1d5jfmC1qZXYXpHsrPO96ts1Wfqkk_uSt,exact,Atualizado no banco.
+update,21,1,Lucas Rodrigues Santos,,1oAnXluwUl1JeO3houwLGyC1lO7Q_F_GH,Lucas Rodrigues Santos ,https://drive.google.com/drive/folders/1oAnXluwUl1JeO3houwLGyC1lO7Q_F_GH,exact,Atualizado no banco.
+unmatched,22,1,Valdice Pereira Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,23,1,Daiane Silva dos Santos,,1i2lxAagS4dJvVJz0JQv_GAzoGXWFMvfX,Daiane Silva dos Santos,https://drive.google.com/drive/folders/1i2lxAagS4dJvVJz0JQv_GAzoGXWFMvfX,exact,Atualizado no banco.
+update,24,1,Leandro Souza Sampaio,,1q7j4eRGYi7ce0UbYG0gNT1ojTX_4gGrm,Leandro Souza Sampaio ,https://drive.google.com/drive/folders/1q7j4eRGYi7ce0UbYG0gNT1ojTX_4gGrm,exact,Atualizado no banco.
+unmatched,25,1,Alisson Silva Carvalho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,26,1,Vanda Pires Moreira,,1d9fTcY05Gso6gf2vjQTwt8Bf0bCCj0W_,Vanda Pires Moreira,https://drive.google.com/drive/folders/1d9fTcY05Gso6gf2vjQTwt8Bf0bCCj0W_,exact,Atualizado no banco.
+unmatched,27,1,Maria Aparecida Santos Nery,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,28,1,Deomario Bento Dos Santos,,1m6lBXlYvyUbSkeE8oFNOPHlasHJVuuaN,Deomário Bento dos Santos ,https://drive.google.com/drive/folders/1m6lBXlYvyUbSkeE8oFNOPHlasHJVuuaN,exact,Atualizado no banco.
+update,29,1,Juscelino Coelho Sampaio,,1e-seF54GMTRfYtSq-p43c-lF9id-ldzJ,Juscelino Coelho Sampaio,https://drive.google.com/drive/folders/1e-seF54GMTRfYtSq-p43c-lF9id-ldzJ,exact,Atualizado no banco.
+update,30,1,Sebastiana Santos Lima,,1s51uaTKEI-_SfQSp8Bq3biuVbgVNCVkh,Sebastiana Santos Lima,https://drive.google.com/drive/folders/1s51uaTKEI-_SfQSp8Bq3biuVbgVNCVkh,exact,Atualizado no banco.
+update,31,1,Jose Nilton Vasconcelos Melo,,1qA2mKsa-f9jFjknn6UGmR45ipMTNO9lp,Jose Nilton Vasconcelos Melo ,https://drive.google.com/drive/folders/1qA2mKsa-f9jFjknn6UGmR45ipMTNO9lp,exact,Atualizado no banco.
+update,32,1,Dagnalva Portugal Santos,,1GMRqtvUOCXK3lMMplwtxh0_kpFFzy83z,Dagnalva Portugal Santos,https://drive.google.com/drive/folders/1GMRqtvUOCXK3lMMplwtxh0_kpFFzy83z,exact,Atualizado no banco.
+unmatched,33,1,Laise Souza Pereira Lima,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,35,1,Maria Salete Dias,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,36,1,Idália Dias Cantil,,11-E5uyfW1UBTu9F1hLM3p2k0wqL-Eygu,Idalia Dias Cantil,https://drive.google.com/drive/folders/11-E5uyfW1UBTu9F1hLM3p2k0wqL-Eygu,exact,Atualizado no banco.
+update,37,1,Zemario Meira Lira,,1QyHdRQx2edGX8iYVqoLgQKoq84ZKnr_q,Zemario Meira Lira,https://drive.google.com/drive/folders/1QyHdRQx2edGX8iYVqoLgQKoq84ZKnr_q,exact,Atualizado no banco.
+update,38,1,Eliete de Oliveira Silva,,1pyIcIlD18KL3gMiGEWRoDbK2_jaCzqR-,Eliete de Oliveira Silva ,https://drive.google.com/drive/folders/1pyIcIlD18KL3gMiGEWRoDbK2_jaCzqR-,exact,Atualizado no banco.
+unmatched,39,1,Edinilson Silva Correia,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,40,1,Ivanildo Rodrigues da Silva,,1kTrCN3G6GIw2-F2e1poZdF25_40lMJW5,Ivanildo Rodrigues da Silva ,https://drive.google.com/drive/folders/1kTrCN3G6GIw2-F2e1poZdF25_40lMJW5,exact,Atualizado no banco.
+unmatched,41,1,Tania Mara De Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,42,1,Edmara Sousa Ramos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,43,1,Marlene de Jesus Sousa,,10ZomfsEYTRwSyht0VSsNg48yUGzh6htS,Marlene de Jesus Sousa,https://drive.google.com/drive/folders/10ZomfsEYTRwSyht0VSsNg48yUGzh6htS,exact,Atualizado no banco.
+update,44,1,Bruna Teles Araujo,,1h8jnKBSWoqyNwwrDvPG8_UDNhcfsgNFd,Bruna Teles Araújo,https://drive.google.com/drive/folders/1h8jnKBSWoqyNwwrDvPG8_UDNhcfsgNFd,exact,Atualizado no banco.
+unmatched,45,1,Gilson Dos Santos Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,46,1,Elenilda dos Santos Mendes,,1d6bGUt5zSaY3Ner2dqB9zaIK_ovOiAFB,Elenilda dos Santos Mendes,https://drive.google.com/drive/folders/1d6bGUt5zSaY3Ner2dqB9zaIK_ovOiAFB,exact,Atualizado no banco.
+unmatched,47,1,Ana Cláudia Rezende Bezerril,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,48,1,Orlando Moura Campos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,49,1,Aloísio Silva,,1iUMYkVDijcCbup2Qu48jBTSlqr92qUtS,Aloisio Silva,https://drive.google.com/drive/folders/1iUMYkVDijcCbup2Qu48jBTSlqr92qUtS,exact,Atualizado no banco.
+unmatched,50,1,Alan De Reis Luna Me,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,51,1,Erica Oliveira Brito Santos,,1Yedsw3ZBHUbx4DVxCf3H8ccUiC3zBIa7,Erica Oliveira Brito Santos,https://drive.google.com/drive/folders/1Yedsw3ZBHUbx4DVxCf3H8ccUiC3zBIa7,exact,Atualizado no banco.
+unmatched,52,1,Adriano De Oliveira Nolasco,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,53,1,Nalanda Souza Rodrigues,,1c_gNmytg1R-K9NMFeHj_r63pVmjJ8nmI,Nalanda Souza Rodrigues,https://drive.google.com/drive/folders/1c_gNmytg1R-K9NMFeHj_r63pVmjJ8nmI,exact,Atualizado no banco.
+update,54,1,Daiane Vieira Meireles,,1lTKNgE8yfDUooepob2UubwQNhOqcQcjx,Daiane Vieira Meireles ,https://drive.google.com/drive/folders/1lTKNgE8yfDUooepob2UubwQNhOqcQcjx,exact,Atualizado no banco.
+update,55,1,Diego Oliveira Santos,,1rmMmn2RVFBokf_57H6W5ibIqR7ei1fkK,Diego Oliveira Santos  ,https://drive.google.com/drive/folders/1rmMmn2RVFBokf_57H6W5ibIqR7ei1fkK,exact,Atualizado no banco.
+update,56,1,Hannah Barbosa Silva,,1mwqE2lyWHNB5smcWBl-vs03DI6pADZpP,Hannah Barbosa Silva ,https://drive.google.com/drive/folders/1mwqE2lyWHNB5smcWBl-vs03DI6pADZpP,exact,Atualizado no banco.
+update,57,1,Janilson Santos Dias,,1t5nVqLUV9N67OSy-CrK3V-Wbn8umazee,Janilson Santos Dias  ,https://drive.google.com/drive/folders/1t5nVqLUV9N67OSy-CrK3V-Wbn8umazee,exact,Atualizado no banco.
+update,58,1,Jucelia de Sousa Santos,,1-G75B4vgC1TiVsNlPWyerPsS39OSAFQl,Jucelia de Sousa Santos,https://drive.google.com/drive/folders/1-G75B4vgC1TiVsNlPWyerPsS39OSAFQl,exact,Atualizado no banco.
+update,59,1,Luzivane Silva Santos,,1YJKDRdC6JjG6mTIahMRsVYU7eAjp4SJd,Luzivane Silva Santos,https://drive.google.com/drive/folders/1YJKDRdC6JjG6mTIahMRsVYU7eAjp4SJd,exact,Atualizado no banco.
+update,60,1,Gilmara Ribeiro Rocha Pacheco,,1dPmsINBXH9_qurTog1LdyqbEKWlTklDn,Gilmara Ribeiro Rocha Pacheco,https://drive.google.com/drive/folders/1dPmsINBXH9_qurTog1LdyqbEKWlTklDn,exact,Atualizado no banco.
+unmatched,61,1,Valdeni Pereira lopes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,62,1,Alexandre Oliveira dos Santos,,1oMTwe_DdEqjyrw2jDrBYglz5g-AC_TU6,Alexandre Oliveira dos Santos ,https://drive.google.com/drive/folders/1oMTwe_DdEqjyrw2jDrBYglz5g-AC_TU6,exact,Atualizado no banco.
+update,63,1,Jean Silva Santos,,1f3rHf7mN5HVDotkjXw75ZHrpUxeDQDec,Jean Silva Santos,https://drive.google.com/drive/folders/1f3rHf7mN5HVDotkjXw75ZHrpUxeDQDec,exact,Atualizado no banco.
+update,64,1,Guilherme Moreira Silva Batista,,1or42_ECzh-9kTIf-JHBTqk4o_HX7K5W2,Guilherme Moreira Silva Batista ,https://drive.google.com/drive/folders/1or42_ECzh-9kTIf-JHBTqk4o_HX7K5W2,exact,Atualizado no banco.
+update,65,1,Viviane Lima Da Silva,,1chen-G9Kcj92Vx3EvIsoiwQtdDQUwh-j,Viviane Lima da Silva,https://drive.google.com/drive/folders/1chen-G9Kcj92Vx3EvIsoiwQtdDQUwh-j,exact,Atualizado no banco.
+update,66,1,Adélia Santos Pereira,,1gaRTQCa1DwROu5elRVseA6FI6c0rMNgK,Adelia Santos Pereira,https://drive.google.com/drive/folders/1gaRTQCa1DwROu5elRVseA6FI6c0rMNgK,exact,Atualizado no banco.
+update,67,1,Edvaldo Silva Santana,,1-4vcBJbyj4Cd3YU3SXmrTztr7dJ5er0Y,Edvaldo Silva Santana,https://drive.google.com/drive/folders/1-4vcBJbyj4Cd3YU3SXmrTztr7dJ5er0Y,exact,Atualizado no banco.
+unmatched,68,1,Priscila Sousa De Moraes,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,69,1,Ricardo Rodrigues Ribeiro,,1T--rk-pf1rNw-LxuS633rd9cDZj96c2x,Ricardo Rodrigues Ribeiro,https://drive.google.com/drive/folders/1T--rk-pf1rNw-LxuS633rd9cDZj96c2x,exact,Atualizado no banco.
+unmatched,70,1,Vinicius Pereira Da Cruz,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,71,1,Tereza Teixeira Dos Santos,,1-Ek2IkmCDrcJsQxlfehIGcHqRU2mHa95,Tereza Teixeira dos Santos,https://drive.google.com/drive/folders/1-Ek2IkmCDrcJsQxlfehIGcHqRU2mHa95,exact,Atualizado no banco.
+update,72,1,José Roberto Dias Costa,,1HLPcV-k4FVyLBncmFRm-avlAsCUhtdSw,José Roberto Dias Costa,https://drive.google.com/drive/folders/1HLPcV-k4FVyLBncmFRm-avlAsCUhtdSw,exact,Atualizado no banco.
+update,73,1,Beatriz Cabral dos Santos,,1dhZpioAAb-G1fry7W63lYLgR78E1Wtlf,Beatriz Cabral dos Santos,https://drive.google.com/drive/folders/1dhZpioAAb-G1fry7W63lYLgR78E1Wtlf,exact,Atualizado no banco.
+update,74,1,Bárbara Gabriele da Silva,,1f5pzUPl3XHEI30lIPsNxge2GUS5MOsK5,Barbara Gabriele da Silva,https://drive.google.com/drive/folders/1f5pzUPl3XHEI30lIPsNxge2GUS5MOsK5,exact,Atualizado no banco.
+update,75,1,Luciola Da Silva Costa,,1vXlILXWkgDNMHeYF7U7KN79gmyMv1bFx,Luciola da Silva Costa ,https://drive.google.com/drive/folders/1vXlILXWkgDNMHeYF7U7KN79gmyMv1bFx,exact,Atualizado no banco.
+update,76,1,Cosmerina De Jesus Silva,,1j5Rdn47zqmRc1v3QIZPkT1BQEpvMlh0G,Cosmerina de Jesus Silva ,https://drive.google.com/drive/folders/1j5Rdn47zqmRc1v3QIZPkT1BQEpvMlh0G,exact,Atualizado no banco.
+update,77,1,Carine Rosa Silva,,1nppCk3VLLrRwi2ZR1SfUizRqUWWcnCqk,Carine Rosa Silva ,https://drive.google.com/drive/folders/1nppCk3VLLrRwi2ZR1SfUizRqUWWcnCqk,exact,Atualizado no banco.
+unmatched,78,1,Hugo Souza Alves,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,79,1,Rilva de Jesus Almeida,,11TygxqBTnIEZ2-LTqr99dKFt-n8XR_vw,Rilva de Jesus Almeida Castro,https://drive.google.com/drive/folders/11TygxqBTnIEZ2-LTqr99dKFt-n8XR_vw,prefix,Atualizado no banco.
+unmatched,80,1,Gustavo Bitencourt dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,81,1,Vanessa Dos Santos,,13r4VHWlDW-CBJ2GF8HVaOD64Yhhv3Jtn,Vanessa dos Santos Silva,https://drive.google.com/drive/folders/13r4VHWlDW-CBJ2GF8HVaOD64Yhhv3Jtn,prefix,Atualizado no banco.
+update,82,1,Edinéia de Jesus Lima,,1rBWl9NtKQXirev6crTZ17fMWD8kU6Mbv,Edineia de Jesus Lima ,https://drive.google.com/drive/folders/1rBWl9NtKQXirev6crTZ17fMWD8kU6Mbv,exact,Atualizado no banco.
+unmatched,84,1,Carlos Henrique Pereira Mota,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,85,1,Gisele Dias Moreira,,1j3XyDLl1HH3jX-poPFSwS6TVGj9DEuOt,Gisele Dias Moreira ,https://drive.google.com/drive/folders/1j3XyDLl1HH3jX-poPFSwS6TVGj9DEuOt,exact,Atualizado no banco.
+update,86,1,Zenilda Silva Souza,,1DAxQqEmF1oOTHJE3_WB6X9T5Kz38i0LW,Zenilda Silva Souza,https://drive.google.com/drive/folders/1DAxQqEmF1oOTHJE3_WB6X9T5Kz38i0LW,exact,Atualizado no banco.
+unmatched,87,1,Ana Carolina Teixeira De Carvalho Ladeia,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,88,1,Joel de Andrade Filho,,1N3ELF9U7itxYMmyXSMdlM-D93C4v-_hb,Joel de Andrade Filho,https://drive.google.com/drive/folders/1N3ELF9U7itxYMmyXSMdlM-D93C4v-_hb,exact,Atualizado no banco.
+update,89,1,Tamires Silva Santos,,14dvfLLWVrRP64TLEqrECuG5q7TF0Eqca,Tamires Silva Santos,https://drive.google.com/drive/folders/14dvfLLWVrRP64TLEqrECuG5q7TF0Eqca,exact,Atualizado no banco.
+unmatched,90,1,Nilson Alves de Souza Junior,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,91,1,Eduarda Cristina Alves Meira,,1v55dQ2ec9weMD0OPrIyaEJg6zS-zCi2T,Eduarda Cristina Alves Meira (Manu) ,https://drive.google.com/drive/folders/1v55dQ2ec9weMD0OPrIyaEJg6zS-zCi2T,prefix,Atualizado no banco.
+unmatched,92,1,Aline Dos Santos Pimenta,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,93,1,Larissa Oliveira Alves Da Silva,,1v9loMrZFBSFwM9bt95owbK2hLHMpqKsH,Larissa Oliveira Alves da Silva ,https://drive.google.com/drive/folders/1v9loMrZFBSFwM9bt95owbK2hLHMpqKsH,exact,Atualizado no banco.
+unmatched,94,1,Arcênio Cléber Farias Viana,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,95,1,Tatiana Silveira Viana De Sousa,,1IN_xz1tCav5NIk4UoxHMM74pXkVSAosY,Tatiana Silveira Viana de Sousa,https://drive.google.com/drive/folders/1IN_xz1tCav5NIk4UoxHMM74pXkVSAosY,exact,Atualizado no banco.
+update,96,1,Alcides Alves de Lima,,11iQn9-mgkoeY5u-voOft4B1ixmKQlQOk,Alcides Alves de Lima,https://drive.google.com/drive/folders/11iQn9-mgkoeY5u-voOft4B1ixmKQlQOk,exact,Atualizado no banco.
+unmatched,97,1,Jamilly Kelly de Freitas Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,98,1,Antonio Pereira do Bonfim,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,99,1,Enio Albino,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,100,1,Edvaldo Silva Moreira,,1nMmqRe443LJeAsMeJ2oE145236xv2QLa,Edvaldo Silva Moreira ,https://drive.google.com/drive/folders/1nMmqRe443LJeAsMeJ2oE145236xv2QLa,exact,Atualizado no banco.
+update,101,1,Geraldo Oscar Dos Santos,,1etf-qsEixNpqrJKWXGpS4Tz4pbWSBFDk,Geraldo Oscar dos Santos,https://drive.google.com/drive/folders/1etf-qsEixNpqrJKWXGpS4Tz4pbWSBFDk,exact,Atualizado no banco.
+unmatched,102,1,Felipe Borges Nascimento Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,103,1,Rodrigo Santana Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,104,1,Leticia Matias de Deus,,1DMZQdjMJijqo753mH6h3ka8L1emJ3G7G,Letícia Matias de Deus,https://drive.google.com/drive/folders/1DMZQdjMJijqo753mH6h3ka8L1emJ3G7G,exact,Atualizado no banco.
+update,105,1,Ronilson Alves Alcântara,,1KG9R7SK3nC2ZOnbS3poUXV1XFCx8y71O,Ronilson Alves Alcântara,https://drive.google.com/drive/folders/1KG9R7SK3nC2ZOnbS3poUXV1XFCx8y71O,exact,Atualizado no banco.
+update,106,1,Dinoélia Rocha Galvão,,1hs4PfMtFkZnrJ6IxOFVYJNn3RhEbyDa-,Dinoelia Rocha Galvão,https://drive.google.com/drive/folders/1hs4PfMtFkZnrJ6IxOFVYJNn3RhEbyDa-,exact,Atualizado no banco.
+update,107,1,Renato De Souza Santos,,12ryL4cq9W5AtGzGHOGphh4epafY6eG5O,Renato de Souza Santos,https://drive.google.com/drive/folders/12ryL4cq9W5AtGzGHOGphh4epafY6eG5O,exact,Atualizado no banco.
+update,108,1,Adriana Silva Sousa Morais,,1lHjM5t18YTkV32bqhfzk8vXh9iAyksg0,Adriana Silva Sousa Morais ,https://drive.google.com/drive/folders/1lHjM5t18YTkV32bqhfzk8vXh9iAyksg0,exact,Atualizado no banco.
+unmatched,109,1,Suliene De Jesus Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,110,1,Silvano de Jesus Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,111,1,L Ariane Menezes Da Cruz,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,112,1,Sivaldo Rocha Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,113,1,Maria Dajuda Carmo Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,114,1,Cristiane Gil Da Costa,,1eRr1kXx-68ZGKthJDrCx9Mr6VP0kyihA,Cristiane Gil da Costa,https://drive.google.com/drive/folders/1eRr1kXx-68ZGKthJDrCx9Mr6VP0kyihA,exact,Atualizado no banco.
+update,115,1,Manoel Tino Da Silva,,1j4c4vuNHeTbjdMtxGZKnvIbtTGa4PdaX,Manoel Tino da Silva ,https://drive.google.com/drive/folders/1j4c4vuNHeTbjdMtxGZKnvIbtTGa4PdaX,exact,Atualizado no banco.
+update,116,1,Amanda Oliveira Silva,,1cL5FfsngXZ4Z-A75GlgZI92dORgO0CLi,Amanda Oliveira Silva,https://drive.google.com/drive/folders/1cL5FfsngXZ4Z-A75GlgZI92dORgO0CLi,exact,Atualizado no banco.
+update,117,1,Francieli Da Silva,,1vXkozzsJy2FC67GQXlBACoCtpWKbQxat,Francieli da Silva ,https://drive.google.com/drive/folders/1vXkozzsJy2FC67GQXlBACoCtpWKbQxat,exact,Atualizado no banco.
+update,118,1,Erivelton Botelho Amorim,,1ja6yOmR0myKia-w8CGuPrfk4Qj3NDfIv,Erivelton Botelho Amorim ,https://drive.google.com/drive/folders/1ja6yOmR0myKia-w8CGuPrfk4Qj3NDfIv,exact,Atualizado no banco.
+update,119,1,Ludmila Meira Matos,,1rDRt-UncEnu0cO1YXiu6mc2zSUTLrEBM,Ludmila Meira matos modenezi ,https://drive.google.com/drive/folders/1rDRt-UncEnu0cO1YXiu6mc2zSUTLrEBM,prefix,Atualizado no banco.
+update,120,1,Rosenei Prado Carvalho,,1czOgSEOJAolDBhLpX15yfjnwRkN4dUTX,Rosenei Prado Carvalho,https://drive.google.com/drive/folders/1czOgSEOJAolDBhLpX15yfjnwRkN4dUTX,exact,Atualizado no banco.
+update,121,1,Lucide Soares Cardoso,,1fPwr4xHqo40KMshIE5BRUTPrVS0wxCnF,Lucide Soares Cardoso,https://drive.google.com/drive/folders/1fPwr4xHqo40KMshIE5BRUTPrVS0wxCnF,exact,Atualizado no banco.
+unmatched,122,1,Odêlia Maria De Jesus,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,123,1,Maíra Felicío Novais,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,124,1,Neusa Silva Aguiar,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,125,1,Stephanie Gobira Reis Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,126,1,Antônio Marcos Pereira Mendes,,1tIN3fopUpOhP7AHOWq0VDPPZ_1fZsfI4,Antônio Marcos Pereira Mendes ,https://drive.google.com/drive/folders/1tIN3fopUpOhP7AHOWq0VDPPZ_1fZsfI4,exact,Atualizado no banco.
+unmatched,127,1,Maria Nilde Botelho,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,128,1,Antônio Marcos Rebouças de Azevedo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,129,1,Anderson Santos Gonçalves,,1lLMQ__G9lOuZdHRZaTLguhkYBu5_cFRM,Anderson Santos Gonçalves ,https://drive.google.com/drive/folders/1lLMQ__G9lOuZdHRZaTLguhkYBu5_cFRM,exact,Atualizado no banco.
+unmatched,130,1,Alyson Santos Figueiredo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,131,1,Eli Alves De Oliveira,,1gvUqT_NHb7uE8IUAkU6JG9bgH7-CDF2s,Eli Alves de Oliveira,https://drive.google.com/drive/folders/1gvUqT_NHb7uE8IUAkU6JG9bgH7-CDF2s,exact,Atualizado no banco.
+unmatched,132,1,Andre Coutinho Dutra,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,133,1,Maria de Lourdes Santos da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,134,1,Valdeci Vieira Sampaio,,1D9P7jck5Nnb0zhKBg0HCcUupg4ngwHlD,Valdeci Vieira Sampaio,https://drive.google.com/drive/folders/1D9P7jck5Nnb0zhKBg0HCcUupg4ngwHlD,exact,Atualizado no banco.
+update,135,1,Ivair Matos Santos,,1dMHdfZIanRBA8HFtlCvHTVAVKzIbOEYg,Ivair Matos Santos,https://drive.google.com/drive/folders/1dMHdfZIanRBA8HFtlCvHTVAVKzIbOEYg,exact,Atualizado no banco.
+unmatched,136,1,Marilanda Dorea De Matos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,137,1,Anderson Alves Dos Santos,,1k13NeR8iOE-ZwqFBNGcV7wVMfAV0E-sm,Anderson Alves dos Santos ,https://drive.google.com/drive/folders/1k13NeR8iOE-ZwqFBNGcV7wVMfAV0E-sm,exact,Atualizado no banco.
+update,138,1,Jessica Matos Veiga,,1bhoRmfsTZFVvLEC8V_1Ncvev8gHtWhCf,JÉSSICA MATOS VEIGA,https://drive.google.com/drive/folders/1bhoRmfsTZFVvLEC8V_1Ncvev8gHtWhCf,exact,Atualizado no banco.
+update,139,1,Aloizio Barros Lima,,1jfzyugHlX5w8Lk5y4uaODIrNHc-ua1WS,Aloízio Barros Lima ,https://drive.google.com/drive/folders/1jfzyugHlX5w8Lk5y4uaODIrNHc-ua1WS,exact,Atualizado no banco.
+unmatched,140,1,Fabricio Castro Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,141,1,Vitória das Dores da Silva Alves,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,142,1,Conquista Imoveis LTDA,,1j8GCQqs6I8f-02mQ3mhKxQoD05ptxhfJ,Conquista Imóveis LTDA ,https://drive.google.com/drive/folders/1j8GCQqs6I8f-02mQ3mhKxQoD05ptxhfJ,exact,Atualizado no banco.
+unmatched,143,1,Iranez Vieira Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,144,1,Ricardo Dos Santos Silva,,1gvi8gTYB6NE4FRZRC8cT59HqLHNSoy34,Ricardo dos Santos Silva,https://drive.google.com/drive/folders/1gvi8gTYB6NE4FRZRC8cT59HqLHNSoy34,exact,Atualizado no banco.
+update,146,1,Joceuma Moreira Dos Santos Teixeira,,1h0p8pq0oYF4adlRWk2hWTk4O6nl6t_cB,Joceuma Moreira dos Santos Teixeira,https://drive.google.com/drive/folders/1h0p8pq0oYF4adlRWk2hWTk4O6nl6t_cB,exact,Atualizado no banco.
+update,147,1,Alda Maria Soares Nascimento,,1gzwEXpRAsdQfREk2wD6BVe7JVMvJiIYi,Alda Maria Soares Nascimento,https://drive.google.com/drive/folders/1gzwEXpRAsdQfREk2wD6BVe7JVMvJiIYi,exact,Atualizado no banco.
+update,148,1,Amanda Alves,,1YdkddLDGOdgPNQqZrJLeTKjsWcQQQ1R7,Amanda Alves,https://drive.google.com/drive/folders/1YdkddLDGOdgPNQqZrJLeTKjsWcQQQ1R7,exact,Atualizado no banco.
+update,149,1,Graciene Nunes de Oliveira,,1jvjA59Hoq8ac-rTOx3koLFAu5YudEofW,Graciene Nunes de Oliveira ,https://drive.google.com/drive/folders/1jvjA59Hoq8ac-rTOx3koLFAu5YudEofW,exact,Atualizado no banco.
+update,150,1,Maria Conceição Rocha Azevedo,,1F_OijmbRpVYJ23Ht8BlcvF1CqaE6N7Y_,Maria Conceição Rocha Azevedo,https://drive.google.com/drive/folders/1F_OijmbRpVYJ23Ht8BlcvF1CqaE6N7Y_,exact,Atualizado no banco.
+update,151,1,Ailton Manoel Dos Santos Junior,,1l9fEjWGLkcg_hNtj52Z0jboaC5SBX4vo,Ailton Manoel dos Santos Junior ,https://drive.google.com/drive/folders/1l9fEjWGLkcg_hNtj52Z0jboaC5SBX4vo,exact,Atualizado no banco.
+update,152,1,Neusa Macedo Padre,,1gUt5TZslaxs2tJmlCR7uXlP-SX9Fih-w,Neusa Macedo Padre,https://drive.google.com/drive/folders/1gUt5TZslaxs2tJmlCR7uXlP-SX9Fih-w,exact,Atualizado no banco.
+unmatched,153,1,Let™Cia Libarino De Matos Alves,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,154,1,William Sousa Lima,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,155,1,Charles Costa Santos,,1_4BN8wUyDI4Yxm_X-NapCe7qxJ-HWvZq,Charles Costa Santos,https://drive.google.com/drive/folders/1_4BN8wUyDI4Yxm_X-NapCe7qxJ-HWvZq,exact,Atualizado no banco.
+update,156,1,Luciene da Silva Muniz,,124xtYqbkJ8dyDKgYHC21cjD6j6USMkpm,Luciene da Silva Muniz,https://drive.google.com/drive/folders/124xtYqbkJ8dyDKgYHC21cjD6j6USMkpm,exact,Atualizado no banco.
+unmatched,157,1,Istenio Trindade De Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,158,1,Diones Da Silva Ribeiro,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,159,1,Valdivio Lima Pereira,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,160,1,Maria Neres De Sousa,,1e7Mcp6vgAIv_juA6gjXoQZBFuE36856_,Maria Neres de Sousa,https://drive.google.com/drive/folders/1e7Mcp6vgAIv_juA6gjXoQZBFuE36856_,exact,Atualizado no banco.
+update,161,1,Damasio Pereira Nunes,,1kjJLrXo1JBXHyDW-YyqY3hKdAK9-KMzn,Damasio Pereira Nunes ,https://drive.google.com/drive/folders/1kjJLrXo1JBXHyDW-YyqY3hKdAK9-KMzn,exact,Atualizado no banco.
+unmatched,162,1,Bruna Almeida Nascimento,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,163,1,Jhonatan Brito Matos,,1nCFMkAPp2ZTa7Ws5MdKHsMobCvlmXia_,Jhonatan Brito Matos ,https://drive.google.com/drive/folders/1nCFMkAPp2ZTa7Ws5MdKHsMobCvlmXia_,exact,Atualizado no banco.
+unmatched,164,1,Marizete Pereira Gama Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,165,1,Nadil A Santos Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,166,1,Alzeni Silva Sousa,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,167,1,Maria Lúcia de Oliveira Silva,,1JU9g_QoWBcdQZnqVsTXhitmFqNMPvfaM,Maria Lucia de Oliveira Silva,https://drive.google.com/drive/folders/1JU9g_QoWBcdQZnqVsTXhitmFqNMPvfaM,exact,Atualizado no banco.
+update,168,1,Edmilson Sousa Rocha,,1jM3r00I2XXOm7qdpO-v91pzJpxRmszUU,Edmilson Sousa Rocha ,https://drive.google.com/drive/folders/1jM3r00I2XXOm7qdpO-v91pzJpxRmszUU,exact,Atualizado no banco.
+unmatched,169,1,Lidiane Gouveia Arruda,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,170,1,Jose Martim Silva Freitas,,1hbD8L8EVcdnkn1HCcux2nE-X0ttQKfOE,José Martim Silva Freitas,https://drive.google.com/drive/folders/1hbD8L8EVcdnkn1HCcux2nE-X0ttQKfOE,exact,Atualizado no banco.
+unmatched,171,1,Erivaldo Couto Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,172,1,Daniel Oliveira Rocha,,1sC2Bedkd1RR3TS-IwHA7LC7elybJN4VJ,Daniel Oliveira Rocha ,https://drive.google.com/drive/folders/1sC2Bedkd1RR3TS-IwHA7LC7elybJN4VJ,exact,Atualizado no banco.
+update,173,1,Antônia Márcia Souza Franco,,1vFHnlvox-73efNPYa0aGgy9Q1xU5LwE2,Antônia Márcia Souza Franco ,https://drive.google.com/drive/folders/1vFHnlvox-73efNPYa0aGgy9Q1xU5LwE2,exact,Atualizado no banco.
+update,175,1,Claudionor Alves Freitas,,1qnmvXgtpseOkmgWGy8Xpt4Puarnhaggd,Claudionor Alves Freitas  ,https://drive.google.com/drive/folders/1qnmvXgtpseOkmgWGy8Xpt4Puarnhaggd,exact,Atualizado no banco.
+update,176,1,Angelica Vasconcelos Porto,,1cQDkhv-NWsTjVQmvfbYHn1YCQ23rELIX,Angelica Vasconcelos Porto,https://drive.google.com/drive/folders/1cQDkhv-NWsTjVQmvfbYHn1YCQ23rELIX,exact,Atualizado no banco.
+update,177,1,Alex Sandro de Oliveira,,1ej8vkUIY7RWphmyj943HI0PLmmPJTiCn,Alex Sandro de Oliveira,https://drive.google.com/drive/folders/1ej8vkUIY7RWphmyj943HI0PLmmPJTiCn,exact,Atualizado no banco.
+update,178,1,Amanda Portugal Santos,,1mYO0XmY6C28yhNI3mSLVYLlJFsZ1S1Aw,Amanda Portugal Santos ,https://drive.google.com/drive/folders/1mYO0XmY6C28yhNI3mSLVYLlJFsZ1S1Aw,exact,Atualizado no banco.
+unmatched,179,1,Clemilda Porto Brito,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,180,1,Tacio Ricardo Viana Cardoso De Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,181,1,Jutay Dias Costa,,1uyWuOpKz3lieF6XIwpMoVV2sFe34EPo-,Jutay Dias Costa ,https://drive.google.com/drive/folders/1uyWuOpKz3lieF6XIwpMoVV2sFe34EPo-,exact,Atualizado no banco.
+unmatched,182,1,Viviane Pereira Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,183,1,Maria José Pereira Blasque,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,184,1,Antonio Pereira Bonfim,,1nCSziPsvFnk9gw0J8EjzQ6l-v2dLfTS3,Antonio Pereira Bonfim ,https://drive.google.com/drive/folders/1nCSziPsvFnk9gw0J8EjzQ6l-v2dLfTS3,exact,Atualizado no banco.
+unmatched,185,1,Patricia Da Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,186,1,Adriana Ribeiro Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,187,1,Valdomiro Rodrigues de Oliveira,,1XRMBE15UEwkGPSe-qpmIdUBWuaa2-Ze8,Valdomiro Rodrigues de Oliveira,https://drive.google.com/drive/folders/1XRMBE15UEwkGPSe-qpmIdUBWuaa2-Ze8,exact,Atualizado no banco.
+unmatched,188,1,Miriam Elisa De Oliveira,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,189,1,Evaldo Alcantara Lemos,,1beby-34KnXnLRuILJ_lV2hkSJrTK4Sbt,Evaldo Alcantara Lemos,https://drive.google.com/drive/folders/1beby-34KnXnLRuILJ_lV2hkSJrTK4Sbt,exact,Atualizado no banco.
+unmatched,190,1,Everaldo Oliveira Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,191,1,Silmara Rocha Vieira Santos,,1iDURd8Mu67GhdS0aDWbWHj2gbRdPhaQp,Silmara Rocha Vieira Santos,https://drive.google.com/drive/folders/1iDURd8Mu67GhdS0aDWbWHj2gbRdPhaQp,exact,Atualizado no banco.
+update,192,1,Maria Ranúvia Ferreira da Silva,,1lMOmqUQBppZTjCIONApHKVaw5elumPJm,Maria Ranuvia Ferreira da Silva (11 de maio de 2024) 2,https://drive.google.com/drive/folders/1lMOmqUQBppZTjCIONApHKVaw5elumPJm,prefix,Atualizado no banco.
+unmatched,193,1,Jose Robervaltt De Souza Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,194,1,Sergio Santos De Azevedo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,195,1,Jaqueline Carvalho Dos Santos,,1xLTzEgMv-J-9ETrqIVZ59xNBWSq5V_ht,Jaqueline Carvalho dos Santos,https://drive.google.com/drive/folders/1xLTzEgMv-J-9ETrqIVZ59xNBWSq5V_ht,exact,Atualizado no banco.
+unmatched,196,1,Rodrigo Santos Carmo,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,197,1,Kleber Gonçalves Gomes,,1gxjQHV7nw9h-DwlAk7x2-MGqPxeaCmHO,Kleber Gonçalves Gomes,https://drive.google.com/drive/folders/1gxjQHV7nw9h-DwlAk7x2-MGqPxeaCmHO,exact,Atualizado no banco.
+update,198,1,George Macedo Pires,,1kxxSS4rZelDFMIPwUNI_Lh898q5m5zCO,George Macedo Pires ,https://drive.google.com/drive/folders/1kxxSS4rZelDFMIPwUNI_Lh898q5m5zCO,exact,Atualizado no banco.
+unmatched,199,1,P H S R,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,200,1,Jessica Alves Amaro De Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,201,1,Ivone Santos Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,202,1,Heli Oliveira Santos,,1je2FIlzmM7pKaQgiohfmHklukFTW_JHh,Heli Oliveira Santos ,https://drive.google.com/drive/folders/1je2FIlzmM7pKaQgiohfmHklukFTW_JHh,exact,Atualizado no banco.
+update,203,1,Luani Oliveira Gomes Novaes,,1lx_0FsiSayawLVj93vGhYMTIM9evMRAY,Luani Oliveira Gomes Novaes ,https://drive.google.com/drive/folders/1lx_0FsiSayawLVj93vGhYMTIM9evMRAY,exact,Atualizado no banco.
+unmatched,204,1,Carlos Pereira Blasque,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,205,1,Roberto Tanajura Machado Junior,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,206,1,Renan Silva de Jesus,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,207,1,Jussimara Ribeiro Pacheco,,1o-InE-w-wpDdHNy0lacy3XArXaOSk_Be,Jussimara Ribeiro Pacheco ,https://drive.google.com/drive/folders/1o-InE-w-wpDdHNy0lacy3XArXaOSk_Be,exact,Atualizado no banco.
+unmatched,208,1,S F S,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,209,1,Jorge Luiz Nascimento Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,210,1,Rosângela Alves Pereira,,1S0phdIh3BDzl4EodrvaoRHLc6Mryjd4J,Rosângela Alves Pereira,https://drive.google.com/drive/folders/1S0phdIh3BDzl4EodrvaoRHLc6Mryjd4J,exact,Atualizado no banco.
+update,211,1,Edivan Santana de Souza,,1kuDJCVofLqYhm1LwPGMWO7Jhcjgemtru,Edivan Santana de Souza ,https://drive.google.com/drive/folders/1kuDJCVofLqYhm1LwPGMWO7Jhcjgemtru,exact,Atualizado no banco.
+update,212,1,Andrea Carla Pereira Motta,,1boUsScHovUcqEUqSah0PgPWMLWv-sRbM,Andrea Carla Pereira Motta,https://drive.google.com/drive/folders/1boUsScHovUcqEUqSah0PgPWMLWv-sRbM,exact,Atualizado no banco.
+unmatched,213,1,Lucilene Marinho Almeida,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,214,1,Lucio Lacerda De Moura,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,215,1,Ana Nelia Matos Ribeiro,,1m_v4qNI3rsDuUVEcm0jcLpJEOQ2ki4WT,Ana Nelia Matos Ribeiro ,https://drive.google.com/drive/folders/1m_v4qNI3rsDuUVEcm0jcLpJEOQ2ki4WT,exact,Atualizado no banco.
+update,216,1,Fernanda Lemos Dias,,1ik5C01qoaO5lvPeFO0h8IElcRYEDzIMk,Fernanda Lemos Dias,https://drive.google.com/drive/folders/1ik5C01qoaO5lvPeFO0h8IElcRYEDzIMk,exact,Atualizado no banco.
+unmatched,218,1,Atonio Marcos Pereira Mendes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,219,1,Helio Oliveira,,1nbKKFp0wXE9nJkGyeYAsBCOp4WhoinT5,Helio Oliveira ,https://drive.google.com/drive/folders/1nbKKFp0wXE9nJkGyeYAsBCOp4WhoinT5,exact,Atualizado no banco.
+unmatched,220,1,Emerson Campos Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,221,1,Ivanilda Ribeiro Santos,,13zazq6cdUlGDNuIYtFeEirLQOQsVVPUn,Ivanilda Ribeiro Santos,https://drive.google.com/drive/folders/13zazq6cdUlGDNuIYtFeEirLQOQsVVPUn,exact,Atualizado no banco.
+update,222,1,Joaquim Avelino dos Santos,,1gH2U1-WpRxNklYsm2DDl2Ja0QL08jLpN,Joaquim Avelino dos Santos,https://drive.google.com/drive/folders/1gH2U1-WpRxNklYsm2DDl2Ja0QL08jLpN,exact,Atualizado no banco.
+update,223,1,Fabiana Alves Portugal,,1dJ2hVhv599V3OD76VFGGf5Bp1nAi5tcE,Fabiana Alves Portugal ,https://drive.google.com/drive/folders/1dJ2hVhv599V3OD76VFGGf5Bp1nAi5tcE,exact,Atualizado no banco.
+update,224,1,Marilene Silva Prado,,1iGvDZNe0d3ISWiX2RmIon54U1THJMV-E,Marilene Silva Prado ,https://drive.google.com/drive/folders/1iGvDZNe0d3ISWiX2RmIon54U1THJMV-E,exact,Atualizado no banco.
+update,225,1,Jose Alves Sousa Freitas,,1fWmxDIHtVg1jVCvckFGkenCd2ZcpPSRX,José Alves Sousa Freitas,https://drive.google.com/drive/folders/1fWmxDIHtVg1jVCvckFGkenCd2ZcpPSRX,exact,Atualizado no banco.
+unmatched,226,1,Odília Maria de Jesus,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,227,1,Ivan Tadeu Reboucas Andrade,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,228,1,Diana Fernandes Amorim Alves,,1gKKF28xW1NtXkQL7GTHuT245XjOc7r95,Diana Fernandes Amorim Alves (Jonas),https://drive.google.com/drive/folders/1gKKF28xW1NtXkQL7GTHuT245XjOc7r95,prefix,Atualizado no banco.
+update,229,1,Maiara Santos Barbosa,,1cUrWPyatzBQPfyxBNhF6w9P9t0ApUKWH,Maiara Santos Barbosa,https://drive.google.com/drive/folders/1cUrWPyatzBQPfyxBNhF6w9P9t0ApUKWH,exact,Atualizado no banco.
+unmatched,230,1,Gilmar Barbosa Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,231,1,Isabel da Silva Santos,,1MT7VGwOVokwrwULjACgguSloUnGL6ER4,Isabel da Silva Santos,https://drive.google.com/drive/folders/1MT7VGwOVokwrwULjACgguSloUnGL6ER4,exact,Atualizado no banco.
+update,232,1,Darlei De Oliveira Reis,,1pYRvk0Y1yBwwoF6yxq3KfL5oJo92z2kS,Darlei de Oliveira Reis ,https://drive.google.com/drive/folders/1pYRvk0Y1yBwwoF6yxq3KfL5oJo92z2kS,exact,Atualizado no banco.
+unmatched,233,1,Aline Bonfim Peixoto,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,234,1,Jorlande Ferreira Oliveira,,1vCw9hMDn7aKXsBuvRgDdX-BSSh7SkMkl,Jorlande Ferreira Oliveira ,https://drive.google.com/drive/folders/1vCw9hMDn7aKXsBuvRgDdX-BSSh7SkMkl,exact,Atualizado no banco.
+update,235,1,Bruna Silva Melo,,1s691VQoE32klBFc8f9uUJNLJWB2TXf9z,Bruna Silva Melo ,https://drive.google.com/drive/folders/1s691VQoE32klBFc8f9uUJNLJWB2TXf9z,exact,Atualizado no banco.
+unmatched,236,1,Raquel Oliveira Brito,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,237,1,Juraci Ferreira Dos Santos,,1wXzd0H0MRHOBizAG0YU-s1uaeFFFGsS3,Juraci Ferreira Dos Santos ,https://drive.google.com/drive/folders/1wXzd0H0MRHOBizAG0YU-s1uaeFFFGsS3,exact,Atualizado no banco.
+unmatched,238,1,Manoel Ribeiro De Faria Filho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,239,1,Jessica Lima Santos Mendes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,240,1,Adriano da Silva Costa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,241,1,Natalia Amorim Meira Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,242,1,Jeferson Da Silva Costa Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,243,1,Valdice Rocha Santos,,1eFRVakFjLoYLAyK8AgWkzfUgcnh4llqF,Valdice Rocha Santos,https://drive.google.com/drive/folders/1eFRVakFjLoYLAyK8AgWkzfUgcnh4llqF,exact,Atualizado no banco.
+update,244,1,Janaina Silva dos Santos,,1IT8a53z-PKNgq8K-n-OXWLqvD_E8im7T,Janaina Silva dos Santos,https://drive.google.com/drive/folders/1IT8a53z-PKNgq8K-n-OXWLqvD_E8im7T,exact,Atualizado no banco.
+unmatched,245,1,Quedsson Souza Do Prado,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,246,1,Elza Maria De Jesus,,1gbfVvnjVExgpSCiN3hZMsxD-rGA7gu9Z,Elza Maria De Jesus,https://drive.google.com/drive/folders/1gbfVvnjVExgpSCiN3hZMsxD-rGA7gu9Z,exact,Atualizado no banco.
+update,247,1,Zilda Dias Da Rocha Neta,,1HpA1C0sdv6kca11eoYeflwAZw-x9NRZq,Zilda Dias da Rocha Neta,https://drive.google.com/drive/folders/1HpA1C0sdv6kca11eoYeflwAZw-x9NRZq,exact,Atualizado no banco.
+update,248,1,Janaelson Rodrigues De Sousa,,1pCHpLVXS0DRFE82LLs0r67wxDCPwdV3E,Janaelson Rodrigues de Sousa ,https://drive.google.com/drive/folders/1pCHpLVXS0DRFE82LLs0r67wxDCPwdV3E,exact,Atualizado no banco.
+update,249,1,Roseane Santos Silva,,1R8afzpmTy-hxFwCt7NE7Z0bClBSX3cOD,Roseane Santos Silva,https://drive.google.com/drive/folders/1R8afzpmTy-hxFwCt7NE7Z0bClBSX3cOD,exact,Atualizado no banco.
+update,250,1,Bruno Vieira da Silva,,1lbRYfZLfCLu13vBMrywOLw9BtwXadZ3_,Bruno Vieira da Silva ,https://drive.google.com/drive/folders/1lbRYfZLfCLu13vBMrywOLw9BtwXadZ3_,exact,Atualizado no banco.
+unmatched,251,1,Luciana Moreira De Sousa Nobre,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,252,1,Samanta Costa Gama,,18uDMhW5qcHHOhVc_9pZ01ZUqB7oQ5XL5,Samanta Costa Gama,https://drive.google.com/drive/folders/18uDMhW5qcHHOhVc_9pZ01ZUqB7oQ5XL5,exact,Atualizado no banco.
+update,253,1,Maria Dolores Francisca Dos Santos,,1A2eAFkvWhR_9UYfYenG-a1TWHbGr--r-,Maria Dolores Francisca dos Santos,https://drive.google.com/drive/folders/1A2eAFkvWhR_9UYfYenG-a1TWHbGr--r-,exact,Atualizado no banco.
+unmatched,254,1,Gleide Silva Spinola,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,255,1,Joao Sampaio Nunes,,1jmZKcCytf8znSI-ROkdon_e_6KwWBet9,João Sampaio Nunes ,https://drive.google.com/drive/folders/1jmZKcCytf8znSI-ROkdon_e_6KwWBet9,exact,Atualizado no banco.
+update,256,1,Juliana de Jesus Benício,,1iPYMfo_XkK521NKntow3TH8de9wjvSrM,Juliana de Jesus Benicio (CONTATO ROSEANE SANTOS),https://drive.google.com/drive/folders/1iPYMfo_XkK521NKntow3TH8de9wjvSrM,prefix,Atualizado no banco.
+update,257,1,Itamara Santos Sousa,,1eF6aGWUNZwaJvLixLwXmZ2vDPZDjOuIZ,Itamara Santos Sousa,https://drive.google.com/drive/folders/1eF6aGWUNZwaJvLixLwXmZ2vDPZDjOuIZ,exact,Atualizado no banco.
+update,258,1,ADR Representações,,1RJVF8EY7IPvfUKOcrmKHGH8KbEmq0vR_,ADR Representações,https://drive.google.com/drive/folders/1RJVF8EY7IPvfUKOcrmKHGH8KbEmq0vR_,exact,Atualizado no banco.
+update,259,1,Alessandra de Oliveira Rodrigues,,1hgsdqB40J3AN2Ycv5iSQTZb1Gu-eso1V,Alessandra de Oliveira Rodrigues,https://drive.google.com/drive/folders/1hgsdqB40J3AN2Ycv5iSQTZb1Gu-eso1V,exact,Atualizado no banco.
+update,260,1,Ariel Costa Soares,,1j0jpt8yeIFmMcpib_Sva9nFY00sL0xRW,Ariel Costa Soares ,https://drive.google.com/drive/folders/1j0jpt8yeIFmMcpib_Sva9nFY00sL0xRW,exact,Atualizado no banco.
+update,261,1,Jamile Santos Sousa,,1br2owv4heKt8hXkWqx6NjUx5W3Vt_S3J,Jamile Santos Sousa,https://drive.google.com/drive/folders/1br2owv4heKt8hXkWqx6NjUx5W3Vt_S3J,exact,Atualizado no banco.
+update,262,1,Camila Lima Novais,,1YW4DOzAroPwhotitKF_mF8p8u9621Yfu,Camila Lima Novais,https://drive.google.com/drive/folders/1YW4DOzAroPwhotitKF_mF8p8u9621Yfu,exact,Atualizado no banco.
+unmatched,263,1,Monica Costa Carvalho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,264,1,Jamile Nascimento Coelho,,1s-z1plB2JEfEzIXA3lsnXcqQ6eZv-JoX,Jamile Nascimento Coelho ,https://drive.google.com/drive/folders/1s-z1plB2JEfEzIXA3lsnXcqQ6eZv-JoX,exact,Atualizado no banco.
+update,265,1,Patrícia Lima Brito,,1ecZN3f7MgPlU0s7pwVcKiYGWdYn0hZgR,Patricia Lima Brito,https://drive.google.com/drive/folders/1ecZN3f7MgPlU0s7pwVcKiYGWdYn0hZgR,exact,Atualizado no banco.
+unmatched,266,1,Dionete Silva Damasceno,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,267,1,Joavan Emidio Santos,,1hLE-HdC1i-SMGWIRRcnYS9oTxUiWWLRC,Joavan Emidio Santos,https://drive.google.com/drive/folders/1hLE-HdC1i-SMGWIRRcnYS9oTxUiWWLRC,exact,Atualizado no banco.
+update,268,1,Tania Alves Portugal,,1SBuaGoJbkaHMuzijqYmjcN_JLEJkU0u8,Tânia Alves Portugal,https://drive.google.com/drive/folders/1SBuaGoJbkaHMuzijqYmjcN_JLEJkU0u8,exact,Atualizado no banco.
+unmatched,269,1,Walber Campos De Carvalho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,270,1,J. C. F.,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,271,1,Maria Gralia de Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,272,1,Ludmila Dos Anjos Mendes,,1cgEm8OyPCkNb_bovqFHMa-LXht8zfnD6,Ludmila dos Anjos Mendes,https://drive.google.com/drive/folders/1cgEm8OyPCkNb_bovqFHMa-LXht8zfnD6,exact,Atualizado no banco.
+update,273,1,Gerzem Meira Borges,,1cDfTFGTrvn3DHccznaDuLPu9oLSISEhH,Gerzem Meira Borges,https://drive.google.com/drive/folders/1cDfTFGTrvn3DHccznaDuLPu9oLSISEhH,exact,Atualizado no banco.
+unmatched,274,1,Caroline Cristina Pereira Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,275,1,Aguimar Palmeira dos Santos,,1aKIyQ9puZqk24aWXnUniiOjlMfWx0u7S,Aguimar Palmeira dos Santos,https://drive.google.com/drive/folders/1aKIyQ9puZqk24aWXnUniiOjlMfWx0u7S,exact,Atualizado no banco.
+unmatched,276,1,Emanuely Vieira Caitite,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,277,1,Paulo Victor Alves Gonçalves,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,278,1,Israel Dutra Da Silva,,1grzrsFotnjZQHEA3Gc-6N_8aHoUYtYEs,Israel Dutra da Silva,https://drive.google.com/drive/folders/1grzrsFotnjZQHEA3Gc-6N_8aHoUYtYEs,exact,Atualizado no banco.
+unmatched,279,1,Geraldo Alves Fagundes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,280,1,Cecílio Alves Portugal,,1BumPA6C_P2xQbvs_2OjlG3dhYidZB00k,Cecilio Alves Portugal,https://drive.google.com/drive/folders/1BumPA6C_P2xQbvs_2OjlG3dhYidZB00k,exact,Atualizado no banco.
+unmatched,281,1,Naira Kelly Sanches Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,282,1,Maria Da Silva Gralha,,1dNyEYaqQy9NQAfvwfXJwyyrT6i0xlJU7,Maria da Silva Gralha,https://drive.google.com/drive/folders/1dNyEYaqQy9NQAfvwfXJwyyrT6i0xlJU7,exact,Atualizado no banco.
+unmatched,283,1,Aline de Farias Carregosa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,284,1,Ultra Tecnologia LTDA,,1Rb_UGncTF7dzfXihNyStzZ8NZAz9TdHS,ULTRA TECNOLOGIA LTDA,https://drive.google.com/drive/folders/1Rb_UGncTF7dzfXihNyStzZ8NZAz9TdHS,exact,Atualizado no banco.
+update,285,1,Jéssica Pâmela Souza Pinto,,1KEEvBfa_4Plx16A4CZmoSmg7JRTSeBdy,Jéssica Pâmela Souza Pinto ,https://drive.google.com/drive/folders/1KEEvBfa_4Plx16A4CZmoSmg7JRTSeBdy,exact,Atualizado no banco.
+unmatched,286,1,Dayanna Cardoso De Sa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,287,1,Rosângela Thiago Silva,,1vnwUucFPobjgcLxl9ZssnS3AcH09nhdq,Rosângela Thiago Silva ,https://drive.google.com/drive/folders/1vnwUucFPobjgcLxl9ZssnS3AcH09nhdq,exact,Atualizado no banco.
+update,289,1,Ícaro Thiago Silva,,1bvzpDzSE8CL69YaXliyyvAdl0-8esrQJ,Icaro Thiago Silva,https://drive.google.com/drive/folders/1bvzpDzSE8CL69YaXliyyvAdl0-8esrQJ,exact,Atualizado no banco.
+update,290,1,João Victor de Jesus Lima,,1qjXz5aMyrSuoyT8r1ii_gactaOoqixIx,João Victor de Jesus Lima,https://drive.google.com/drive/folders/1qjXz5aMyrSuoyT8r1ii_gactaOoqixIx,exact,Atualizado no banco.
+unmatched,291,1,Roxane Da Silva Ferreira,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,292,1,Letícia Libarino de Matos,,1nxHsfgx5tmsjvC6Z1sJOyOAdRzd2oenJ,Letícia Libarino de Matos Alves ,https://drive.google.com/drive/folders/1nxHsfgx5tmsjvC6Z1sJOyOAdRzd2oenJ,prefix,Atualizado no banco.
+unmatched,293,1,Empreendimento Primavera 3 - Spe Ltda.,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,294,1,Cleber Juarez Viana Rodrigues,,1lNC_rNvRxEMrK52rEesibq7S6dXl7xMG,Cléber Juarez Viana Rodrigues ,https://drive.google.com/drive/folders/1lNC_rNvRxEMrK52rEesibq7S6dXl7xMG,exact,Atualizado no banco.
+update,295,1,Joao Pedro Cechim,,1iEcyEA420FaNGisJYtqKywRtsieTUxKn,Joao Pedro Cechim,https://drive.google.com/drive/folders/1iEcyEA420FaNGisJYtqKywRtsieTUxKn,exact,Atualizado no banco.
+update,297,1,Neilza Almeida Santos,,1hUkE1kYrCeDjyT4ALxbDvlIv8jHECUE8,Neilza Almeida Santos,https://drive.google.com/drive/folders/1hUkE1kYrCeDjyT4ALxbDvlIv8jHECUE8,exact,Atualizado no banco.
+unmatched,298,1,Antonia Marcia Sousa Franco,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,299,1,Alan Reis de Luna,,1jmiNr84V1Awh6Ri0PPLucuGmgoEgTNtY,Alan Reis de Luna ,https://drive.google.com/drive/folders/1jmiNr84V1Awh6Ri0PPLucuGmgoEgTNtY,exact,Atualizado no banco.
+unmatched,300,1,Maria Silva Santos Barbosa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,301,1,Arlen Jose Da Costa,,1vg7MlwcugVHM4bT5YgsEj1OivC_iPnkp,Arlen José da Costa ,https://drive.google.com/drive/folders/1vg7MlwcugVHM4bT5YgsEj1OivC_iPnkp,exact,Atualizado no banco.
+update,302,1,Rafael Matos Santos Thiago,,1MadwD1kae34y1VQgYzC5o1JP0sRILz2O,Rafael Matos Santos Thiago,https://drive.google.com/drive/folders/1MadwD1kae34y1VQgYzC5o1JP0sRILz2O,exact,Atualizado no banco.
+update,303,1,Bruna Novaes Silva,,1wXoC3bfMRtCq0Sw-oYdpSn_ZJaVMUZTN,Bruna Novaes Silva ,https://drive.google.com/drive/folders/1wXoC3bfMRtCq0Sw-oYdpSn_ZJaVMUZTN,exact,Atualizado no banco.
+unmatched,304,1,Jessica Cachoeira Da Silva Botelho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,305,1,Joana Maria de Jesus,,1DJWnTsm8-teWC-2jS6XJpqDaXOsgm75G,Joana Maria de Jesus,https://drive.google.com/drive/folders/1DJWnTsm8-teWC-2jS6XJpqDaXOsgm75G,exact,Atualizado no banco.
+unmatched,306,1,Ingrid Moreira Silva Xavier,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,307,1,Manoela Morais Oliveira,,1DNfI4VDdxZ2WrdWSNbe73N2PWf6VdqBL,Manoela Morais Oliveira,https://drive.google.com/drive/folders/1DNfI4VDdxZ2WrdWSNbe73N2PWf6VdqBL,exact,Atualizado no banco.
+update,308,1,Antônio Alves dos Santos,,1vEPJs6Dm7lloX2ezPksIYtTxl8_NB3YH,Antonio Alves dos Santos ,https://drive.google.com/drive/folders/1vEPJs6Dm7lloX2ezPksIYtTxl8_NB3YH,exact,Atualizado no banco.
+unmatched,309,1,Bruna Ellen Brandao Almeida,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,310,1,Sirley Conceicao Da Silva,,1gB3bm2d5q7OHy6Hb7XEhhWmvBjeoRxsg,Sirley Conceição da Silva,https://drive.google.com/drive/folders/1gB3bm2d5q7OHy6Hb7XEhhWmvBjeoRxsg,exact,Atualizado no banco.
+unmatched,311,1,Adriano Nunes Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,312,1,Mailde Maria De Jesus,,1qjDh31CJQ6JshRrr7lCHJf01Gg6iT7Vv,Mailde Maria de Jesus ,https://drive.google.com/drive/folders/1qjDh31CJQ6JshRrr7lCHJf01Gg6iT7Vv,exact,Atualizado no banco.
+update,313,1,Rosangela Alves Pereira,,1S0phdIh3BDzl4EodrvaoRHLc6Mryjd4J,Rosângela Alves Pereira,https://drive.google.com/drive/folders/1S0phdIh3BDzl4EodrvaoRHLc6Mryjd4J,exact,Atualizado no banco.
+unmatched,315,1,Severino Targino Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,316,1,Valdeque Pereira Chaves Filho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,317,1,Roberto Libarino de Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,319,1,Juliana De Souza Miranda,,1qIqd0IPMIquL5-s3F5MNERz0yH8gdDye,Juliana de Souza Miranda ,https://drive.google.com/drive/folders/1qIqd0IPMIquL5-s3F5MNERz0yH8gdDye,exact,Atualizado no banco.
+update,320,1,Paulo Rogerio Pires Veiga,,1skjSSUFkUz1wJNMJAM5Nng0sXB7R_xD9,Paulo Rogério Pires Veiga ,https://drive.google.com/drive/folders/1skjSSUFkUz1wJNMJAM5Nng0sXB7R_xD9,exact,Atualizado no banco.
+update,321,1,Karoline Thiago Silva Matos,,1iHHIzDsMY0iOSy2-OUuw2d0rKox6Tyzg,Karoline Thiago Silva Matos,https://drive.google.com/drive/folders/1iHHIzDsMY0iOSy2-OUuw2d0rKox6Tyzg,exact,Atualizado no banco.
+update,322,1,Dinalva Nunes Pereira,,1oDeyT_yIrLCoQPnw34fj1LKCrlkmNXxI,Dinalva Nunes Pereira ,https://drive.google.com/drive/folders/1oDeyT_yIrLCoQPnw34fj1LKCrlkmNXxI,exact,Atualizado no banco.
+unmatched,323,1,Robson Tessio Alves Ramalho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,324,1,Watson Oliveira Lima,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,325,1,C Lobao & Cia Ltda,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,326,1,Mislene Morais De Araujo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,327,1,Maria Vitória Rodrigues Santos,,1g9m5Cs1gJxJUt1VVp4l3IlkbuRZDHpxC,Maria Vitória Rodrigues Santos,https://drive.google.com/drive/folders/1g9m5Cs1gJxJUt1VVp4l3IlkbuRZDHpxC,exact,Atualizado no banco.
+unmatched,328,1,Paulo Cruz Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,329,1,Claudia Monaliza Carvalho Franco,,1qS2CaquoHmxka1IrGU5gSNOvInnm3Wt4,Cláudia Monaliza Carvalho Franco ,https://drive.google.com/drive/folders/1qS2CaquoHmxka1IrGU5gSNOvInnm3Wt4,exact,Atualizado no banco.
+unmatched,330,1,Irene Pereira De Almeida,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,331,1,Brenda Silva Dos Anjos,,1lMoAB3duj-aJ1wcjUzPy8sPRDy4wwAxk,Brenda Silva dos Anjos ,https://drive.google.com/drive/folders/1lMoAB3duj-aJ1wcjUzPy8sPRDy4wwAxk,exact,Atualizado no banco.
+update,332,1,Nubia Silva Sousa,,1TURcozlJM1I_KvIZ_IQx4GUuiXWg6GNi,Nubia Silva Sousa,https://drive.google.com/drive/folders/1TURcozlJM1I_KvIZ_IQx4GUuiXWg6GNi,exact,Atualizado no banco.
+update,333,1,Mario Salvador Rocha Amorim,,1MogSItHUg_uPdj0IXE5STTw4kenkvItK,Mário Salvador Rocha Amorim,https://drive.google.com/drive/folders/1MogSItHUg_uPdj0IXE5STTw4kenkvItK,exact,Atualizado no banco.
+unmatched,334,1,Juciara Santos Do Nascimento,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,335,1,Maria Helia De Lima,,19THXWlCWZV3oEsA51Cd1K0WWLd0WE3Lz,Maria Hélia de Lima,https://drive.google.com/drive/folders/19THXWlCWZV3oEsA51Cd1K0WWLd0WE3Lz,exact,Atualizado no banco.
+update,336,1,Milena Farias Lemos,,1bavR3ooAl5diru_TPcHEq_x0Dq7SvZLh,Milena Farias Lemos,https://drive.google.com/drive/folders/1bavR3ooAl5diru_TPcHEq_x0Dq7SvZLh,exact,Atualizado no banco.
+update,337,1,Luiara Santos Sousa,,1l4Fez-fL6yd3rPn2BxFwt2Mhh_CEv09V,Luiara Santos Sousa ,https://drive.google.com/drive/folders/1l4Fez-fL6yd3rPn2BxFwt2Mhh_CEv09V,exact,Atualizado no banco.
+update,338,1,Arnaldo Santana Dos Santos,,1cpGGO65ukbb1l6jXi5hm65j-D9t7sFZI,Arnaldo Santana dos Santos,https://drive.google.com/drive/folders/1cpGGO65ukbb1l6jXi5hm65j-D9t7sFZI,exact,Atualizado no banco.
+update,339,1,Jadilene Pires Viana,,1prBayIaMvVhcKPZRZ4dJC2g2rdiC94Fe,Jadilene Pires Viana ,https://drive.google.com/drive/folders/1prBayIaMvVhcKPZRZ4dJC2g2rdiC94Fe,exact,Atualizado no banco.
+update,340,1,José Vieira de Matos,,1-t8ebpftzRceNrIB3M9Miiqinu82XC0H,Jose Vieira de Matos ,https://drive.google.com/drive/folders/1-t8ebpftzRceNrIB3M9Miiqinu82XC0H,exact,Atualizado no banco.
+update,341,1,Andressa de Souza Xavier,,1jhRcZylAVHOM0YktBNr5D78-mDJe0TZS,Andressa de Souza Xavier ,https://drive.google.com/drive/folders/1jhRcZylAVHOM0YktBNr5D78-mDJe0TZS,exact,Atualizado no banco.
+update,342,1,Edineide da Silva,,1jk9ASJk2CJ9eNqp2ZmyJHhaYKfJCpMYY,Edineide da Silva ,https://drive.google.com/drive/folders/1jk9ASJk2CJ9eNqp2ZmyJHhaYKfJCpMYY,exact,Atualizado no banco.
+update,343,1,Marco Tulio Castro Coelho,,1hKWdE56ZTIDZ1sL_4Bjr5jNd9Yx0nNJx,Marco Tulio Castro Coelho,https://drive.google.com/drive/folders/1hKWdE56ZTIDZ1sL_4Bjr5jNd9Yx0nNJx,exact,Atualizado no banco.
+update,344,1,Wans Macedo Franca Farias,,1houNzxkzX9l0CY8oc20-GRkLCR-YayRK,Wans Macedo França Farias,https://drive.google.com/drive/folders/1houNzxkzX9l0CY8oc20-GRkLCR-YayRK,exact,Atualizado no banco.
+update,345,1,Olegario Santiago Pereira,,1gaSYOKejYz-eMkafdPwTXBxfIZ1woq4j,Olegário Santiago Pereira,https://drive.google.com/drive/folders/1gaSYOKejYz-eMkafdPwTXBxfIZ1woq4j,exact,Atualizado no banco.
+update,346,1,Adilton Ferreira Lessa,,1t8Vl7hW2XT4KECuklLXzOd4XYHKepNrp,Adilton Ferreira Lessa ,https://drive.google.com/drive/folders/1t8Vl7hW2XT4KECuklLXzOd4XYHKepNrp,exact,Atualizado no banco.
+update,347,1,Alice Oliveira Silva,,1gToit6jNytQn4fId-SQQPHp4XPOL4mtJ,Alice Oliveira Silva,https://drive.google.com/drive/folders/1gToit6jNytQn4fId-SQQPHp4XPOL4mtJ,exact,Atualizado no banco.
+update,348,1,Renato Paulo Pereira Nascimento,,1l9Xr7sH4nGI0nvTdiYgPZH1jQmRHdbTR,Renato Paulo Pereira Nascimento,https://drive.google.com/drive/folders/1l9Xr7sH4nGI0nvTdiYgPZH1jQmRHdbTR,exact,Atualizado no banco.
+update,349,1,Jailson Barbosa Chagas,,1ldCRSDPGXrr8vvo3-l7EDmuNCEYxqYBI,Jailson Barbosa Chagas ,https://drive.google.com/drive/folders/1ldCRSDPGXrr8vvo3-l7EDmuNCEYxqYBI,exact,Atualizado no banco.
+update,350,1,Edileuza Santos Souza,,1g1D7piKTaZFHoNgbUI-mvdoG-JkBecrh,Edileuza Santos Souza ,https://drive.google.com/drive/folders/1g1D7piKTaZFHoNgbUI-mvdoG-JkBecrh,exact,Atualizado no banco.
+update,351,1,Jaderson Santos Brito,,1tvohvGuYabTpuL4FULutWx2u_HpQi-k5,Jaderson Santos Brito ,https://drive.google.com/drive/folders/1tvohvGuYabTpuL4FULutWx2u_HpQi-k5,exact,Atualizado no banco.
+unmatched,352,1,Paloma Ferraz Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,353,1,Eliene Sousa Ramos,,1YDcjNKANKUNJXbT8CanfFuzyiLq5iWJv,Eliene Sousa Ramos,https://drive.google.com/drive/folders/1YDcjNKANKUNJXbT8CanfFuzyiLq5iWJv,exact,Atualizado no banco.
+unmatched,354,1,Yasmim Costa de Medeiro,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,355,1,Manoel Silva Oliveira,,1joro06ASlpdJOUHH3oiAA-VouNRayxog,Manoel Silva Oliveira ,https://drive.google.com/drive/folders/1joro06ASlpdJOUHH3oiAA-VouNRayxog,exact,Atualizado no banco.
+update,356,1,Manoel Nunes De Caires,,1rJOmzWIXfTBaKT_czUCA35rmoCmSssrW,Manoel Nunes de Caires  ,https://drive.google.com/drive/folders/1rJOmzWIXfTBaKT_czUCA35rmoCmSssrW,exact,Atualizado no banco.
+unmatched,357,1,Franciane Oliveira Gois,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,358,1,Lucelia Santos Silva Prates,,1jRbmiizYir4TdDJbCA8C3jU8ab-cGyNM,Lucelia Santos Silva Prates ,https://drive.google.com/drive/folders/1jRbmiizYir4TdDJbCA8C3jU8ab-cGyNM,exact,Atualizado no banco.
+update,359,1,Manoel Vieira Da Silva,,1hAjZOSD4wkekP4_5Ap46Z5azk5lPAiLD,Manoel Vieira da Silva,https://drive.google.com/drive/folders/1hAjZOSD4wkekP4_5Ap46Z5azk5lPAiLD,exact,Atualizado no banco.
+unmatched,360,1,Silvana Sousa Nascimento,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,361,1,Diogo Vinicius de Oliveira dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,362,1,Flávia Almeida de Andrade,,1Vym0jobHW4ItkIqOOm90O4K3mgKA5uuQ,Flávia Almeida de Andrade,https://drive.google.com/drive/folders/1Vym0jobHW4ItkIqOOm90O4K3mgKA5uuQ,exact,Atualizado no banco.
+update,363,1,Ernack Pereira Motta Neto,,1maoLla726yNe6U3Dr8929es1wG_FFXAc,Ernack Pereira Motta Neto ,https://drive.google.com/drive/folders/1maoLla726yNe6U3Dr8929es1wG_FFXAc,exact,Atualizado no banco.
+unmatched,364,1,Emanuelle Gama De Carvalho Reis,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,365,1,Alex Sandro Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,366,1,Jose de Oliveira Seles,,1G06pkBt2A7bTdUw6lXWcJ62Ocu3yazw-,José de Oliveira Seles,https://drive.google.com/drive/folders/1G06pkBt2A7bTdUw6lXWcJ62Ocu3yazw-,exact,Atualizado no banco.
+update,367,1,Iracy Maria Da Silva,,1uFZUJCILTYVaMik3S12QJslwiOwN_I6j,Iracy Maria da Silva ,https://drive.google.com/drive/folders/1uFZUJCILTYVaMik3S12QJslwiOwN_I6j,exact,Atualizado no banco.
+unmatched,368,1,Maria Eduarda Silva Feitosa,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,369,1,Taynara Silva Santiago,,1fv_OGW24AspF5aUUqryyASvji58nuGn5,Taynara Silva Santiago,https://drive.google.com/drive/folders/1fv_OGW24AspF5aUUqryyASvji58nuGn5,exact,Atualizado no banco.
+update,370,1,Anne Beatriz Almeida Porto,,1qmpJ2ypNzonJcxYPZC8L9KwOOxeyxjr4,Anne Beatriz Almeida Porto ,https://drive.google.com/drive/folders/1qmpJ2ypNzonJcxYPZC8L9KwOOxeyxjr4,exact,Atualizado no banco.
+update,371,1,Jamile Santos Dias,,1mc6zvStr0bcr9CGDAGupXTaQz-NucAt3,Jamile Santos Dias ,https://drive.google.com/drive/folders/1mc6zvStr0bcr9CGDAGupXTaQz-NucAt3,exact,Atualizado no banco.
+update,372,1,Carolaine Fernandes Moreira,,1t-d2ySa4QnaaPFZ6O-N7O3wtLzf--bKg,Carolaine Fernandes Moreira ,https://drive.google.com/drive/folders/1t-d2ySa4QnaaPFZ6O-N7O3wtLzf--bKg,exact,Atualizado no banco.
+update,373,1,Iracina Ribeiro dos Santos,,14FEdK7VwTmO02-uWX17aM5pspQexrMrm,Iracina Ribeiro dos Santos,https://drive.google.com/drive/folders/14FEdK7VwTmO02-uWX17aM5pspQexrMrm,exact,Atualizado no banco.
+update,374,1,Sirleide Dias de Almeida,,1zJL5LfDgeSftfeyjwmsdc5piJJQUUJJG,Sirleide Dias de Almeida,https://drive.google.com/drive/folders/1zJL5LfDgeSftfeyjwmsdc5piJJQUUJJG,exact,Atualizado no banco.
+unmatched,375,1,Cleverson Victoria Freitas,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,376,1,Itana Santos Lobao,,1cD5L6HJu17xSOD1N8vN3cgapbfghI6H3,Itana Santos Lobão,https://drive.google.com/drive/folders/1cD5L6HJu17xSOD1N8vN3cgapbfghI6H3,exact,Atualizado no banco.
+update,377,1,Ademária Santos Souza,,1sVQD3pHWWZOhznvGJaxqSVOSFPgu0ICV,Ademaria Santos Souza  ,https://drive.google.com/drive/folders/1sVQD3pHWWZOhznvGJaxqSVOSFPgu0ICV,exact,Atualizado no banco.
+unmatched,378,1,Rafaela Amorim Dias,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,379,1,Caine Silva Sousa,,1ovVlgCsOI2L4k2rQygrOq1uVV0kBWR6p,Caine Silva Sousa ,https://drive.google.com/drive/folders/1ovVlgCsOI2L4k2rQygrOq1uVV0kBWR6p,exact,Atualizado no banco.
+unmatched,380,1,Adineia de Jesus Porto,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,381,1,Afonso Ribas Moreira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,382,1,Elaine Goncalves Farias,,1qtcUzmFwZjqjPplJqODIS5YwAhvB1D1L,Elaine Gonçalves Farias (Arcenio) ,https://drive.google.com/drive/folders/1qtcUzmFwZjqjPplJqODIS5YwAhvB1D1L,prefix,Atualizado no banco.
+update,383,1,Pedro Antonio Ramos Sousa,,1fFkPphxUpcPVRvqK9Mmut-2Wax2_6WRJ,Pedro Antônio Ramos Sousa,https://drive.google.com/drive/folders/1fFkPphxUpcPVRvqK9Mmut-2Wax2_6WRJ,exact,Atualizado no banco.
+update,384,1,Aurino Celso Dos Santos,,1gJuksPEpkrDTvo5URHTmTtmb01K2z2QF,Aurino Celso dos Santos,https://drive.google.com/drive/folders/1gJuksPEpkrDTvo5URHTmTtmb01K2z2QF,exact,Atualizado no banco.
+unmatched,385,1,Mayane Souza Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,386,1,E E C D,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,387,1,Maria Sofia Freitas Thiago,,1wR49fsRUcc-9GuPcqlQcp1qIu4nSksa-,Maria Sofia Freitas Thiago ,https://drive.google.com/drive/folders/1wR49fsRUcc-9GuPcqlQcp1qIu4nSksa-,exact,Atualizado no banco.
+update,388,1,Alisson Silva De Carvalho,,1lIyk4Q9AVi-fsF9cH2hYJ6vJzqlUXX5_,Alisson Silva de Carvalho ,https://drive.google.com/drive/folders/1lIyk4Q9AVi-fsF9cH2hYJ6vJzqlUXX5_,exact,Atualizado no banco.
+unmatched,389,1,Janio Lopes Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,390,1,Cleia de Melo Teles,,1YA4YbeuFaSwVT2rB2KOFgRST7glc0slP,Cleia de Melo Teles,https://drive.google.com/drive/folders/1YA4YbeuFaSwVT2rB2KOFgRST7glc0slP,exact,Atualizado no banco.
+update,391,1,André Fábio Costa Martins,,1lEZYsixQC0WB7cAvp0Uk8q0dQmpcz8tC,Andre Fabio Costa Martins ,https://drive.google.com/drive/folders/1lEZYsixQC0WB7cAvp0Uk8q0dQmpcz8tC,exact,Atualizado no banco.
+unmatched,392,1,Saphira Sampaio Barbosa De Oliveira,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,393,1,Tatiane Maia Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,394,1,Darlan Silva Santos,,1lZHR02kcBaf5fOPzAnlMPL90MVAokHVJ,Darlan Silva Santos (Manuela) ,https://drive.google.com/drive/folders/1lZHR02kcBaf5fOPzAnlMPL90MVAokHVJ,prefix,Atualizado no banco.
+update,395,1,Gene Xavier Rocha,,1q_zcQdcOh4vpk5CRu5PARnevWah1s5Bs,Gene Xavier Rocha ,https://drive.google.com/drive/folders/1q_zcQdcOh4vpk5CRu5PARnevWah1s5Bs,exact,Atualizado no banco.
+update,396,1,Gabriela Martins Dib,,1oaLI2iSh-3ctCf_YzoZuuFbhqRKLKqRa,Gabriela Martins Dib ,https://drive.google.com/drive/folders/1oaLI2iSh-3ctCf_YzoZuuFbhqRKLKqRa,exact,Atualizado no banco.
+update,397,1,Graciela Souza Lima,,1m7bDPIEzGPmiqbSX9QAOuBDoPfVFPvTo,Graciela Souza Lima ,https://drive.google.com/drive/folders/1m7bDPIEzGPmiqbSX9QAOuBDoPfVFPvTo,exact,Atualizado no banco.
+unmatched,398,1,Cecilia Rachel Leal Fraife,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,399,1,Rosineide Pereira Santos,,1TNR175lQeTNATrPjlXMbW5OiySYnjKZY,Rosineide Pereira Santos,https://drive.google.com/drive/folders/1TNR175lQeTNATrPjlXMbW5OiySYnjKZY,exact,Atualizado no banco.
+update,400,1,Inamarcos Dutra Nascimento,,1myVeosm2nbFVGqdGyb6Yr0Qqa7knCKPq,Inamarcos Dutra Nascimento ,https://drive.google.com/drive/folders/1myVeosm2nbFVGqdGyb6Yr0Qqa7knCKPq,exact,Atualizado no banco.
+unmatched,401,1,Cesar de Oliveira Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,402,1,Banco Honda Sa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,404,1,Luis Carlos Silva Spinola,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,405,1,Vanusa Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,406,1,Nilton Cesar Almeida Rodrigues,,1KHi3c_DU0aUn-aaCJvAgd-D7l4sVi3uY,Nilton Cesar Almeida Rodrigues,https://drive.google.com/drive/folders/1KHi3c_DU0aUn-aaCJvAgd-D7l4sVi3uY,exact,Atualizado no banco.
+update,407,1,Andre Barbosa De Oliveira,,1qb8LF9uCZl-Sh8W53jxeu7tJaqkLmg71,André Barbosa de Oliveira ,https://drive.google.com/drive/folders/1qb8LF9uCZl-Sh8W53jxeu7tJaqkLmg71,exact,Atualizado no banco.
+update,408,1,Wilton Dias De Oliveira,,1S-Eqgxq5M6eheppGY8rU3pR3OXoOE1nh,Wilton Dias de Oliveira,https://drive.google.com/drive/folders/1S-Eqgxq5M6eheppGY8rU3pR3OXoOE1nh,exact,Atualizado no banco.
+update,409,1,Vanilda Dos Santos Alves,,1KZC6C-tiwBkN7xuFR4CCDoZmLgLpeEU9,Vanilda dos Santos Alves,https://drive.google.com/drive/folders/1KZC6C-tiwBkN7xuFR4CCDoZmLgLpeEU9,exact,Atualizado no banco.
+update,410,1,Lucineide Da Silva,,1f7OvHYkjZch8-07vjCot2AmZSSy3A1cB,Lucineide da Silva,https://drive.google.com/drive/folders/1f7OvHYkjZch8-07vjCot2AmZSSy3A1cB,exact,Atualizado no banco.
+unmatched,411,1,Karoline Oliveira da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,412,1,Maria De Fatima Barbosa Almeida Santos,,1h9YxkkRIP0QPtV3rhBIk2bX885FOSdig,Maria de Fatima Barbosa Almeida Santos,https://drive.google.com/drive/folders/1h9YxkkRIP0QPtV3rhBIk2bX885FOSdig,exact,Atualizado no banco.
+update,413,1,Luiz Gustavo Farias Franzon,,1rGLNQL-7OSw0U58F0p3-7mhkhrdqQJ1l,Luiz Gustavo Farias Franzon ,https://drive.google.com/drive/folders/1rGLNQL-7OSw0U58F0p3-7mhkhrdqQJ1l,exact,Atualizado no banco.
+unmatched,414,1,Sebastiao Alves Campos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,415,1,Renan Warley Rodrigues Caracas,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,416,1,Erika Nunes Bastos,,1ilXQlBbgm_HsMKII1WWuhbbXlM_V27lu,Erika Nunes Bastos,https://drive.google.com/drive/folders/1ilXQlBbgm_HsMKII1WWuhbbXlM_V27lu,exact,Atualizado no banco.
+unmatched,417,1,Patrícia Lima Alves,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,418,1,Ana Abercia de Amaral,,1uZ_1ysXzbnv6KN6pb7ZPch9hLe9yYl2X,Ana Abercia de Amaral ,https://drive.google.com/drive/folders/1uZ_1ysXzbnv6KN6pb7ZPch9hLe9yYl2X,exact,Atualizado no banco.
+update,419,1,Sandra Santana Santos,,1e6KgTi6_T1aXKyQj3fKD-Rd36jLqSRx8,Sandra Santana Santos,https://drive.google.com/drive/folders/1e6KgTi6_T1aXKyQj3fKD-Rd36jLqSRx8,exact,Atualizado no banco.
+unmatched,420,1,Simone Silva Santos Ner Y,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,421,1,Rivelino Pereira Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,423,1,Antonio Carlos Brito Melgaco,,1uvR3XE_mzNjTeLEB0v9mFD3p2_8drQR9,Antonio Carlos Brito Melgaço ,https://drive.google.com/drive/folders/1uvR3XE_mzNjTeLEB0v9mFD3p2_8drQR9,exact,Atualizado no banco.
+update,424,1,Alice Queirós de Sousa de Lima,,1n62q_hmt1UEzUdike0a0Oa0eZSknAFOo,Alice Queiros de Sousa de Lima ,https://drive.google.com/drive/folders/1n62q_hmt1UEzUdike0a0Oa0eZSknAFOo,exact,Atualizado no banco.
+update,425,1,Luciano Dias Sousa,,1poRTlA6HR9KyNzgJUbfk_8zuRLAIpuDa,Luciano Dias Sousa,https://drive.google.com/drive/folders/1poRTlA6HR9KyNzgJUbfk_8zuRLAIpuDa,exact,Atualizado no banco.
+update,426,1,Adriana Nascimento Rocha,,1k8w1-39dbHtsISGlmKTec-rAMX-g_lFO,Adriana Nascimento Rocha ,https://drive.google.com/drive/folders/1k8w1-39dbHtsISGlmKTec-rAMX-g_lFO,exact,Atualizado no banco.
+update,427,1,Alcione Oliveira Santos,,1gdjfyD57dcWQhl0t6NeUi9nwX3a2DbLG,Alcione Oliveira Santos,https://drive.google.com/drive/folders/1gdjfyD57dcWQhl0t6NeUi9nwX3a2DbLG,exact,Atualizado no banco.
+update,428,1,Sirlandia Oliveira Santos,,1imK3YDIBSD9G3InlijkWoyt2HA2zE6xT,Sirlandia Oliveira Santos,https://drive.google.com/drive/folders/1imK3YDIBSD9G3InlijkWoyt2HA2zE6xT,exact,Atualizado no banco.
+update,429,1,Marcelo Silva Souza,,1hKC4WBIHcvh5DzdkuyPHaKkh-RiN2yte,Marcelo Silva Souza,https://drive.google.com/drive/folders/1hKC4WBIHcvh5DzdkuyPHaKkh-RiN2yte,exact,Atualizado no banco.
+update,430,1,Anderson Santos Borges,,1v3nayemdj1dOyOpxijhS1o5nqx-U6rrh,Anderson Santos Borges ,https://drive.google.com/drive/folders/1v3nayemdj1dOyOpxijhS1o5nqx-U6rrh,exact,Atualizado no banco.
+unmatched,431,1,Silvana Ferraz Thiago,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,432,1,Jose Rodrigues Da Silva,,1c5l26Voe0Mpz09HzDwCFYGG3jvXzMXep,José Rodrigues da Silva,https://drive.google.com/drive/folders/1c5l26Voe0Mpz09HzDwCFYGG3jvXzMXep,exact,Atualizado no banco.
+update,433,1,Antonio Marcos Rebouças Azevedo,,1lOZsQ3sheX9wf--dGgIBHaBcbB9uG3Nb,Antonio Marcos Rebouças Azevedo ,https://drive.google.com/drive/folders/1lOZsQ3sheX9wf--dGgIBHaBcbB9uG3Nb,exact,Atualizado no banco.
+update,434,1,Andreia Vieira de Oliveira,,1v99xKhQ3_vu6B_uvdPnI0FL3M3nPdIOz,Andréia Vieira de Oliveira ,https://drive.google.com/drive/folders/1v99xKhQ3_vu6B_uvdPnI0FL3M3nPdIOz,exact,Atualizado no banco.
+update,435,1,Aline Da Silva Rodrigues,,1rVrzbIHJxE6rAvkZM8DFBMZSNHeS8aHG,Aline da Silva Rodrigues ,https://drive.google.com/drive/folders/1rVrzbIHJxE6rAvkZM8DFBMZSNHeS8aHG,exact,Atualizado no banco.
+update,436,1,Matheus Rocha De Almeida Vasconcelos,,1hJIxrzcG4-TKqUf_1c6wC2sNL26-J8uH,Matheus Rocha de Almeida Vasconcelos,https://drive.google.com/drive/folders/1hJIxrzcG4-TKqUf_1c6wC2sNL26-J8uH,exact,Atualizado no banco.
+update,437,1,Maria Barbosa da Silva,,1syUzZuf8XEfuweUUdicBFITpa4jzW0J4,Maria Barbosa da Silva ,https://drive.google.com/drive/folders/1syUzZuf8XEfuweUUdicBFITpa4jzW0J4,exact,Atualizado no banco.
+update,438,1,Adelaide Rocha Pereira,,1eMsMK4hIGI0ULtJQ1t3FmWzr4nvR1AXx,Adelaide Rocha Pereira,https://drive.google.com/drive/folders/1eMsMK4hIGI0ULtJQ1t3FmWzr4nvR1AXx,exact,Atualizado no banco.
+update,439,1,Jamile Rodrigues Dos Santos,,1hFSyhhh6TSTs6Z607YSonooF0SqVDUbH,Jamile Rodrigues dos Santos,https://drive.google.com/drive/folders/1hFSyhhh6TSTs6Z607YSonooF0SqVDUbH,exact,Atualizado no banco.
+unmatched,440,1,Davi Ramos Alves,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,441,1,Maria Das Gracas Laranjeira Ribeiro,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,442,1,Maria Ranúvia Ferreira,,1lMOmqUQBppZTjCIONApHKVaw5elumPJm,Maria Ranuvia Ferreira da Silva (11 de maio de 2024) 2,https://drive.google.com/drive/folders/1lMOmqUQBppZTjCIONApHKVaw5elumPJm,prefix,Atualizado no banco.
+update,443,1,Rodrigo Donizeti Da Silva Salvador,,1MwAl7w-QroNVK-Z6cG28ZxpAcU2mhWqT,Rodrigo Donizeti da Silva Salvador,https://drive.google.com/drive/folders/1MwAl7w-QroNVK-Z6cG28ZxpAcU2mhWqT,exact,Atualizado no banco.
+update,444,1,Amaral Andrade Silva,,1lwahIO2KziyPsCUw3rYbpQRmJ_BfArTs,Amaral Andrade Silva ,https://drive.google.com/drive/folders/1lwahIO2KziyPsCUw3rYbpQRmJ_BfArTs,exact,Atualizado no banco.
+update,445,1,Maiana Brito Santos,,1i-m6055R8gi4TI4xz_JTeqKWFf0H8ceU,Maiana Brito Santos,https://drive.google.com/drive/folders/1i-m6055R8gi4TI4xz_JTeqKWFf0H8ceU,exact,Atualizado no banco.
+update,446,1,Werlei Alves Coelho,,1U35wp7vk3fMzoWJbNtKpUVIPMmYwcPij,Werlei Alves Coelho,https://drive.google.com/drive/folders/1U35wp7vk3fMzoWJbNtKpUVIPMmYwcPij,exact,Atualizado no banco.
+unmatched,447,1,Ramide Marinho Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,448,1,Ronivaldo Francisco Da Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,449,1,Rodrigo Silva Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,450,1,Matheus Alves De Jesus,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,451,1,Joselio Barbosa Gomes,,1W4z4g9JVgeuNnYFt0SeeSWqK7yXJdrl3,Josélio Barbosa Gomes,https://drive.google.com/drive/folders/1W4z4g9JVgeuNnYFt0SeeSWqK7yXJdrl3,exact,Atualizado no banco.
+unmatched,452,1,Valdemar Moreira Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,453,1,Mariana Novais Araujo,,1d81aogFcjEOVuFeOCTmsu4ZmOsVheeVn,Mariana Novais Araujo,https://drive.google.com/drive/folders/1d81aogFcjEOVuFeOCTmsu4ZmOsVheeVn,exact,Atualizado no banco.
+unmatched,454,1,Alexsandro Oliveira Matos Novaes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,455,1,Franciely Dos Santos Santana,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,456,1,Brenda Sanches Corsini Barros,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,457,1,Patrícia Moraes Santos,,1exR0bS7xbEb_QTGifxzwezDzGI-S9rNd,Patricia Moraes Santos,https://drive.google.com/drive/folders/1exR0bS7xbEb_QTGifxzwezDzGI-S9rNd,exact,Atualizado no banco.
+unmatched,458,1,Lucas De Brito Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,459,1,Aderbal Barberino Brandão,,1ftX9vVsyuis4twLa4cbAbLcsPyVZhy8X,Aderbal Barberino Brandão,https://drive.google.com/drive/folders/1ftX9vVsyuis4twLa4cbAbLcsPyVZhy8X,exact,Atualizado no banco.
+unmatched,460,1,Roberto Sousa De Sa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,461,1,Natalia Souza De Brito,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,462,1,Vagno Santos Viana,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,463,1,Dione Silva Damasceno,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,464,1,Arlene Lisboa Leite,,1ryF8lezEMeT-zuVMZ8pQe9Vn-hKLViT-,Arlene Lisboa Leite ,https://drive.google.com/drive/folders/1ryF8lezEMeT-zuVMZ8pQe9Vn-hKLViT-,exact,Atualizado no banco.
+update,465,1,Carlos Viana Nunes,,1hvHTI7SfWr6PdngU0MnMS6-MD7IwUSA_,Carlos Viana Nunes,https://drive.google.com/drive/folders/1hvHTI7SfWr6PdngU0MnMS6-MD7IwUSA_,exact,Atualizado no banco.
+update,467,1,Bianca Santos Vieira,,1opoowztjoPybqVbLbintJDNIVpAcIZuM,Bianca Santos Vieira ,https://drive.google.com/drive/folders/1opoowztjoPybqVbLbintJDNIVpAcIZuM,exact,Atualizado no banco.
+update,468,1,Maria Aparecida Sousa Silva Amorim,,1hO8g9eZtRTjejjA3F9e6HTmsUdkriUI_,Maria Aparecida Sousa Silva Amorim,https://drive.google.com/drive/folders/1hO8g9eZtRTjejjA3F9e6HTmsUdkriUI_,exact,Atualizado no banco.
+unmatched,470,1,Pascoal Ferrarezi,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,471,1,Marco Antonio Silva Oliveira Junior,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,472,1,Sthefane Souza Figueiredo,,1DxI1W53KK_SpTMoKCv_MIJ7WOJbOdLvY,Sthefane Souza Figueiredo,https://drive.google.com/drive/folders/1DxI1W53KK_SpTMoKCv_MIJ7WOJbOdLvY,exact,Atualizado no banco.
+update,473,1,Mariana Moura Silva,,1gOd5KLnwIhAbq5JpJgGi8uiIeUFJs2Te,Mariana Moura Silva,https://drive.google.com/drive/folders/1gOd5KLnwIhAbq5JpJgGi8uiIeUFJs2Te,exact,Atualizado no banco.
+update,474,1,Rita De Cassia Santos Vieira,,1ilXF4K40aQcrWHCkTqro93fN2YEGWZed,Rita de Cassia Santos Vieira,https://drive.google.com/drive/folders/1ilXF4K40aQcrWHCkTqro93fN2YEGWZed,exact,Atualizado no banco.
+update,476,1,Ana Maria Oliveira Santos,,1uDjoIUgiHRyyfhLYkhCjrvvtG2mHHFvs,Ana Maria Oliveira Santos ,https://drive.google.com/drive/folders/1uDjoIUgiHRyyfhLYkhCjrvvtG2mHHFvs,exact,Atualizado no banco.
+update,477,1,Raphael Da Silva Dias,,1K4W5DSQpxFzEZhMWzc93a9CoAPPAUFpc,Raphael da Silva Dias,https://drive.google.com/drive/folders/1K4W5DSQpxFzEZhMWzc93a9CoAPPAUFpc,exact,Atualizado no banco.
+unmatched,478,1,Posto Transclarice LTDA,,,,,ambiguous_prefix,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,479,1,Lavinia Mesquita,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,480,1,Ariana Lima De Matos,,1sScd08GzFG5nVocQnODMJSUrJFllYQaK,Ariana Lima de Matos ,https://drive.google.com/drive/folders/1sScd08GzFG5nVocQnODMJSUrJFllYQaK,exact,Atualizado no banco.
+update,481,1,Jader Ferreira Oliveira,,1paUjYU1lkolpC183SnuN3OMGrhwgNi7v,Jader Ferreira Oliveira ,https://drive.google.com/drive/folders/1paUjYU1lkolpC183SnuN3OMGrhwgNi7v,exact,Atualizado no banco.
+unmatched,482,1,Dionilia Benta,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,483,1,Vanessa Santos Amorim,,1Gi38QIWbiWQrNkyby4tZ8-gvyeC11J3r,Vanessa Santos Amorim ,https://drive.google.com/drive/folders/1Gi38QIWbiWQrNkyby4tZ8-gvyeC11J3r,exact,Atualizado no banco.
+update,484,1,Valeria Dias Sampaio,,1B2MIxu2FyrF0v768kCPLC7mT92JSgyD0,Valéria Dias Sampaio,https://drive.google.com/drive/folders/1B2MIxu2FyrF0v768kCPLC7mT92JSgyD0,exact,Atualizado no banco.
+unmatched,485,1,Priscila Sousa Morais,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,486,1,Arlete Campos Lima,,1ofY9vjuUI_XLASUsfs89bpB13BEj8NO9,Arlete Campos Lima,https://drive.google.com/drive/folders/1ofY9vjuUI_XLASUsfs89bpB13BEj8NO9,exact,Atualizado no banco.
+update,487,1,Paulo Henrique Ferreira De Oliveira,,1FemzreOXbBR1URDC69Oqlc0wgT2AMDlu,Paulo Henrique Ferreira de Oliveira,https://drive.google.com/drive/folders/1FemzreOXbBR1URDC69Oqlc0wgT2AMDlu,exact,Atualizado no banco.
+update,488,1,Aline de Souza Gusmão de Moura,,1qNfT5vGpSETZ5N8IElwCR9o9P-BEEAtM,Aline de Souza Gusmão de Moura ,https://drive.google.com/drive/folders/1qNfT5vGpSETZ5N8IElwCR9o9P-BEEAtM,exact,Atualizado no banco.
+update,489,1,Atila Cerqueira de Oliveira,,1mX3ONCVHLajNIkZ4KuuoEsJ98Bgc0H7G,Atila Cerqueira de Oliveira ,https://drive.google.com/drive/folders/1mX3ONCVHLajNIkZ4KuuoEsJ98Bgc0H7G,exact,Atualizado no banco.
+update,490,1,Adolpho da Silva Bertagnon,,1fz1DEI1uQcp5Sl7SI0TGSpUMo4Nf-A1O,Adolpho da Silva Bertagnon,https://drive.google.com/drive/folders/1fz1DEI1uQcp5Sl7SI0TGSpUMo4Nf-A1O,exact,Atualizado no banco.
+update,491,1,Valdinete Damasceno Souza,,1v9x4H5DD0u8qpIN_UT4PnWnEQ0tkSiM5,Valdinete Damasceno Souza ,https://drive.google.com/drive/folders/1v9x4H5DD0u8qpIN_UT4PnWnEQ0tkSiM5,exact,Atualizado no banco.
+update,493,1,Dionete Flor da Silva,,10S0-sYzO_fqInAS0MQedkX2pYtCDPhcD,Dionete Flor da Silva ,https://drive.google.com/drive/folders/10S0-sYzO_fqInAS0MQedkX2pYtCDPhcD,exact,Atualizado no banco.
+update,494,1,José Silva Tigre,,10bnm2_-AZ890I5bFwOl22sO8yPNRTk4O,Jose Silva Tigre,https://drive.google.com/drive/folders/10bnm2_-AZ890I5bFwOl22sO8yPNRTk4O,exact,Atualizado no banco.
+update,495,1,Joao da Silva Vieira,,1orE-b7qmclIZ2nScVHNdSu_bwR4Hqfzg,João da Silva Vieira ,https://drive.google.com/drive/folders/1orE-b7qmclIZ2nScVHNdSu_bwR4Hqfzg,exact,Atualizado no banco.
+unmatched,496,1,Manoel A Morais Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,497,1,Arthur Miguel Souza Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,498,1,Marcia Brito de Lima,,1lpvtrWoTUBKN0NxZFGYFBUSJlUu9DTA2,Marcia Brito de Lima ,https://drive.google.com/drive/folders/1lpvtrWoTUBKN0NxZFGYFBUSJlUu9DTA2,exact,Atualizado no banco.
+update,499,1,Caroline Ferreira da Silva,,1fKTBz6aDA8oP3QPugoCqmzLlQdOU1sS8,Caroline Ferreira da Silva,https://drive.google.com/drive/folders/1fKTBz6aDA8oP3QPugoCqmzLlQdOU1sS8,exact,Atualizado no banco.
+update,500,1,Maricleia De Jesus Silva,,1Pxf-cwC1AHxEdFZtMY_ql7htc5r2FAXC,Maricleia de Jesus Silva,https://drive.google.com/drive/folders/1Pxf-cwC1AHxEdFZtMY_ql7htc5r2FAXC,exact,Atualizado no banco.
+unmatched,501,1,Valdemar Moreira Barbosa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,502,1,Jacira Matos Veiga,,1ERUUn36GtYDRkz3BwUvNErghL0dxIa0m,Jacira Matos Veiga,https://drive.google.com/drive/folders/1ERUUn36GtYDRkz3BwUvNErghL0dxIa0m,exact,Atualizado no banco.
+unmatched,503,1,Ilvana Alves Do Prado,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,504,1,Maria Volusia Dias Sampaio,,15hUjANt1ugEXq7rVUIlyqK2iZE9-ubcI,Maria Volusia Dias Sampaio,https://drive.google.com/drive/folders/15hUjANt1ugEXq7rVUIlyqK2iZE9-ubcI,exact,Atualizado no banco.
+unmatched,505,1,Zorisvaldo Rodrigues Da Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,506,1,Elisangela De Jesus Custodio,,1qjtQbKmjbQy2gT6ESUg6wNr-KsZXjsxk,Elisangela de Jesus Custodio ,https://drive.google.com/drive/folders/1qjtQbKmjbQy2gT6ESUg6wNr-KsZXjsxk,exact,Atualizado no banco.
+update,507,1,Lindacy Pereira Nobre,,1i2ySi2tnyAFliKIimRwbQRRXGXXY7LHO,Lindacy Pereira Nobre,https://drive.google.com/drive/folders/1i2ySi2tnyAFliKIimRwbQRRXGXXY7LHO,exact,Atualizado no banco.
+unmatched,508,1,Ana Naiara Pereira da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,509,1,Nayara Silva De Macedo,,16v-tIubNM9XwZE6U_Y427BiG96k0IT4i,Nayara silva de macedo,https://drive.google.com/drive/folders/16v-tIubNM9XwZE6U_Y427BiG96k0IT4i,exact,Atualizado no banco.
+unmatched,510,1,Valeria Teixeira Ramos Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,511,1,Delmira Maria Vieira Santos,,1m4YXTCKenjM6wxk7KtFmmhoOm9zKgkOT,Delmira Maria Vieira Santos ,https://drive.google.com/drive/folders/1m4YXTCKenjM6wxk7KtFmmhoOm9zKgkOT,exact,Atualizado no banco.
+unmatched,512,1,Noeme Dos Santos Sales,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,513,1,Adaires Fraga da Silva,,1hloYxuQCvM2PYMQZIju5ozn2Rtam0v56,Adaires fraga da silva,https://drive.google.com/drive/folders/1hloYxuQCvM2PYMQZIju5ozn2Rtam0v56,exact,Atualizado no banco.
+unmatched,514,1,Anna Maria Dias do Prado,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,515,1,Rodrigo Cainan Matos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,516,1,Sandra Sant Ana,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,517,1,Rosania Ribeiro,,1gPjZ8uH5Ur4tm0VKMuRAujcqNk1Onver,Rosania Ribeiro de Jesus ,https://drive.google.com/drive/folders/1gPjZ8uH5Ur4tm0VKMuRAujcqNk1Onver,prefix,Atualizado no banco.
+update,518,1,Noelia Bidu Dos Santos,,1iqfCOSXQc36y_o9ehOgugn9mZjbBfEYo,Noelia Bidu dos Santos,https://drive.google.com/drive/folders/1iqfCOSXQc36y_o9ehOgugn9mZjbBfEYo,exact,Atualizado no banco.
+update,519,1,Emmanuel de Melo Santos,,1b8j5wDo4LevJZIhSJXU8Yqlw58iD7dJs,Emmanuel de Melo Santos,https://drive.google.com/drive/folders/1b8j5wDo4LevJZIhSJXU8Yqlw58iD7dJs,exact,Atualizado no banco.
+update,520,1,Gustavo Carvalho dos Santos,,1ha42RyFLlbgTru_qM1ose1wistV6KQH0,Gustavo Carvalho dos Santos,https://drive.google.com/drive/folders/1ha42RyFLlbgTru_qM1ose1wistV6KQH0,exact,Atualizado no banco.
+unmatched,521,1,Tereza Rosa De Jesus Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,522,1,Ismael Rosa De Oliveira,,1i8y0N9EX1bINOUb8xnMy-P0TYcuIO_0R,Ismael Rosa de Oliveira,https://drive.google.com/drive/folders/1i8y0N9EX1bINOUb8xnMy-P0TYcuIO_0R,exact,Atualizado no banco.
+unmatched,523,1,Milena Moraes Lacerda,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,524,1,Patricia Gon“Alves Figueiredo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,525,1,Tereza Ramos Santos,,,,,ambiguous_prefix,Nao foi possivel definir uma pasta unica para este cliente.
+update,526,1,Gersionita Vieira De Sousa,,1o8wiIMTpS9OVj_EPBaiJ4gTbEMXfLQxr,Gersionita Vieira de Sousa ,https://drive.google.com/drive/folders/1o8wiIMTpS9OVj_EPBaiJ4gTbEMXfLQxr,exact,Atualizado no banco.
+update,527,1,Pâmela Silva Belém,,1GVETWRvI6RY74tzy3TVf7bpcNsdFlIWP,Pâmela Silva Belém,https://drive.google.com/drive/folders/1GVETWRvI6RY74tzy3TVf7bpcNsdFlIWP,exact,Atualizado no banco.
+update,528,1,Omar Alves Costa,,1eW3btAY6no8IHeRdNNE3dTyYFOdeAE5b,Omar Alves Costa,https://drive.google.com/drive/folders/1eW3btAY6no8IHeRdNNE3dTyYFOdeAE5b,exact,Atualizado no banco.
+update,529,1,Gilmara Pereira da Silva,,1du_5DjHd70sAvuDXoQ5ATE6r5bkqtIio,Gilmara Pereira da Silva,https://drive.google.com/drive/folders/1du_5DjHd70sAvuDXoQ5ATE6r5bkqtIio,exact,Atualizado no banco.
+update,530,1,Vanusa Pereira Santos,,1fiDGdRQmIS0lN17pdx0bBpOYbBNUKCVd,Vanusa Pereira Santos,https://drive.google.com/drive/folders/1fiDGdRQmIS0lN17pdx0bBpOYbBNUKCVd,exact,Atualizado no banco.
+unmatched,531,1,Nilson Cruz de Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,532,1,Adriano De Jesus Batista Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,533,1,Winston Rodrigues Book,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,534,1,Emilio Viana Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,535,1,Angelina Santos Costa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,536,1,Loane Santos Rocha,,1s6DM2N1FKu-0vq8cPiP-iIBqiX1Aa3jp,Loane Santos Rocha ,https://drive.google.com/drive/folders/1s6DM2N1FKu-0vq8cPiP-iIBqiX1Aa3jp,exact,Atualizado no banco.
+unmatched,537,1,Chirle Silva Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,538,1,Jairo De Jesus Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,539,1,Lara De Sousa Marques,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,540,1,Antonio Hatila Andrade dos Santos,,1n-CAhOjD2n9NUuq0pKBOXcxVHgt9ho4I,Antonio Hatila Andrade dos Santos ,https://drive.google.com/drive/folders/1n-CAhOjD2n9NUuq0pKBOXcxVHgt9ho4I,exact,Atualizado no banco.
+unmatched,541,1,Simone De Almeida,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,542,1,Davi Emanuel Lelis Rocha De Sa Carvalho,,17_M5_YT0TNH1CRhrnwV0HEApggn5nd4O,Davi Emanuel Lelis Rocha de Sá Carvalho,https://drive.google.com/drive/folders/17_M5_YT0TNH1CRhrnwV0HEApggn5nd4O,exact,Atualizado no banco.
+unmatched,543,1,José Nilton Alves da Paixão,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,544,1,Manoel Correia da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,545,1,Lígia da Silva Costa,,1hD_jXSie_QRBbV0OZ4mPYKAw1Em8f5FP,Ligia da Silva Costa,https://drive.google.com/drive/folders/1hD_jXSie_QRBbV0OZ4mPYKAw1Em8f5FP,exact,Atualizado no banco.
+unmatched,546,1,Ilnanda Dias Pacheco,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,547,1,Saria de Jesus Lima,,1HiE3G5GxzJInvuyqxp9I-6OwXlVS2UhV,Saria de Jesus Lima,https://drive.google.com/drive/folders/1HiE3G5GxzJInvuyqxp9I-6OwXlVS2UhV,exact,Atualizado no banco.
+unmatched,548,1,Erika Thiago Ferraz,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,549,1,Ailton Alencar Ferreira,,1eTIxzb5Y82pbkcmwn2XV_ywSDvVHucfY,Ailton Alencar Ferreira,https://drive.google.com/drive/folders/1eTIxzb5Y82pbkcmwn2XV_ywSDvVHucfY,exact,Atualizado no banco.
+unmatched,550,1,Jose Carlos Santana,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,551,1,Ronald Santos Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,552,1,Dalvany Silva Prado,,1t4qH0kXfQKJNomUe03DLtatqnK1DQYs1,Dalvany Silva Prado ,https://drive.google.com/drive/folders/1t4qH0kXfQKJNomUe03DLtatqnK1DQYs1,exact,Atualizado no banco.
+update,553,1,Ronaldo Silva Gralha,,1j1tehKTzHkS_NUzY-snby568xmPt-M5H,Ronaldo Silva Gralha ,https://drive.google.com/drive/folders/1j1tehKTzHkS_NUzY-snby568xmPt-M5H,exact,Atualizado no banco.
+unmatched,554,1,Pamela Guimarães Nascimento Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,555,1,Ana Claudia Santos Oliveira,,1rqI-OS6lTJNAPC8gRlGLp1ihKaUuSyF6,Ana Claudia Santos Oliveira,https://drive.google.com/drive/folders/1rqI-OS6lTJNAPC8gRlGLp1ihKaUuSyF6,exact,Atualizado no banco.
+unmatched,556,1,Joao Pedro Rocha Ramalho Penedo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,557,1,Viviane Botelho Dos Anjos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,558,1,Ygor de Souza Gonçalves,,1fNJ5XIGikg2SqkPU4J9k3ZOScl6lexQf,Ygor de Souza Gonçalves,https://drive.google.com/drive/folders/1fNJ5XIGikg2SqkPU4J9k3ZOScl6lexQf,exact,Atualizado no banco.
+update,559,1,Wilson Medeiros Lima,,1lcDWrlc-PDPnup2YZ7d4GCt6rKZ8RRHS,Wilson Medeiros Lima,https://drive.google.com/drive/folders/1lcDWrlc-PDPnup2YZ7d4GCt6rKZ8RRHS,exact,Atualizado no banco.
+unmatched,560,1,Cail Ane Carvalho Pereira Prado,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,561,1,Gustavo Nogueira De Oliveira,,1rRtv4ccPBiWkBJQL8czQGSRo0ePscaSn,Gustavo Nogueira de Oliveira ,https://drive.google.com/drive/folders/1rRtv4ccPBiWkBJQL8czQGSRo0ePscaSn,exact,Atualizado no banco.
+update,562,1,Edvard Amorim Dos Santos,,1uVb2AjhfKFYPjTxtCdnWC3OGZWIBqBDW,Edvard Amorim dos Santos ,https://drive.google.com/drive/folders/1uVb2AjhfKFYPjTxtCdnWC3OGZWIBqBDW,exact,Atualizado no banco.
+update,563,1,Maria Angelica Oliveira Dos Santos,,1eih-KXjLS3A7KgVW-0mLdKNYmCYH7NzO,Maria Angelica Oliveira dos Santos,https://drive.google.com/drive/folders/1eih-KXjLS3A7KgVW-0mLdKNYmCYH7NzO,exact,Atualizado no banco.
+update,564,1,Hilton Medina Junior,,1vjG8EoJxpRyRwB6sbUDSs0ocKm_NvDBS,Hilton Medina Junior ,https://drive.google.com/drive/folders/1vjG8EoJxpRyRwB6sbUDSs0ocKm_NvDBS,exact,Atualizado no banco.
+update,565,1,Creusa Alves De Jesus,,1g7aAf2HgRjh0QyL8GTaHf5klNio3At8B,Creusa Alves de Jesus ,https://drive.google.com/drive/folders/1g7aAf2HgRjh0QyL8GTaHf5klNio3At8B,exact,Atualizado no banco.
+update,566,1,Leonardo Silva Botelho,,1jF7ZF0UFhmtkLRlVdLulCm_XA03o3BCF,Leonardo Silva Botelho,https://drive.google.com/drive/folders/1jF7ZF0UFhmtkLRlVdLulCm_XA03o3BCF,exact,Atualizado no banco.
+unmatched,568,1,Luis Carlos Santos Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,569,1,Georgina Oliveira Santos,,1HNw_MhrQaXFhblRI3VxA_RMxddePuIyF,Georgina Oliveira Santos,https://drive.google.com/drive/folders/1HNw_MhrQaXFhblRI3VxA_RMxddePuIyF,exact,Atualizado no banco.
+update,570,1,Jose Bispo Salazar Neto,,1rlXfp9CxLn7V3WYHd_e1kaqksECtH7w0,José Bispo Salazar Neto ,https://drive.google.com/drive/folders/1rlXfp9CxLn7V3WYHd_e1kaqksECtH7w0,exact,Atualizado no banco.
+unmatched,571,1,Marinalva Silva Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,572,1,Alex Oliveira Rocha,,1PEtBDqKDQJRVBIecYYhkkiNRCg7v2tJS,Alex Oliveira Rocha,https://drive.google.com/drive/folders/1PEtBDqKDQJRVBIecYYhkkiNRCg7v2tJS,exact,Atualizado no banco.
+unmatched,573,1,Onezi Rodrigues Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,574,1,Luana Ferreira Santos,,1vl_rvZL4s6sYQDLepVgMpeC27ZDEW5GC,Luana Ferreira Santos  ,https://drive.google.com/drive/folders/1vl_rvZL4s6sYQDLepVgMpeC27ZDEW5GC,exact,Atualizado no banco.
+update,575,1,Claudio Lima Costa,,1nYomUVZ7LiJ-yMNo8XogMKp7R5a2FEfO,Claudio Lima Costa ,https://drive.google.com/drive/folders/1nYomUVZ7LiJ-yMNo8XogMKp7R5a2FEfO,exact,Atualizado no banco.
+unmatched,576,1,Rivaldo Alves Feitosa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,577,1,Maria das Graças Dias da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,578,1,Franciele Dos Santos Lima,,1dqYGsuPllGdGej-NhrT3wpM07KRrgw8G,Franciele dos Santos Lima,https://drive.google.com/drive/folders/1dqYGsuPllGdGej-NhrT3wpM07KRrgw8G,exact,Atualizado no banco.
+update,579,1,Arlene da Silva Nunes,,1hZfhdJOxcyWerDluv3l_KMKsJXhYGFww,Arlene da Silva Nunes,https://drive.google.com/drive/folders/1hZfhdJOxcyWerDluv3l_KMKsJXhYGFww,exact,Atualizado no banco.
+unmatched,580,1,Deborah Quezia Novaes Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,581,1,Jeferson Marques Dos Santos Ribeiro,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,582,1,Tiago Santos Menezes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,583,1,Marcelo Fabian Alves Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,584,1,Carlos Roberto da Silva,,1sd06YS7q9hR7QQ5loMQy8dSgMt9rgUdZ,Carlos Roberto da Silva,https://drive.google.com/drive/folders/1sd06YS7q9hR7QQ5loMQy8dSgMt9rgUdZ,exact,Atualizado no banco.
+unmatched,585,1,Marcos Tadeu Barbosa Costa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,586,1,Raimundo Dos Santos Nascimento,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,587,1,Cesar Thiago Ferraz,,1fAqbqsHv-hE_99S8gJBEepNwaoC-NUom,Cesar Thiago Ferraz,https://drive.google.com/drive/folders/1fAqbqsHv-hE_99S8gJBEepNwaoC-NUom,exact,Atualizado no banco.
+unmatched,588,1,Taiala Portela,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,589,1,Wellington Luiz Goes Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,590,1,K N D R,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,591,1,Ana Beatriz Teles Araujo,,1lxe2mOYK1675dCz3XcUgvlFhUnHLiJwa,Ana Beatriz Teles Araujo ,https://drive.google.com/drive/folders/1lxe2mOYK1675dCz3XcUgvlFhUnHLiJwa,exact,Atualizado no banco.
+update,592,1,André Oliveira Brito,,1s3wcau_v-w7WS5xGPItcV64hK0L1JA_K,André Oliveira Brito ,https://drive.google.com/drive/folders/1s3wcau_v-w7WS5xGPItcV64hK0L1JA_K,exact,Atualizado no banco.
+unmatched,593,1,Joao Vitor Gobira Costa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,594,1,Caio Henrique Santos Neves,,1L_y3Ppt9QP4TrxIzU7WCGpbePKZZdWBo,Caio Henrique Santos Neves,https://drive.google.com/drive/folders/1L_y3Ppt9QP4TrxIzU7WCGpbePKZZdWBo,exact,Atualizado no banco.
+update,595,1,Agionor Oliveira Sampaio,,1jKFQYQg4bVIirtHk6Y0jQkQO0bjf2Dtj,Agionor Oliveira Sampaio  ,https://drive.google.com/drive/folders/1jKFQYQg4bVIirtHk6Y0jQkQO0bjf2Dtj,exact,Atualizado no banco.
+unmatched,596,1,Luzinete Souza Brito,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,597,1,Ronaldo Lima da Silva,,1wPcN0x3KS8wsPN-MJ7I_7wNiuIpOby3g,Ronaldo Lima Da Silva ,https://drive.google.com/drive/folders/1wPcN0x3KS8wsPN-MJ7I_7wNiuIpOby3g,exact,Atualizado no banco.
+update,598,1,Eunice Rosa De Jesus,,1il1dH_pNOpZlern3EB6ITetydZb2y3v4,Eunice Rosa de Jesus,https://drive.google.com/drive/folders/1il1dH_pNOpZlern3EB6ITetydZb2y3v4,exact,Atualizado no banco.
+unmatched,599,1,Adaulto Santos Aguiar,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,600,1,Danillo Alves Farias,,1slH3dKmzAl8KXM8wNQr-h4fJAYM-WoeU,Danillo Alves Farias ,https://drive.google.com/drive/folders/1slH3dKmzAl8KXM8wNQr-h4fJAYM-WoeU,exact,Atualizado no banco.
+update,601,1,Roberto Juliano Lima Silva,,1ihsQmsoyDkioNSGJnlwowop6NBf3XoMd,Roberto Juliano Lima Silva,https://drive.google.com/drive/folders/1ihsQmsoyDkioNSGJnlwowop6NBf3XoMd,exact,Atualizado no banco.
+update,602,1,Matos•Advocacia,,1pq_RUx2vRENlPnqmsEVmLPDJyxrYdkdY,Matos advocacia,https://drive.google.com/drive/folders/1pq_RUx2vRENlPnqmsEVmLPDJyxrYdkdY,exact,Atualizado no banco.
+unmatched,603,1,Tiago Franco De Freitas,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,604,1,Carla Danielle Soares De Sousa Amaral,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,605,1,Maria Aparecida Amaral Da Rocha,,1dduzCZJknOPw0QQ9Y3XeVN2cUoHCqlM1,Maria Aparecida Amaral da Rocha,https://drive.google.com/drive/folders/1dduzCZJknOPw0QQ9Y3XeVN2cUoHCqlM1,exact,Atualizado no banco.
+update,606,1,Celeste Ramalho Santos,,1iD-Q2hvh38Ths7E2bN4x2S0vCzrT3lww,Celeste Ramalho Santos,https://drive.google.com/drive/folders/1iD-Q2hvh38Ths7E2bN4x2S0vCzrT3lww,exact,Atualizado no banco.
+update,607,1,Ygor De Souza Goncalves,,1fNJ5XIGikg2SqkPU4J9k3ZOScl6lexQf,Ygor de Souza Gonçalves,https://drive.google.com/drive/folders/1fNJ5XIGikg2SqkPU4J9k3ZOScl6lexQf,exact,Atualizado no banco.
+update,608,1,Juciara Maria De Jesus Silva,,1lDqZYuoPZLFxGHNXw4h6vBGJj38rKuMI,Juciara Maria de Jesus Silva ,https://drive.google.com/drive/folders/1lDqZYuoPZLFxGHNXw4h6vBGJj38rKuMI,exact,Atualizado no banco.
+update,609,1,Elineide Santos Nunes,,12ACQ5p1NXOHLAsViYbK7m4t2iqPNIwyA,Elineide Santos Nunes,https://drive.google.com/drive/folders/12ACQ5p1NXOHLAsViYbK7m4t2iqPNIwyA,exact,Atualizado no banco.
+unmatched,610,1,Adelina Cruz Dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,611,1,Jose Ricardo Sousa Barreto,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,612,1,Aurita Dias Silva,,1rR-wS8Aekys0c9jZo3MTZbPSjitwici4,Aurita Dias Silva ,https://drive.google.com/drive/folders/1rR-wS8Aekys0c9jZo3MTZbPSjitwici4,exact,Atualizado no banco.
+unmatched,613,1,Maria Do Carmo Prado Lima De Jesus,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,614,1,Bruno Alves Novais,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,615,1,Eduardo Moreira Silveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,616,1,Iraildes Espirito Santo De Jesus,,1nweADYYD_AG8Vz-758z6J39d5bC6T1ke,Iraildes Espírito Santo de Jesus ,https://drive.google.com/drive/folders/1nweADYYD_AG8Vz-758z6J39d5bC6T1ke,exact,Atualizado no banco.
+unmatched,617,1,Andressa Maximiano Pejara,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,618,1,Francisco Dos Santos,,1vAc_GgFNu3dcYbVe2tkXQDQBkYPwiEB4,Francisco dos Santos,https://drive.google.com/drive/folders/1vAc_GgFNu3dcYbVe2tkXQDQBkYPwiEB4,exact,Atualizado no banco.
+update,619,1,Aline Matos Santos,,1gmhJ545Bwzaj1AjBd7s9QwEqGKuUqoAo,Aline Matos Santos,https://drive.google.com/drive/folders/1gmhJ545Bwzaj1AjBd7s9QwEqGKuUqoAo,exact,Atualizado no banco.
+unmatched,620,1,Francklin Joel Santos Souza,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,621,1,Rodrigo Gobira Santos,,1qFKN6rdS_002EoIp1dlwm6og4_1GMbKx,Rodrigo Gobira Santos ,https://drive.google.com/drive/folders/1qFKN6rdS_002EoIp1dlwm6og4_1GMbKx,exact,Atualizado no banco.
+unmatched,622,1,"J.M. Bergamini - Transportes Ltda - Cnpj:
+  13.051.611 /0001-00",,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,623,1,Marta Pereira Da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,624,1,D Caracas,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,625,1,Jose Denilson Moreira Santos,,1q_H259fS_UHcAF9U2yVzMO1LIuOAobor,Jose Denilson Moreira Santos ,https://drive.google.com/drive/folders/1q_H259fS_UHcAF9U2yVzMO1LIuOAobor,exact,Atualizado no banco.
+update,626,1,Leonor Brito Rocha do Carmo,,141LdrpvJ0EqT7441QpEzppJSh_B_v7c1,Leonor Brito Rocha do Carmo,https://drive.google.com/drive/folders/141LdrpvJ0EqT7441QpEzppJSh_B_v7c1,exact,Atualizado no banco.
+unmatched,627,1,Dayane Ramos Pelizzari,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,628,1,Ednalva Silva Lima,,1nstnHHNeMmtbg7-R4KgNmlA38lfyiIT6,Ednalva Silva Lima ,https://drive.google.com/drive/folders/1nstnHHNeMmtbg7-R4KgNmlA38lfyiIT6,exact,Atualizado no banco.
+update,629,1,Rubens Ribeiro Dos Santos,,1gHsCXZxsa3Z5KVLanRKNReOd03ysT7s6,Rubens Ribeiro dos Santos,https://drive.google.com/drive/folders/1gHsCXZxsa3Z5KVLanRKNReOd03ysT7s6,exact,Atualizado no banco.
+unmatched,631,1,Ronialda De Souza Bento,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,632,1,André Luis Nunes Ferraz,,11x-UXrRyJr2sZ9z859XbgBRSdLtlxJnO,André Luis Nunes Ferraz,https://drive.google.com/drive/folders/11x-UXrRyJr2sZ9z859XbgBRSdLtlxJnO,exact,Atualizado no banco.
+update,633,1,Manoel Santos Brito,,1cppttCNhIwKv_1JRnzQli_y9ZO2JXLwR,Manoel Santos Brito,https://drive.google.com/drive/folders/1cppttCNhIwKv_1JRnzQli_y9ZO2JXLwR,exact,Atualizado no banco.
+unmatched,634,1,Joanderson Silva Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,635,1,Alisson Nobre Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,636,1,Silvanio de Andrade Lima,,1c49KOxl8-RMnfcsz15B-Uy29KQB36wua,Silvanio de Andrade Lima,https://drive.google.com/drive/folders/1c49KOxl8-RMnfcsz15B-Uy29KQB36wua,exact,Atualizado no banco.
+update,637,1,Ana Carolina Ladeia,,1t5ggI79rZnGaS7AbnUH4X3mBDr3BVRsa,Ana Carolina Ladeia  ,https://drive.google.com/drive/folders/1t5ggI79rZnGaS7AbnUH4X3mBDr3BVRsa,exact,Atualizado no banco.
+update,639,1,Maria Nunes Ferraz,,1ItTsAZAO3W4mXklHCyQacnmGAeVJE46M,Maria Nunes Ferraz,https://drive.google.com/drive/folders/1ItTsAZAO3W4mXklHCyQacnmGAeVJE46M,exact,Atualizado no banco.
+update,640,1,Caele Costa Marinho,,1-iptWWxjXyxlbrqke_gYdaGjIUP4TELI,Caele Costa Marinho,https://drive.google.com/drive/folders/1-iptWWxjXyxlbrqke_gYdaGjIUP4TELI,exact,Atualizado no banco.
+unmatched,642,1,Oraidia Santiago Alves De Almeida,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,643,1,Ermiza Maria Dos Santos,,1neqyaw_tpTbyXG07G9DTgO6QwPPU9vcs,Ermiza Maria dos Santos ,https://drive.google.com/drive/folders/1neqyaw_tpTbyXG07G9DTgO6QwPPU9vcs,exact,Atualizado no banco.
+update,644,1,Hélder Ferraz Queiroz,,1dolEUCsBeyM_lI05z9MZUuzeEMDcFY0a,Helder Ferraz Queiroz,https://drive.google.com/drive/folders/1dolEUCsBeyM_lI05z9MZUuzeEMDcFY0a,exact,Atualizado no banco.
+unmatched,645,1,José Nilton Dias,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,646,1,Abraão de Oliveira Novaes,,1iEs04oIsijCvO7weuXYBzjh_1PUt7tJo,Abraão de Oliveira Novaes,https://drive.google.com/drive/folders/1iEs04oIsijCvO7weuXYBzjh_1PUt7tJo,exact,Atualizado no banco.
+unmatched,647,1,Rosa Aparecida Silva Santos Rocha,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,648,1,Cl Arice Silva Feitosa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,649,1,Guilherme Cabral Natividade,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,650,1,Uanderson Silva Vieira,,1OzhWoD9IVGvIIqL8cOZZaoRaOUOyHENM,Uanderson Silva Vieira,https://drive.google.com/drive/folders/1OzhWoD9IVGvIIqL8cOZZaoRaOUOyHENM,exact,Atualizado no banco.
+update,651,1,Rosalina Maria de Jesus,,1j3zgtyUiV_brDQHzXJHVL2mJnlznaPMy,Rosalina Maria de Jesus ,https://drive.google.com/drive/folders/1j3zgtyUiV_brDQHzXJHVL2mJnlznaPMy,exact,Atualizado no banco.
+update,652,1,Clemencia Morais Oliveira,,1XkV645FA4C1a4Gtk3FQerWR6E3mKgN4Q,Clemência Morais Oliveira,https://drive.google.com/drive/folders/1XkV645FA4C1a4Gtk3FQerWR6E3mKgN4Q,exact,Atualizado no banco.
+unmatched,653,1,Valtemir Correia Da Silva,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,655,1,Vanderlea Freitas Thiago,,1gNWN9B5GR64zKNyXRXtCihdkokEo_uuC,Vanderlea Freitas Thiago,https://drive.google.com/drive/folders/1gNWN9B5GR64zKNyXRXtCihdkokEo_uuC,exact,Atualizado no banco.
+update,656,1,Mariana Silva Sousa Morais,,1hJVqt12qt63j3pB0DRt4i9OZGr7mYWRX,Mariana Silva Sousa Morais,https://drive.google.com/drive/folders/1hJVqt12qt63j3pB0DRt4i9OZGr7mYWRX,exact,Atualizado no banco.
+unmatched,657,1,Emanoel Santos Pereira Mendes,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,658,1,Manoel Moreira Barbosa,,1ngwUwHr9Ja7CTKCMeSp-UPLpYZB5aUxb,Manoel Moreira Barbosa ,https://drive.google.com/drive/folders/1ngwUwHr9Ja7CTKCMeSp-UPLpYZB5aUxb,exact,Atualizado no banco.
+unmatched,659,1,C. A. S. B.,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,660,1,Maria Graia de Sousa,,1FJCWIDz2Tc9ECXjEpTqlEb7XsYjAJL8x,Maria Graia de Sousa,https://drive.google.com/drive/folders/1FJCWIDz2Tc9ECXjEpTqlEb7XsYjAJL8x,exact,Atualizado no banco.
+update,661,1,Claudia Gralha Lisboa,,1co0Ieq_-SkXUx8Sjts85dY-d2g1u5KCQ,Claudia Gralha Lisboa,https://drive.google.com/drive/folders/1co0Ieq_-SkXUx8Sjts85dY-d2g1u5KCQ,exact,Atualizado no banco.
+update,662,1,Bruno Leão Torres,,1MN-NZPUnUxSMGEkbR3mlmzgLGdnFZP2J,Bruno Leão Torres,https://drive.google.com/drive/folders/1MN-NZPUnUxSMGEkbR3mlmzgLGdnFZP2J,exact,Atualizado no banco.
+unmatched,663,1,Eleni Porto Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,664,1,Jair Silveira Dias,,1c_34QRtOAoUZ_-UlNpfBDnp_UqZO_a6q,Jair Silveira Dias,https://drive.google.com/drive/folders/1c_34QRtOAoUZ_-UlNpfBDnp_UqZO_a6q,exact,Atualizado no banco.
+update,665,1,Joaquim Vieira Alves,,1nycWCoqhftljV-gWGtgC_J74-dvwk-DS,Joaquim Vieira Alves ,https://drive.google.com/drive/folders/1nycWCoqhftljV-gWGtgC_J74-dvwk-DS,exact,Atualizado no banco.
+unmatched,666,1,Altemir Teixeira Junior,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,667,1,Gilmara De Jesus,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,668,1,Karllos Emmanoel Santos Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,669,1,Jonatas Oliveira Dos Santos,,1tlOqzf9J9Y7_SlW81cUYrxcK9KxBa4JQ,Jonatas Oliveira dos Santos ,https://drive.google.com/drive/folders/1tlOqzf9J9Y7_SlW81cUYrxcK9KxBa4JQ,exact,Atualizado no banco.
+update,670,1,Mariana Benta Dos Santos,,1Zyp0PWf12NRuOgPe4-eV6bttClUvUnTN,Mariana Benta dos Santos,https://drive.google.com/drive/folders/1Zyp0PWf12NRuOgPe4-eV6bttClUvUnTN,exact,Atualizado no banco.
+update,671,1,Angelo Santos Costa (Angel),,1vMmB3jvYng3TiZEGZxRSV9LZMLG1icli,Angelo Santos Costa (Angel) ,https://drive.google.com/drive/folders/1vMmB3jvYng3TiZEGZxRSV9LZMLG1icli,exact,Atualizado no banco.
+unmatched,672,1,Amanda Sampaio Lemos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,673,1,Rilza Camoes De Oliveira,,16v4oJDf0QBD9nvasm1lrQ5TH-qEBje2h,Rilza Camões de Oliveira,https://drive.google.com/drive/folders/16v4oJDf0QBD9nvasm1lrQ5TH-qEBje2h,exact,Atualizado no banco.
+update,674,1,Mirian Cavalcante De Sousa,,1waeQMStAqkqSGQLELNaKPq6aRREPntqa,Mirian Cavalcante de Sousa,https://drive.google.com/drive/folders/1waeQMStAqkqSGQLELNaKPq6aRREPntqa,exact,Atualizado no banco.
+unmatched,675,1,Maricy Carvalho Pereira Ribeiro,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,676,1,Mateus Moitinho Santos,,15Q0d-d-hBpneI_plq2i4q8u3uvrks98Z,Mateus Moitinho santos,https://drive.google.com/drive/folders/15Q0d-d-hBpneI_plq2i4q8u3uvrks98Z,exact,Atualizado no banco.
+unmatched,677,1,Nair Porto Reis,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,678,1,Maria Aparecida Santos Silva,,19H6gdinkyH0vln4r4g-hW1V8EDzvbOE2,Maria Aparecida Santos Silva,https://drive.google.com/drive/folders/19H6gdinkyH0vln4r4g-hW1V8EDzvbOE2,exact,Atualizado no banco.
+update,679,1,Naiane Borges Corrêa Santos,,1l-n_SWp4jd64_rNoNacGQ5xASA_eZ37Z,Naiane Borges Corrêa Santos,https://drive.google.com/drive/folders/1l-n_SWp4jd64_rNoNacGQ5xASA_eZ37Z,exact,Atualizado no banco.
+unmatched,680,1,Jonathan Vieira Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,681,1,Eridalva Lima de Oliveira,,1HZdd_9cLttMe0rqUVcbBX42E52eaNRkj,Eridalva Lima de Oliveira,https://drive.google.com/drive/folders/1HZdd_9cLttMe0rqUVcbBX42E52eaNRkj,exact,Atualizado no banco.
+unmatched,682,1,Clara Maria Figueredo De Aquino,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,683,1,Wendell Rodrigues Do Nascimento,,1gYtTojFFbRlaON4666St50ukX3___VH3,Wendell Rodrigues do Nascimento,https://drive.google.com/drive/folders/1gYtTojFFbRlaON4666St50ukX3___VH3,exact,Atualizado no banco.
+update,684,1,Gelmir Jose Cechim,,1ziGk3Ufp_vOlia4VClSRrQAv_G9xKfUl,Gelmir Jose Cechim,https://drive.google.com/drive/folders/1ziGk3Ufp_vOlia4VClSRrQAv_G9xKfUl,exact,Atualizado no banco.
+update,685,1,Vanessa dos Santos Silva,,13r4VHWlDW-CBJ2GF8HVaOD64Yhhv3Jtn,Vanessa dos Santos Silva,https://drive.google.com/drive/folders/13r4VHWlDW-CBJ2GF8HVaOD64Yhhv3Jtn,exact,Atualizado no banco.
+update,686,1,Ludmila Dias Nunes,,1fVe59B3ArT8pdOGAbOrMU-Q75rt2IXXn,Ludmila Dias Nunes,https://drive.google.com/drive/folders/1fVe59B3ArT8pdOGAbOrMU-Q75rt2IXXn,exact,Atualizado no banco.
+unmatched,687,1,Otaviano Lacerda Ferraz,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,688,1,Jackeline Santos Silva,,1YNz5ZHYjraWQQQ9fKKqGLSNzIOjXxo7L,Jackeline Santos Silva,https://drive.google.com/drive/folders/1YNz5ZHYjraWQQQ9fKKqGLSNzIOjXxo7L,exact,Atualizado no banco.
+unmatched,689,1,Sullivan Freitas Thiago,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,690,1,Claudio Rocha Almeida,,1uONDYV0KvERbZAZZ5vOvIVhZVS9CSfRQ,Claudio Rocha Almeida ,https://drive.google.com/drive/folders/1uONDYV0KvERbZAZZ5vOvIVhZVS9CSfRQ,exact,Atualizado no banco.
+update,691,1,Maria Oliveira Andrade,,1cJdykoljvFOPzfxFQueyMArh8CkSYUKw,Maria Oliveira Andrade,https://drive.google.com/drive/folders/1cJdykoljvFOPzfxFQueyMArh8CkSYUKw,exact,Atualizado no banco.
+update,692,1,Soraya Maria Alves Dos Santos,,1fZB_v5d-tUPYcfQFjnerolz14ogCoWrm,Soraya Maria Alves dos Santos,https://drive.google.com/drive/folders/1fZB_v5d-tUPYcfQFjnerolz14ogCoWrm,exact,Atualizado no banco.
+update,693,1,Monica De Souza Goncalves,,1cOqKvuzO_wyZrorpFJkflWtjwpEfsmLG,Mônica de Souza Gonçalves,https://drive.google.com/drive/folders/1cOqKvuzO_wyZrorpFJkflWtjwpEfsmLG,exact,Atualizado no banco.
+update,694,1,Vanessa Pereira Da Cruz,,1RjFDfD5pyvVYIxJquXme3wFaDHd2E68u,Vanessa Pereira da Cruz,https://drive.google.com/drive/folders/1RjFDfD5pyvVYIxJquXme3wFaDHd2E68u,exact,Atualizado no banco.
+update,695,1,Germínio de Deus Oliveira,,1RUfemHKHVhSUyJGOxsiX2uCh8w1SCwIW,Germínio de Deus Oliveira,https://drive.google.com/drive/folders/1RUfemHKHVhSUyJGOxsiX2uCh8w1SCwIW,exact,Atualizado no banco.
+update,697,1,Ivonilde Oliveira Santos,,1Ss_6SswqgwmWqrPnNFL86c8lzKNbXy4_,Ivonilde Oliveira Santos,https://drive.google.com/drive/folders/1Ss_6SswqgwmWqrPnNFL86c8lzKNbXy4_,exact,Atualizado no banco.
+update,698,1,Ademilson José da Silva,,1opXhJWNpM42qm7AxTG-j0AFSdppx3IBu,Ademilson José da Silva ,https://drive.google.com/drive/folders/1opXhJWNpM42qm7AxTG-j0AFSdppx3IBu,exact,Atualizado no banco.
+update,699,1,Angélica Santos Cruz,,1uJUsOpivIb4fSJWxC8PMteIqxUhoaw7w,Angelica Santos Cruz ,https://drive.google.com/drive/folders/1uJUsOpivIb4fSJWxC8PMteIqxUhoaw7w,exact,Atualizado no banco.
+unmatched,700,1,Erinalva Cassimiro De Sa Azevedo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,701,1,Carlos Roberto De Oliveira Lima,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,702,1,Crispina Silva Souza,,1l8aE1v2d4RMfydhyggzP4Q48TySkeH4s,Crispina Silva Souza  ,https://drive.google.com/drive/folders/1l8aE1v2d4RMfydhyggzP4Q48TySkeH4s,exact,Atualizado no banco.
+update,703,1,Altenir Coelho Sampaio,,1nXGSVXlLcfkGf5KlJGd9fSW_HH8HHEfi,Altenir Coelho Sampaio ,https://drive.google.com/drive/folders/1nXGSVXlLcfkGf5KlJGd9fSW_HH8HHEfi,exact,Atualizado no banco.
+update,704,1,Alessandra Silva Vieira,,1kJiuAEB1l1TrZAhXfZrdLCcqmjpBm76d,Alessandra Silva Vieira,https://drive.google.com/drive/folders/1kJiuAEB1l1TrZAhXfZrdLCcqmjpBm76d,exact,Atualizado no banco.
+unmatched,705,1,Real Pecas E Motores,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,706,1,Rivanildo Da Silva Rodrigues,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,707,1,Iane Rodrigues Dos Santos,,1mykGthxfn3IuHUW3OzLR3_LSMK2oU4k1,Iane Rodrigues dos Santos ,https://drive.google.com/drive/folders/1mykGthxfn3IuHUW3OzLR3_LSMK2oU4k1,exact,Atualizado no banco.
+unmatched,708,1,Joao Dias Dos Reis,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,709,1,Claudinalva Ferraz do Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,710,1,Marta De Oliveira Dias,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,711,1,Regilino Felix De Sousa,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,712,1,Reginaldo Silva Oliveira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,713,1,Lucianne Alencar Da Silva Brasil,,1d5iVm4eUzL3bplvhCyXrjMJ_0t6P3ZIP,Lucianne Alencar da Silva Brasil,https://drive.google.com/drive/folders/1d5iVm4eUzL3bplvhCyXrjMJ_0t6P3ZIP,exact,Atualizado no banco.
+update,714,1,Odilia Dorea Santos,,1AIHtMpwnkrz-Z3DewMoqYfm-ksCSi5kV,Odilia Dórea Santos,https://drive.google.com/drive/folders/1AIHtMpwnkrz-Z3DewMoqYfm-ksCSi5kV,exact,Atualizado no banco.
+update,715,1,Eliseu Santos Araujo,,1drWQXhGr7ENqzLsdbvNuZ4AMCDnFuKUO,Eliseu Santos Araujo,https://drive.google.com/drive/folders/1drWQXhGr7ENqzLsdbvNuZ4AMCDnFuKUO,exact,Atualizado no banco.
+unmatched,716,1,Renato Pereira Nunes,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,717,1,Mateus Bonamichi Fernandes,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,718,1,Edmilson Pinto Carneiro,,1pGvbnobvEAoJvtHyQXBxqBAD51zDUICb,Edmilson Pinto Carneiro ,https://drive.google.com/drive/folders/1pGvbnobvEAoJvtHyQXBxqBAD51zDUICb,exact,Atualizado no banco.
+update,719,1,Fernanda Souza Silva,,1eF0WO7ikJFzMGOMuJ8fW20ppM6KwdouJ,Fernanda Souza Silva,https://drive.google.com/drive/folders/1eF0WO7ikJFzMGOMuJ8fW20ppM6KwdouJ,exact,Atualizado no banco.
+update,720,1,Marilene Batista Brito,,17BsaAEYRsOSsg3IbGLYLbk1gxvcllYgh,Marilene Batista Brito,https://drive.google.com/drive/folders/17BsaAEYRsOSsg3IbGLYLbk1gxvcllYgh,exact,Atualizado no banco.
+update,721,1,Sara Santos Silva,,1EZ13z4eB5hGFdr8X7Hhy_p7eoNVg050P,Sara Santos Silva,https://drive.google.com/drive/folders/1EZ13z4eB5hGFdr8X7Hhy_p7eoNVg050P,exact,Atualizado no banco.
+update,722,1,Jakson Silva Santos,,1c5Mlxvb_UW-h88sHQrQVb0cqZxI74C-t,Jakson Silva Santos,https://drive.google.com/drive/folders/1c5Mlxvb_UW-h88sHQrQVb0cqZxI74C-t,exact,Atualizado no banco.
+unmatched,723,1,Karine Pereira Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,724,1,Ana Lu Vieira dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,725,1,Ione da Silva Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,726,1,Daniela Morais da Silva de Jesus,,1N-dpVKxQJluQiLiE4rUiHZdEQPcnP2BN,Daniela Morais da Silva de Jesus,https://drive.google.com/drive/folders/1N-dpVKxQJluQiLiE4rUiHZdEQPcnP2BN,exact,Atualizado no banco.
+update,727,1,Lindaura Martins de Souza,,1IKkXu2hMqVOVVdrkok9P67oNCQjrEbQ8,Lindaura Martins de Souza,https://drive.google.com/drive/folders/1IKkXu2hMqVOVVdrkok9P67oNCQjrEbQ8,exact,Atualizado no banco.
+update,728,1,José dos Santos,,10_3InZG6ilx2nUg5mCjT5t7xATM6RS9h,Jose dos Santos Pacheco,https://drive.google.com/drive/folders/10_3InZG6ilx2nUg5mCjT5t7xATM6RS9h,prefix,Atualizado no banco.
+update,729,1,Vanilsa Santos Rocha,,1TAKA_HyZ3_07oYMArpU1qKlndRCZde_s,Vanilsa Santos Rocha,https://drive.google.com/drive/folders/1TAKA_HyZ3_07oYMArpU1qKlndRCZde_s,exact,Atualizado no banco.
+update,730,1,Carla da Silva Oliveira,,1NwZ0yqVSPu-Khd4dHsno9BuE4Z2qIyNv,Carla da Silva Oliveira,https://drive.google.com/drive/folders/1NwZ0yqVSPu-Khd4dHsno9BuE4Z2qIyNv,exact,Atualizado no banco.
+unmatched,731,1,Daniel Figueira,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,736,1,Manuel Campos Cirino,,14L9o5r99URh4tuK5CZRob_vfMcTjN-XC,Manuel Campos Cirino,https://drive.google.com/drive/folders/14L9o5r99URh4tuK5CZRob_vfMcTjN-XC,exact,Atualizado no banco.
+unmatched,737,1,Evan,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,738,1,Evanildo Silva Correia,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,740,1,Zilma Santos Lima de Oliveira,,1Bf57C79MrDsicUeHe9htSnL9ULzDok0A,Zilma Santos Lima de Oliveira,https://drive.google.com/drive/folders/1Bf57C79MrDsicUeHe9htSnL9ULzDok0A,exact,Atualizado no banco.
+update,744,1,Antonio Dias da Silva,,18l_DOALlKxeTPQ9HV-YU0svwaKuQHc-G,Antonio Dias da Silva,https://drive.google.com/drive/folders/18l_DOALlKxeTPQ9HV-YU0svwaKuQHc-G,exact,Atualizado no banco.
+update,745,1,Teresinha Barros de Oliveira,,1ertZPNoWfuhCGNop1Ig1SbYlwuS6Qsek,Teresinha Barros de Oliveira,https://drive.google.com/drive/folders/1ertZPNoWfuhCGNop1Ig1SbYlwuS6Qsek,exact,Atualizado no banco.
+unmatched,746,1,Maria Nilva Rocha Olivei,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,748,1,Maria do Carmo Freitas de Oliveira,,1t_bCo3kQEjjRbdAEtp2D8URrdYoTgYkK,Maria do Carmo Freitas de Oliveira ,https://drive.google.com/drive/folders/1t_bCo3kQEjjRbdAEtp2D8URrdYoTgYkK,exact,Atualizado no banco.
+update,750,1,Evanildo Silva Oliveira,,1jo_mLtVVmvJJX5wbqW4tDLS6PjxioKDn,Evanildo Silva Oliveira,https://drive.google.com/drive/folders/1jo_mLtVVmvJJX5wbqW4tDLS6PjxioKDn,exact,Atualizado no banco.
+update,752,1,Lucas Rafael da Silva Cerqueira Santos,,1aEBKkPa5mcUV3EhUVn8CVPTlhU5RZ83F,Lucas Rafael da Silva Cerqueira Santos ,https://drive.google.com/drive/folders/1aEBKkPa5mcUV3EhUVn8CVPTlhU5RZ83F,exact,Atualizado no banco.
+update,753,1,Eliane Machado Grechi,,1OMHwqTtlSzav8yJ6kqbiZPqwWbSsWsN_,Eliane Machado Grechi,https://drive.google.com/drive/folders/1OMHwqTtlSzav8yJ6kqbiZPqwWbSsWsN_,exact,Atualizado no banco.
+unmatched,755,1,Arthur Miguel Silva Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,757,1,AD Distribuidora de Autopeças LTDA,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,758,1,Heloísa Santos Carmo,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,759,1,Luiz Henrique Silva dos Santos,,1HurWn6Im_-O3H2gP__Jh60uzMcu4ZQL_,Luiz Henrique Silva dos Santos,https://drive.google.com/drive/folders/1HurWn6Im_-O3H2gP__Jh60uzMcu4ZQL_,exact,Atualizado no banco.
+update,761,1,Zileide Santos da Silva,,1-TSuSLCpytJkZIoC4WavS5FIn55DN_Qf,Zileide Santos da Silva,https://drive.google.com/drive/folders/1-TSuSLCpytJkZIoC4WavS5FIn55DN_Qf,exact,Atualizado no banco.
+update,762,1,Joiva Ferreira Silva,,1it83Yr7tTJUffozpmSOCGtVqFe1p57Bn,Joiva Ferreira Silva,https://drive.google.com/drive/folders/1it83Yr7tTJUffozpmSOCGtVqFe1p57Bn,exact,Atualizado no banco.
+update,768,1,Ilza Marinho Queiroz,,1KWPoVmmHnl9OqVNhetVRx2XwjCYba4bE,Ilza Marinho Queiroz,https://drive.google.com/drive/folders/1KWPoVmmHnl9OqVNhetVRx2XwjCYba4bE,exact,Atualizado no banco.
+unmatched,770,1,Maria Elizabete Dias da Rocha,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,772,1,Gerson Pereira Lima Filho,,1Xj_s9iNTBhwS9N0hp1ThG5hkIrpeMk3J,Gerson Pereira Lima Filho,https://drive.google.com/drive/folders/1Xj_s9iNTBhwS9N0hp1ThG5hkIrpeMk3J,exact,Atualizado no banco.
+update,774,1,Eliana Silva Cerqueira,,1C2W8sx945KgffdMTL70rT2YtWKPKCcEf,Eliana Silva Cerqueira,https://drive.google.com/drive/folders/1C2W8sx945KgffdMTL70rT2YtWKPKCcEf,exact,Atualizado no banco.
+unmatched,777,1,Rosangela Mateus dos Santos,,,,,ambiguous_exact,Nao foi possivel definir uma pasta unica para este cliente.
+update,778,1,Jorge Santana de Jesus,,1sEM7dCo7trrkHQDQB2CQ7VNPHJJAoxo0,Jorge Santana de Jesus,https://drive.google.com/drive/folders/1sEM7dCo7trrkHQDQB2CQ7VNPHJJAoxo0,exact,Atualizado no banco.
+unmatched,779,1,José Carlos Alves dos Santos,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,784,1,Luiz Carlos Dias Ferraz,,100ljeeqKE_fS1aMfvuwUCEjZ-WOO0CIX,Luiz Carlos Dias Ferraz,https://drive.google.com/drive/folders/100ljeeqKE_fS1aMfvuwUCEjZ-WOO0CIX,exact,Atualizado no banco.
+update,788,1,Diego Gomes dos Santos,,1a-gHbGJXCnVJIQsThJZKPQZeoCTVtHv4,Diego Gomes dos Santos,https://drive.google.com/drive/folders/1a-gHbGJXCnVJIQsThJZKPQZeoCTVtHv4,exact,Atualizado no banco.
+update,790,1,Hailton Ramos de Oliveira,,1LoQ2oEshTn2n0g76BNbbaD20wyVkMNGL,Hailton Ramos de Oliveira,https://drive.google.com/drive/folders/1LoQ2oEshTn2n0g76BNbbaD20wyVkMNGL,exact,Atualizado no banco.
+update,791,1,Maria Elza Morais,,1JszJepd6LrKznXrhp8jkvGoSohXTAW63,Maria Elza Morais,https://drive.google.com/drive/folders/1JszJepd6LrKznXrhp8jkvGoSohXTAW63,exact,Atualizado no banco.
+unmatched,792,1,Luciana Oliveira Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,794,1,Jose Carlos Sousa dos Santos,,1mWyiaqSEqbQBtKlq8vQs5-MZHwcDmBzX,José Carlos Sousa dos Santos,https://drive.google.com/drive/folders/1mWyiaqSEqbQBtKlq8vQs5-MZHwcDmBzX,exact,Atualizado no banco.
+update,798,1,Maria Rita Santos Viana Bacelar,,1S-8_UcJeoX5SFQXCJa2srgo8L-dv-bQP,Maria Rita Santos Viana Bacelar,https://drive.google.com/drive/folders/1S-8_UcJeoX5SFQXCJa2srgo8L-dv-bQP,exact,Atualizado no banco.
+update,799,1,Wadson Alves Almeida,,102hCqJq22Ra2YCdkYccBxMivF1U1riEk,Wadson Alves Almeida,https://drive.google.com/drive/folders/102hCqJq22Ra2YCdkYccBxMivF1U1riEk,exact,Atualizado no banco.
+update,800,1,Rogério Gonçalves Santana Cunha,,1NzV1EtOoXhcXcQoSV1yQebwIwCsKQv41,Rogério Gonçalves Santana Cunha,https://drive.google.com/drive/folders/1NzV1EtOoXhcXcQoSV1yQebwIwCsKQv41,exact,Atualizado no banco.
+unmatched,801,1,Novo cliente,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,802,1,Marcos Iury Lira da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,808,1,Novo cliente (2),,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,815,1,Clarice Silva Feitosa,,1qTUj1NIF2jrhfzof0CmMqq4beMsbYLVw,Clarice Silva Feitosa ,https://drive.google.com/drive/folders/1qTUj1NIF2jrhfzof0CmMqq4beMsbYLVw,exact,Atualizado no banco.
+unmatched,818,1,Paulo Mendes Moares,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,819,1,Getulio de Jesus Santos,,1q962BLZxCW6XKNb6sVWLKOurJLeEsR4m,Getulio de Jesus Santos  ,https://drive.google.com/drive/folders/1q962BLZxCW6XKNb6sVWLKOurJLeEsR4m,exact,Atualizado no banco.
+unmatched,820,1,Joselito Jose da Silva,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,821,1,Marlene Palmeira dos Santos,,1gAg5q0bE1siSuqs4sNuWopfPBWM7e2oq,Marlene Palmeira dos Santos,https://drive.google.com/drive/folders/1gAg5q0bE1siSuqs4sNuWopfPBWM7e2oq,exact,Atualizado no banco.
+update,824,1,Emilly Silva,,1c8cl9gFSfZBtTD9TF2gpj2-l3PWhA6rD,Emilly Silva Bastos,https://drive.google.com/drive/folders/1c8cl9gFSfZBtTD9TF2gpj2-l3PWhA6rD,prefix,Atualizado no banco.
+update,825,1,Reginaldo Silva de Jesus,,1pklHwqGOkxiTEOOX6tCBs08O6up54KQE,Reginaldo Silva de Jesus,https://drive.google.com/drive/folders/1pklHwqGOkxiTEOOX6tCBs08O6up54KQE,exact,Atualizado no banco.
+update,826,1,Vespasiano Oliveira Santos,,1GMiRDaU_qRNFsLALKxMQ85VYE-XY44n2,Vespasiano Oliveira Santos,https://drive.google.com/drive/folders/1GMiRDaU_qRNFsLALKxMQ85VYE-XY44n2,exact,Atualizado no banco.
+update,827,1,Abmael Libarino dos Santos,,1-lnfam_AGjB6NzYAlkF4UViq5DVbtsJf,Abmael Libarino dos Santos,https://drive.google.com/drive/folders/1-lnfam_AGjB6NzYAlkF4UViq5DVbtsJf,exact,Atualizado no banco.
+update,828,1,Matias Silva Brito,,1DFtfzRF7IOHnxMOHCsO7KoPS2i3OFQ5k,Matias Silva Brito,https://drive.google.com/drive/folders/1DFtfzRF7IOHnxMOHCsO7KoPS2i3OFQ5k,exact,Atualizado no banco.
+update,829,1,Marinalva Vitoria dos Santos,,1IQVQzRYKC2qb8Yu-rNwqg_qxp3jdL8w1,Marinalva Vitória dos Santos,https://drive.google.com/drive/folders/1IQVQzRYKC2qb8Yu-rNwqg_qxp3jdL8w1,exact,Atualizado no banco.
+update,830,1,Ana Paula dos Santos,,15BKmDtdXmcxtORHA6SIIPDvfTLdFoTIE,Ana Paula dos Santos,https://drive.google.com/drive/folders/15BKmDtdXmcxtORHA6SIIPDvfTLdFoTIE,exact,Atualizado no banco.
+update,832,1,Andressa de Brito Nascimento,,1qyFgAcakc5BYYo4UefVw435zzY5MXyAd,Andressa de Brito Nascimento ,https://drive.google.com/drive/folders/1qyFgAcakc5BYYo4UefVw435zzY5MXyAd,exact,Atualizado no banco.
+update,833,1,Rosania Palmeira dos Santos,,1DlGA1Wy5Rnf6EFczmnQz9l8pEKb2z4Ub,Rosania Palmeira dos Santos,https://drive.google.com/drive/folders/1DlGA1Wy5Rnf6EFczmnQz9l8pEKb2z4Ub,exact,Atualizado no banco.
+update,834,1,Adauto Santos Aguiar,,1iFGR-fLTV_T3bSGkUoMLzN5I7NDnn03X,Adauto Santos Aguiar Transporte,https://drive.google.com/drive/folders/1iFGR-fLTV_T3bSGkUoMLzN5I7NDnn03X,prefix,Atualizado no banco.
+unmatched,836,1,Kleber Mazzone Gomes de Carvalho,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,837,1,LGP SERVIÇOS LTDA,,1W5pjjji35QOs40nWbf6hHs9ddhLfO43B,LGP Serviços LTDA,https://drive.google.com/drive/folders/1W5pjjji35QOs40nWbf6hHs9ddhLfO43B,exact,Atualizado no banco.
+update,843,1,Fabio Hernane Dias Otoni,,1IA8NMzztAKiSLxYZPcA_Le2BPh2c-yAX,Fabio Hernane Dias Otoni,https://drive.google.com/drive/folders/1IA8NMzztAKiSLxYZPcA_Le2BPh2c-yAX,exact,Atualizado no banco.
+unmatched,844,1,Antonia Damascena Portugal,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,847,1,"J.M. Bergamini - Transportes Ltda - Cnpj:
+  13.051.611 /0001-00 (J%20M%20Bergamini%20-%20Transportes%20Ltda%20-%20Cnpj%2013%20051%20611%20271e2468169d81cda3a8ff7017eeb06a.html)",,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,848,1,Angelo Santos Costa,,1vMmB3jvYng3TiZEGZxRSV9LZMLG1icli,Angelo Santos Costa (Angel) ,https://drive.google.com/drive/folders/1vMmB3jvYng3TiZEGZxRSV9LZMLG1icli,prefix,Atualizado no banco.
+unmatched,849,1,Desconhecido 849,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,850,1,Desconhecido 850,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,851,1,LGP Serviços LTDA,,1W5pjjji35QOs40nWbf6hHs9ddhLfO43B,LGP Serviços LTDA,https://drive.google.com/drive/folders/1W5pjjji35QOs40nWbf6hHs9ddhLfO43B,exact,Atualizado no banco.
+unmatched,852,1,Desconhecido 852,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,855,1,Cliente não informado,,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,856,1,"Sem título, José Roberto Dias Costa",,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,857,1,"Maria Celia Campos de Oliveira, Maria de Fatima de Jesus Almeida",,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+unmatched,858,1,"Reginaldo Silva de Jesus, Renan Silva de Jesus",,,,,no_match,Nao foi possivel definir uma pasta unica para este cliente.
+update,859,1,Thaise Helena Ribeiro de Sousa,,1BFcL9El1AuSWtofB-ZevsLEjRutH4W27,Thaise Helena Ribeiro de Sousa,https://drive.google.com/drive/folders/1BFcL9El1AuSWtofB-ZevsLEjRutH4W27,exact,Atualizado no banco.
+update,860,1,Naiara Queiroz Oliveira,,1yecxBUNUrvH7MAdzFiiXWF0EH7Wzhjmk,Naiara Queiroz Oliveira ,https://drive.google.com/drive/folders/1yecxBUNUrvH7MAdzFiiXWF0EH7Wzhjmk,exact,Atualizado no banco.
+update,861,1,Samara da Silva Oliveira,,14sKyS4Oid29k3CY8nOVG_6bvdg1S0uhL,Samara da Silva Oliveira ,https://drive.google.com/drive/folders/14sKyS4Oid29k3CY8nOVG_6bvdg1S0uhL,exact,Atualizado no banco.

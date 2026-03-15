@@ -1,6 +1,39 @@
 const fs = require('fs');
-const Docxtemplater = require('docxtemplater');
-const PizZip = require('pizzip');
+
+let docxtemplaterLib = null;
+let pizZipLib = null;
+let mammothLib = null;
+let libreOfficeConvertLib = null;
+
+function getDocxtemplater() {
+  if (!docxtemplaterLib) {
+    // Lazy-load to avoid blocking server bootstrap on optional heavy deps.
+    docxtemplaterLib = require('docxtemplater');
+  }
+  return docxtemplaterLib;
+}
+
+function getPizZip() {
+  if (!pizZipLib) {
+    // Lazy-load to avoid blocking server bootstrap on optional heavy deps.
+    pizZipLib = require('pizzip');
+  }
+  return pizZipLib;
+}
+
+function getMammoth() {
+  if (!mammothLib) {
+    mammothLib = require('mammoth');
+  }
+  return mammothLib;
+}
+
+function getLibreOfficeConvert() {
+  if (!libreOfficeConvertLib) {
+    libreOfficeConvertLib = require('libreoffice-convert');
+  }
+  return libreOfficeConvertLib;
+}
 
 function normalizeDocxXml(xml) {
   // Merge broken runs to avoid tags like {{ce</w:t></w:r><w:r><w:t>p}}
@@ -27,6 +60,8 @@ function formatMergeData(cliente) {
 }
 
 function renderDocxBuffer(templatePath, data) {
+  const Docxtemplater = getDocxtemplater();
+  const PizZip = getPizZip();
   const content = fs.readFileSync(templatePath, 'binary');
   const zip = new PizZip(content);
   const documentXml = zip.file('word/document.xml');
@@ -64,14 +99,14 @@ function renderDocxBuffer(templatePath, data) {
 }
 
 async function convertDocxToHtml(buffer) {
-  const mammoth = require('mammoth');
+  const mammoth = getMammoth();
   const result = await mammoth.convertToHtml({ buffer });
   return result.value || '';
 }
 
 function convertDocxToPdf(buffer) {
   // Lazy-load to avoid blocking server startup when LibreOffice is unavailable.
-  const libre = require('libreoffice-convert');
+  const libre = getLibreOfficeConvert();
   return new Promise((resolve, reject) => {
     libre.convert(buffer, '.pdf', undefined, (err, done) => {
       if (err) return reject(err);

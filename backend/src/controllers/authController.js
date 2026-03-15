@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt = require('../utils/jwt');
 const db = require('../db');
 const { requireFields } = require('../utils/validators');
 const { sendVerificationCodeEmail } = require('../services/emailService');
@@ -49,11 +49,16 @@ function gerarToken(user, escritorioAtual) {
 
 async function listarEscritoriosDoUsuario(usuarioId) {
   const memberships = await db.query(
-    `SELECT me.escritorio_id AS id, e.nome, me.papel
+    `SELECT me.escritorio_id AS id, e.nome, me.papel, me.created_at AS vinculo_created_at
      FROM membros_escritorio me
      JOIN escritorios e ON e.id = me.escritorio_id
      WHERE me.usuario_id = $1
-     ORDER BY CASE me.papel WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 ELSE 3 END, me.escritorio_id ASC`,
+     ORDER BY CASE
+       WHEN me.papel IN ('owner', 'admin', 'administrador') THEN 1
+       WHEN me.papel IN ('colaborador', 'advogado') THEN 2
+       WHEN me.papel = 'estagiario' THEN 3
+       ELSE 4
+     END, me.escritorio_id ASC`,
     [usuarioId]
   );
 
@@ -61,6 +66,15 @@ async function listarEscritoriosDoUsuario(usuarioId) {
     id: Number(row.id),
     nome: row.nome,
     papel: row.papel,
+    _vinculo_created_at: row.vinculo_created_at ? new Date(row.vinculo_created_at).getTime() : 0,
+  }));
+}
+
+function serializarEscritorios(escritorios) {
+  return (escritorios || []).map((item) => ({
+    id: Number(item.id),
+    nome: item.nome,
+    papel: item.papel,
   }));
 }
 
@@ -129,6 +143,18 @@ function escolherEscritorio(escritorios, requestedId) {
     if (requested) {
       return requested;
     }
+  }
+
+  // Quando o usuário já pertence a múltiplos escritórios (ex.: conta antiga vinculada como colaborador),
+  // priorizamos o vínculo mais recente para evitar cair por padrão em escritório antigo/vazio.
+  const latestMembership = escritorios
+    .slice()
+    .sort(
+      (a, b) =>
+        Number(b._vinculo_created_at || 0) - Number(a._vinculo_created_at || 0) || Number(b.id) - Number(a.id)
+    )[0];
+  if (latestMembership) {
+    return latestMembership;
   }
 
   return escritorios[0];
@@ -360,7 +386,7 @@ async function registerVerify(req, res) {
       mensagem: 'Cadastro concluído com sucesso.',
       token,
       usuario: { id: user.id, nome: user.nome, email: user.email, usuario: user.usuario || null },
-      escritorios,
+      escritorios: serializarEscritorios(escritorios),
       escritorio_atual: escritorioAtual,
     });
   } catch (err) {
@@ -436,7 +462,7 @@ async function login(req, res) {
     return res.json({
       token,
       usuario: { id: user.id, nome: user.nome, email: user.email, usuario: user.usuario || null },
-      escritorios,
+      escritorios: serializarEscritorios(escritorios),
       escritorio_atual: escritorioAtual,
     });
   } catch (err) {
@@ -462,7 +488,7 @@ async function me(req, res) {
         escritorio_id: req.escritorio ? req.escritorio.id : req.user.escritorio_id,
         papel: req.escritorio ? req.escritorio.papel : req.user.papel,
       },
-      escritorios,
+      escritorios: serializarEscritorios(escritorios),
       escritorio_atual: req.escritorio || null,
     });
   } catch (err) {

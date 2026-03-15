@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt = require('../utils/jwt');
 const db = require('../db');
 
 function normalizeSlug(text) {

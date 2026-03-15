@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS membros_escritorio (
   id SERIAL PRIMARY KEY,
   escritorio_id INTEGER NOT NULL REFERENCES escritorios(id) ON DELETE CASCADE,
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  papel TEXT NOT NULL CHECK (papel IN ('owner', 'admin', 'colaborador')),
+  papel TEXT NOT NULL CHECK (papel IN ('owner', 'admin', 'colaborador', 'administrador', 'advogado', 'estagiario')),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   UNIQUE (escritorio_id, usuario_id)
 );
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS processos (
   id SERIAL PRIMARY KEY,
   escritorio_id INTEGER REFERENCES escritorios(id) ON DELETE CASCADE,
   cliente_id INTEGER NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
-  numero_processo TEXT UNIQUE NOT NULL,
+  numero_processo TEXT NOT NULL,
   cnj_ano INTEGER,
   cnj_tribunal INTEGER,
   cnj_sequencial INTEGER,
@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS atividades (
   id SERIAL PRIMARY KEY,
   escritorio_id INTEGER REFERENCES escritorios(id) ON DELETE CASCADE,
   processo_id INTEGER REFERENCES processos(id) ON DELETE SET NULL,
+  cliente_id INTEGER REFERENCES clientes(id) ON DELETE SET NULL,
   responsavel_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
   titulo VARCHAR(200) NOT NULL,
   descricao TEXT,
@@ -175,6 +176,45 @@ CREATE TABLE IF NOT EXISTS documentos_modelos (
   tamanho INTEGER NOT NULL,
   mime_type VARCHAR(120) NOT NULL,
   uploaded_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS chat_conversas (
+  id SERIAL PRIMARY KEY,
+  escritorio_id INTEGER NOT NULL REFERENCES escritorios(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL CHECK (tipo IN ('direta', 'grupo')),
+  titulo TEXT,
+  criada_por_usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS chat_participantes (
+  id SERIAL PRIMARY KEY,
+  conversa_id INTEGER NOT NULL REFERENCES chat_conversas(id) ON DELETE CASCADE,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  ultimo_lido_em TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (conversa_id, usuario_id)
+);
+
+CREATE TABLE IF NOT EXISTS chat_mensagens (
+  id SERIAL PRIMARY KEY,
+  conversa_id INTEGER NOT NULL REFERENCES chat_conversas(id) ON DELETE CASCADE,
+  autor_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  texto TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  deleted_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS chat_anexos (
+  id SERIAL PRIMARY KEY,
+  mensagem_id INTEGER NOT NULL REFERENCES chat_mensagens(id) ON DELETE CASCADE,
+  nome_original VARCHAR(255) NOT NULL,
+  caminho VARCHAR(255) NOT NULL,
+  tamanho INTEGER NOT NULL,
+  mime_type VARCHAR(120) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS escritorio_areas_atuacao (
@@ -215,6 +255,7 @@ CREATE TABLE IF NOT EXISTS escritorio_config (
   escritorio_id INTEGER PRIMARY KEY REFERENCES escritorios(id) ON DELETE CASCADE,
   nome_exibicao TEXT,
   djen_uf_padrao CHAR(2) DEFAULT 'BA',
+  tema TEXT NOT NULL DEFAULT 'classic',
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -275,18 +316,25 @@ CREATE INDEX IF NOT EXISTS idx_cadastro_verificacoes_email_created ON cadastro_v
 CREATE INDEX IF NOT EXISTS idx_cadastro_verificacoes_expires_at ON cadastro_verificacoes(expires_at);
 CREATE INDEX IF NOT EXISTS idx_clientes_escritorio_id ON clientes(escritorio_id);
 CREATE INDEX IF NOT EXISTS idx_processos_escritorio_id ON processos(escritorio_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_processos_escritorio_numero_unique ON processos(escritorio_id, numero_processo);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_escritorio_areas_nome_unique ON escritorio_areas_atuacao(escritorio_id, LOWER(nome));
 CREATE INDEX IF NOT EXISTS idx_escritorio_areas_ordem ON escritorio_areas_atuacao(escritorio_id, ordem, nome);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_escritorio_oabs_unique ON escritorio_oabs_djen(escritorio_id, numero, uf);
 CREATE INDEX IF NOT EXISTS idx_escritorio_oabs_ativo ON escritorio_oabs_djen(escritorio_id, ativo, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_escritorio_procedimentos_ordem ON escritorio_procedimentos(escritorio_id, ordem, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_atividades_processo_id ON atividades(processo_id);
+CREATE INDEX IF NOT EXISTS idx_atividades_cliente_id ON atividades(cliente_id);
 CREATE INDEX IF NOT EXISTS idx_atividades_escritorio_id ON atividades(escritorio_id);
 CREATE INDEX IF NOT EXISTS idx_atividades_prazo ON atividades(prazo);
 CREATE INDEX IF NOT EXISTS idx_atividades_status ON atividades(status);
 CREATE INDEX IF NOT EXISTS idx_documentos_processo_id ON documentos(processo_id);
 CREATE INDEX IF NOT EXISTS idx_documentos_modelos_nome ON documentos_modelos(nome);
 CREATE INDEX IF NOT EXISTS idx_documentos_modelos_escritorio_id ON documentos_modelos(escritorio_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_chat_conversa_geral_por_escritorio ON chat_conversas(escritorio_id) WHERE tipo = 'grupo' AND titulo = 'Geral';
+CREATE INDEX IF NOT EXISTS idx_chat_conversas_escritorio_updated ON chat_conversas(escritorio_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_participantes_usuario ON chat_participantes(usuario_id, conversa_id);
+CREATE INDEX IF NOT EXISTS idx_chat_mensagens_conversa_created ON chat_mensagens(conversa_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_anexos_mensagem ON chat_anexos(mensagem_id);
 CREATE INDEX IF NOT EXISTS idx_processo_andamentos_processo_id ON processo_andamentos(processo_id);
 CREATE INDEX IF NOT EXISTS idx_processo_andamentos_data_ultima ON processo_andamentos(data_ultima_movimentacao);
 CREATE INDEX IF NOT EXISTS idx_processo_andamentos_logs_processo_id ON processo_andamentos_logs(processo_id);

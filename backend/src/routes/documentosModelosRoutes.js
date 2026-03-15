@@ -2,7 +2,7 @@ const express = require('express');
 const auth = require('../middleware/auth');
 const { attachEscritorioContext } = require('../middleware/escritorio');
 const controller = require('../controllers/documentosModelosController');
-const { uploadTemplate } = require('../utils/templateUpload');
+const { uploadTemplate, uploadTemplateChunk } = require('../utils/templateUpload');
 
 const router = express.Router();
 
@@ -17,6 +17,15 @@ router.post('/', (req, res, next) => {
     return controller.criar(req, res, next);
   });
 });
+router.post('/chunk', (req, res, next) => {
+  uploadTemplateChunk.single('chunk')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({ erro: err.message || 'Erro ao enviar parte do arquivo.' });
+    }
+    return controller.uploadChunk(req, res, next);
+  });
+});
+router.post('/chunk/finalize', controller.finalizeChunkUpload);
 router.delete('/:id', controller.remover);
 router.post('/:id/preview', controller.preview);
 router.get('/:id/pdf', controller.baixarPdf);

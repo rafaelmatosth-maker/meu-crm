@@ -68,6 +68,14 @@ Servidor: `http://localhost:3000`
 - `GET /documentos/:id/download`
 - `DELETE /documentos/:id`
 
+- `GET /chat/conversas`
+- `GET /chat/colaboradores`
+- `POST /chat/conversas/direta`
+- `GET /chat/conversas/:id/mensagens`
+- `POST /chat/conversas/:id/mensagens` (multipart/form-data: `texto` e/ou `arquivos[]`)
+- `POST /chat/conversas/:id/ler`
+- `GET /chat/anexos/:id/download`
+
 - `GET /publicacoes-djen?oab=SP123456&uf=SP&data=2026-02-11&page=1&limit=20`
 
 ## Filtros e paginação
@@ -120,6 +128,46 @@ Migration adicional para ambiente existente:
 Migration adicional para ambiente existente:
 
 - `database/migrations/20260212_email_verification_signup.sql`
+
+## Sync Google Drive -> clientes.link_pasta (lote)
+
+Para preencher `clientes.link_pasta` automaticamente a partir das pastas no Google Drive (match por nome do cliente):
+
+1. Crie um OAuth Client no Google Cloud Console do tipo **Desktop app**.
+2. Baixe o JSON e salve em `backend/drive.credentials.json` (arquivo local, nao versionar).
+3. Rode em dry-run (gera relatorio CSV em `reports/`):
+
+```bash
+npm run sync:drive-client-folders -- --parent "https://drive.google.com/drive/folders/PASTA_RAIZ_ID"
+```
+
+4. Se o relatorio estiver OK, aplique no banco:
+
+```bash
+npm run sync:drive-client-folders -- --parent "PASTA_RAIZ_ID" --apply
+```
+
+### Alternativa (macOS + Google Drive for Desktop, sem API)
+
+Se voce usa o Google Drive sincronizado no Mac, da para puxar o ID das pastas direto da pasta local (xattr `com.google.drivefs.item-id#S`), sem configurar OAuth/API.
+
+Exemplo:
+
+```bash
+npm run sync:drive-client-folders -- --local-root "$HOME/Library/CloudStorage/GoogleDrive-SEU_EMAIL/Meu Drive/01. Matos Advocacia/00. Clientes"
+```
+
+E para aplicar:
+
+```bash
+npm run sync:drive-client-folders -- --local-root "$HOME/Library/CloudStorage/GoogleDrive-SEU_EMAIL/Meu Drive/01. Matos Advocacia/00. Clientes" --apply
+```
+
+Opcoes uteis:
+
+- `--escritorio-id 1` para filtrar por escritorio.
+- `--overwrite` para sobrescrever links existentes.
+- `--recursive` para buscar pastas recursivamente (se os clientes nao estiverem como filhos diretos da pasta raiz).
 
 ## Exemplos (escritórios)
 

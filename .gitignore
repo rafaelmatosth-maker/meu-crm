@@ -1,0 +1,15 @@
+.DS_Store
+*.log
+
+# Node
+node_modules/
+backend/node_modules/
+
+# Local env/secrets
+backend/.env
+backend/drive.credentials.json
+backend/drive.token.json
+
+# Uploads (local)
+backend/uploads/
+

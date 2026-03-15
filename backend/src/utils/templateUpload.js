@@ -33,7 +33,16 @@ const uploadTemplate = multer({
   },
 });
 
+const uploadTemplateChunk = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    // Keep each request body small to pass strict proxy limits.
+    fileSize: 1024 * 1024,
+  },
+});
+
 module.exports = {
   uploadTemplate,
+  uploadTemplateChunk,
   templateUploadDir,
 };

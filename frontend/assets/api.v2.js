@@ -1,6 +1,13 @@
-const API_BASE_URL = window.location.origin.startsWith('http')
-  ? window.location.origin
-  : 'http://localhost:3000';
+const currentOrigin = String(window.location.origin || '');
+const explicitApiBase = String(window.localStorage.getItem('api_base_url') || '').trim();
+const API_BASE_URL = explicitApiBase || currentOrigin || 'http://localhost:3000';
+
+function getApiBaseCandidates() {
+  const candidates = [API_BASE_URL, currentOrigin, 'http://localhost:3000']
+    .map((value) => String(value || '').trim().replace(/\/+$/, ''))
+    .filter((value) => /^https?:\/\//i.test(value));
+  return Array.from(new Set(candidates));
+}
 
 function getToken() {
   const local = localStorage.getItem('token');
@@ -50,6 +57,8 @@ function withAuthHeaders(headers = {}) {
 
 async function apiRequest(path, options = {}) {
   const headers = withAuthHeaders(options.headers || {});
+  if (!headers.Accept) headers.Accept = 'application/json';
+  if (!headers['X-Requested-With']) headers['X-Requested-With'] = 'XMLHttpRequest';
   if (!headers['Content-Type'] && options.body) {
     headers['Content-Type'] = 'application/json';
   }
@@ -74,7 +83,7 @@ async function apiRequest(path, options = {}) {
 async function apiFormRequest(path, formData, method = 'POST') {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method,
-    headers: withAuthHeaders(),
+    headers: withAuthHeaders({ Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }),
     credentials: 'include',
     body: formData,
   });
@@ -90,15 +99,26 @@ async function apiFormRequest(path, formData, method = 'POST') {
 }
 
 async function login(email, senha) {
-  const escritorioId = getEscritorioId();
-  const data = await apiRequest('/auth/login', {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
-    body: JSON.stringify({
-      email,
-      senha,
-      ...(escritorioId ? { escritorio_id: escritorioId } : {}),
-    }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ email, senha }),
   });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data.erro || 'Erro inesperado.';
+    const error = new Error(message);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+
   setToken(data.token);
   if (data.escritorio_atual && data.escritorio_atual.id) {
     setEscritorioId(data.escritorio_atual.id);
@@ -219,6 +239,63 @@ const api = {
   publicacoesDjen: {
     list: (params) => apiRequest(`/publicacoes-djen${buildQuery(params)}`),
   },
+  chat: {
+    listConversas: () => apiRequest('/chat/conversas'),
+    listColaboradores: () => apiRequest('/chat/colaboradores'),
+    criarConversaDireta: (usuarioId) =>
+      apiRequest('/chat/conversas/direta', {
+        method: 'POST',
+        body: JSON.stringify({ usuario_id: usuarioId }),
+      }),
+    listMensagens: (conversaId, params) =>
+      apiRequest(`/chat/conversas/${conversaId}/mensagens${buildQuery(params)}`),
+    marcarComoLida: (conversaId) => apiRequest(`/chat/conversas/${conversaId}/ler`, { method: 'POST' }),
+    enviarMensagem: async (conversaId, texto, arquivos = []) => {
+      const formData = new FormData();
+      if (texto !== undefined && texto !== null) {
+        formData.append('texto', String(texto));
+      }
+      (arquivos || []).forEach((arquivo) => {
+        formData.append('arquivos', arquivo);
+      });
+
+      const response = await fetch(`${API_BASE_URL}/chat/conversas/${conversaId}/mensagens`, {
+        method: 'POST',
+        headers: withAuthHeaders({ Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }),
+        body: formData,
+        credentials: 'include',
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = data.erro || 'Erro ao enviar mensagem.';
+        const error = new Error(message);
+        error.status = response.status;
+        error.data = data;
+        throw error;
+      }
+      return data;
+    },
+    downloadAnexo: async (anexoId, filename) => {
+      const response = await fetch(`${API_BASE_URL}/chat/anexos/${anexoId}/download`, {
+        headers: withAuthHeaders(),
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.erro || 'Erro ao baixar anexo.');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'anexo';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    },
+  },
   ajustes: {
     resumo: () => apiRequest('/ajustes'),
     getConfig: () => apiRequest('/ajustes/config'),
@@ -236,6 +313,69 @@ const api = {
     createOab: (payload) => apiRequest('/ajustes/oabs', { method: 'POST', body: JSON.stringify(payload) }),
     updateOab: (id, payload) => apiRequest(`/ajustes/oabs/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
     removeOab: (id) => apiRequest(`/ajustes/oabs/${id}`, { method: 'DELETE' }),
+    previewImportacaoProcessos: (payload) =>
+      apiRequest('/ajustes/importacao-processos/preview', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    importarProcessos: (payload) =>
+      apiRequest('/ajustes/importacao-processos/importar', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+    importarClientesProcessosCsv: async (file) => {
+      const formData = new FormData();
+      formData.append('arquivo', file);
+      let lastError = null;
+      for (const baseUrl of getApiBaseCandidates()) {
+        const response = await fetch(`${baseUrl}/ajustes/importacao-csv/clientes-processos`, {
+          method: 'POST',
+          headers: withAuthHeaders({ Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }),
+          credentials: 'include',
+          body: formData,
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.ok) return data;
+        if (response.status === 404 && data?.erro === 'Rota não encontrada.') {
+          lastError = new Error(`Rota não encontrada em ${baseUrl}.`);
+          continue;
+        }
+        const error = new Error(data.erro || 'Erro inesperado.');
+        error.status = response.status;
+        error.data = data;
+        throw error;
+      }
+      throw lastError || new Error('Rota de importação CSV não encontrada no backend ativo.');
+    },
+    downloadTemplateImportacaoCsv: async () => {
+      let lastError = null;
+      for (const baseUrl of getApiBaseCandidates()) {
+        const response = await fetch(`${baseUrl}/ajustes/importacao-csv/clientes-processos/template`, {
+          method: 'GET',
+          headers: withAuthHeaders({ Accept: 'text/csv,application/octet-stream' }),
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'importacao_clientes_processos_template.csv';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 404 && data?.erro === 'Rota não encontrada.') {
+          lastError = new Error(`Rota não encontrada em ${baseUrl}.`);
+          continue;
+        }
+        throw new Error(data.erro || 'Erro ao baixar template CSV.');
+      }
+      throw lastError || new Error('Rota de download do template não encontrada no backend ativo.');
+    },
     listProcedimentos: () => apiRequest('/ajustes/procedimentos'),
     createProcedimento: async (payload, file) => {
       const formData = new FormData();

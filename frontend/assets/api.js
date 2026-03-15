@@ -1,6 +1,6 @@
-const API_BASE_URL = window.location.origin.startsWith('http')
-  ? window.location.origin
-  : 'http://localhost:3000';
+const currentOrigin = String(window.location.origin || '');
+const explicitApiBase = String(window.localStorage.getItem('api_base_url') || '').trim();
+const API_BASE_URL = explicitApiBase || currentOrigin || 'http://localhost:3000';
 
 function getToken() {
   const local = localStorage.getItem('token');
@@ -50,6 +50,8 @@ function withAuthHeaders(headers = {}) {
 
 async function apiRequest(path, options = {}) {
   const headers = withAuthHeaders(options.headers || {});
+  if (!headers.Accept) headers.Accept = 'application/json';
+  if (!headers['X-Requested-With']) headers['X-Requested-With'] = 'XMLHttpRequest';
   if (!headers['Content-Type'] && options.body) {
     headers['Content-Type'] = 'application/json';
   }
@@ -69,15 +71,26 @@ async function apiRequest(path, options = {}) {
 }
 
 async function login(email, senha) {
-  const escritorioId = getEscritorioId();
-  const data = await apiRequest('/auth/login', {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
-    body: JSON.stringify({
-      email,
-      senha,
-      ...(escritorioId ? { escritorio_id: escritorioId } : {}),
-    }),
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ email, senha }),
   });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = data.erro || 'Erro inesperado.';
+    const error = new Error(message);
+    error.status = response.status;
+    error.data = data;
+    throw error;
+  }
+
   setToken(data.token);
   if (data.escritorio_atual && data.escritorio_atual.id) {
     setEscritorioId(data.escritorio_atual.id);
@@ -107,6 +120,83 @@ function buildQuery(params = {}) {
   });
   const qs = query.toString();
   return qs ? `?${qs}` : '';
+}
+
+async function parseResponseBody(response) {
+  const rawText = await response.text().catch(() => '');
+  let data = {};
+  try {
+    data = rawText ? JSON.parse(rawText) : {};
+  } catch (_) {
+    data = {};
+  }
+  return { rawText, data };
+}
+
+function buildChunkUploadId() {
+  return `modelo_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+async function uploadModeloByChunks(nome, file) {
+  const chunkSize = 512 * 1024;
+  const totalChunks = Math.max(1, Math.ceil((Number(file.size) || 0) / chunkSize));
+  const uploadId = buildChunkUploadId();
+
+  for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex += 1) {
+    const start = chunkIndex * chunkSize;
+    const end = Math.min(start + chunkSize, file.size);
+    const chunkBlob = file.slice(start, end);
+    const formData = new FormData();
+    formData.append('upload_id', uploadId);
+    formData.append('total_chunks', String(totalChunks));
+    formData.append('chunk_index', String(chunkIndex));
+    formData.append('original_name', String(file.name || 'modelo.docx'));
+    formData.append('chunk', chunkBlob, String(file.name || 'modelo.docx'));
+
+    const chunkResp = await fetch(`${API_BASE_URL}/documentos-modelos/chunk`, {
+      method: 'POST',
+      headers: withAuthHeaders({
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      }),
+      body: formData,
+      credentials: 'include',
+    });
+
+    const { rawText, data } = await parseResponseBody(chunkResp);
+    if (!chunkResp.ok) {
+      const rawTrimmed = String(rawText || '').trim();
+      const safeRawDetail =
+        rawTrimmed && !rawTrimmed.startsWith('<') ? ` (${rawTrimmed.slice(0, 250)})` : '';
+      const detalhe = data.detalhe ? ` (${data.detalhe})` : safeRawDetail;
+      throw new Error((data.erro || `Erro ao enviar parte ${chunkIndex + 1}/${totalChunks}.`) + detalhe);
+    }
+  }
+
+  const finalizeResp = await fetch(`${API_BASE_URL}/documentos-modelos/chunk/finalize`, {
+    method: 'POST',
+    headers: withAuthHeaders({
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/json',
+    }),
+    body: JSON.stringify({
+      upload_id: uploadId,
+      nome,
+      original_name: String(file.name || 'modelo.docx'),
+    }),
+    credentials: 'include',
+  });
+
+  const { rawText, data } = await parseResponseBody(finalizeResp);
+  if (!finalizeResp.ok) {
+    const rawTrimmed = String(rawText || '').trim();
+    const safeRawDetail =
+      rawTrimmed && !rawTrimmed.startsWith('<') ? ` (${rawTrimmed.slice(0, 250)})` : '';
+    const detalhe = data.detalhe ? ` (${data.detalhe})` : safeRawDetail;
+    throw new Error((data.erro || 'Erro ao finalizar upload em partes.') + detalhe);
+  }
+  return data;
 }
 
 const api = {
@@ -191,18 +281,20 @@ const api = {
         method: 'POST',
         headers: withAuthHeaders(),
         body: formData,
+        credentials: 'include',
       });
 
-      const rawText = await response.text().catch(() => '');
-      let data = {};
-      try {
-        data = rawText ? JSON.parse(rawText) : {};
-      } catch (_) {
-        data = {};
-      }
+      const { rawText, data } = await parseResponseBody(response);
       if (!response.ok) {
-        const detalhe = data.detalhe ? ` (${data.detalhe})` : rawText ? ` (${rawText})` : '';
-        const message = (data.erro || 'Erro inesperado.') + detalhe;
+        if (response.status === 413) {
+          return uploadModeloByChunks(nome, file);
+        }
+
+        const rawTrimmed = String(rawText || '').trim();
+        const safeRawDetail =
+          rawTrimmed && !rawTrimmed.startsWith('<') ? ` (${rawTrimmed.slice(0, 300)})` : '';
+        const detalhe = data.detalhe ? ` (${data.detalhe})` : safeRawDetail;
+        const message = (data.erro || `Erro no upload (${response.status}).`) + detalhe;
         throw new Error(message);
       }
       return data;
@@ -274,6 +366,59 @@ const api = {
   },
   publicacoesDjen: {
     list: (params) => apiRequest(`/publicacoes-djen${buildQuery(params)}`),
+  },
+  chat: {
+    listConversas: () => apiRequest('/chat/conversas'),
+    listColaboradores: () => apiRequest('/chat/colaboradores'),
+    criarConversaDireta: (usuarioId) =>
+      apiRequest('/chat/conversas/direta', {
+        method: 'POST',
+        body: JSON.stringify({ usuario_id: usuarioId }),
+      }),
+    listMensagens: (conversaId, params) =>
+      apiRequest(`/chat/conversas/${conversaId}/mensagens${buildQuery(params)}`),
+    marcarComoLida: (conversaId) => apiRequest(`/chat/conversas/${conversaId}/ler`, { method: 'POST' }),
+    enviarMensagem: async (conversaId, texto, arquivos = []) => {
+      const formData = new FormData();
+      if (texto !== undefined && texto !== null) {
+        formData.append('texto', String(texto));
+      }
+      (arquivos || []).forEach((arquivo) => {
+        formData.append('arquivos', arquivo);
+      });
+
+      const response = await fetch(`${API_BASE_URL}/chat/conversas/${conversaId}/mensagens`, {
+        method: 'POST',
+        headers: withAuthHeaders({ Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' }),
+        body: formData,
+        credentials: 'include',
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.erro || 'Erro ao enviar mensagem.');
+      }
+      return data;
+    },
+    downloadAnexo: async (anexoId, filename) => {
+      const response = await fetch(`${API_BASE_URL}/chat/anexos/${anexoId}/download`, {
+        headers: withAuthHeaders(),
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.erro || 'Erro ao baixar anexo.');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename || 'anexo';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    },
   },
   auth: {
     setEscritorio: (escritorioId) => setEscritorioId(escritorioId),
